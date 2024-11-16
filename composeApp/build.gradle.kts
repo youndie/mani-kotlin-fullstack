@@ -11,20 +11,6 @@ plugins {
     alias(libs.plugins.pluginSerialization)
 }
 
-compose.desktop {
-    application {
-
-        // all your other configuration, etc
-        jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
-
-        if (System.getProperty("os.name").contains("Mac")) {
-            jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
-            jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
-        }
-    }
-}
-
 composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
     metricsDestination = layout.buildDirectory.dir("compose_compiler")
@@ -79,6 +65,7 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.ktor.client.cio)
         }
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
@@ -101,17 +88,15 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.navigation.compose)
             implementation(libs.compose.charts)
-
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(projects.shared)
         }
 
         desktopMain.dependencies {
-            implementation(compose.desktop.macos_arm64)
-//            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.cio)
+            implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutines.swing)
         }
 
         iosMain.dependencies {
@@ -164,6 +149,19 @@ fun Project.applyKtorWasmWorkaround(version: String) {
                     useVersion(version)
                 }
             }
+        }
+    }
+}
+
+compose.desktop {
+    application {
+        // all your other configuration, etc
+        jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
+        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
+
+        if (System.getProperty("os.name").contains("Mac")) {
+            jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
+            jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
         }
     }
 }
