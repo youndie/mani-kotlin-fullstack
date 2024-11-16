@@ -2,7 +2,6 @@ package ru.workinprogress.feature.chart
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -22,7 +21,7 @@ class ChartViewModel(transactionRepository: TransactionRepository) : ViewModel()
     val observe = transactionRepository.dataStateFlow
         .filter(List<Transaction>::isNotEmpty)
         .map { it.toChart(from = defaultMinDate) }
-        .flowOn(Dispatchers.IO)
+        .flowOn(Dispatchers.Default)
 
     private fun List<Transaction>.toChart(from: LocalDate): ChartUi {
         return ChartUi(toChartInternal().let { chart -> chart.copy(days = chart.days.filter { it.key > from }) })

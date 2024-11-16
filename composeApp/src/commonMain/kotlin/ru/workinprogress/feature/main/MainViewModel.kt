@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -96,7 +95,7 @@ class MainViewModel(
             }
 
             is UseCase.Result.Success -> {
-                result.data.flowOn(Dispatchers.IO).collectLatest { transactions ->
+                result.data.flowOn(Dispatchers.Default).collectLatest { transactions ->
                     state.update { state ->
                         state.copy(transactions = transactions.run { simulate() }
                             .filterValues { transactions -> transactions.isNotEmpty() }

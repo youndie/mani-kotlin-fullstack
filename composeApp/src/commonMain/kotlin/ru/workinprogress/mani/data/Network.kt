@@ -65,7 +65,7 @@ fun appModule() = listOf(
 
                             val response = httpClient.post(AuthResource.Refresh()) {
                                 markAsRefreshTokenRequest()
-                                setBody(RefreshTokenRequest(refreshToken))
+                                setBody(RefreshTokenRequest(refreshToken.orEmpty()))
                             }
 
                             val data = response.body<TokensResponse>()

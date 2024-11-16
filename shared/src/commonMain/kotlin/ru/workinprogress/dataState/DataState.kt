@@ -2,7 +2,6 @@ package ru.workinprogress.dataState
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
@@ -16,11 +15,11 @@ sealed class DataState<T> {
     data class Error<T>(val throwable: Throwable) : DataState<T>()
 }
 
-fun <T> NonParameterizedUseCase<T>.toDataState(dispatcher: CoroutineDispatcher = Dispatchers.IO): Flow<DataState<T>> {
+fun <T> NonParameterizedUseCase<T>.toDataState(dispatcher: CoroutineDispatcher = Dispatchers.Default): Flow<DataState<T>> {
     return toDataState(EmptyParams, dispatcher)
 }
 
-fun <P, T> UseCase<P, T>.toDataState(p: P, dispatcher: CoroutineDispatcher = Dispatchers.IO): Flow<DataState<T>> {
+fun <P, T> UseCase<P, T>.toDataState(p: P, dispatcher: CoroutineDispatcher = Dispatchers.Default): Flow<DataState<T>> {
     return flow {
         emit(DataState.Loading<T>())
 

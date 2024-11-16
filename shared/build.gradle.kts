@@ -23,22 +23,22 @@ kotlin {
 
     jvm()
 
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        browser {
-//            val rootDirPath = project.rootDir.path
-//            val projectDirPath = project.projectDir.path
-//            commonWebpackConfig {
-//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-//                    static = (static ?: mutableListOf()).apply {
-//                        // Serve sources to debug inside browser
-//                        add(rootDirPath)
-//                        add(projectDirPath)
-//                    }
-//                }
-//            }
-//        }
-//    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser {
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
+            commonWebpackConfig {
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                }
+            }
+        }
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -49,6 +49,23 @@ kotlin {
 
             implementation(libs.kotlin.test)
 
+        }
+    }
+}
+
+
+applyKtorWasmWorkaround("3.0.0-beta-2")
+
+fun Project.applyKtorWasmWorkaround(version: String) {
+    configurations.all {
+        if (name.startsWith("wasmJs")) {
+            resolutionStrategy.eachDependency {
+                if (requested.group.startsWith("io.ktor") &&
+                    requested.name.startsWith("ktor-")
+                ) {
+                    useVersion(version)
+                }
+            }
         }
     }
 }

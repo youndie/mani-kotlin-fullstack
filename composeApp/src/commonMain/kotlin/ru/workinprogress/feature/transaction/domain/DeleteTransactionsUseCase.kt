@@ -2,7 +2,6 @@ package ru.workinprogress.feature.transaction.domain
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -15,7 +14,7 @@ class DeleteTransactionsUseCase(
 
     override suspend fun invoke(params: List<String>): Result<Boolean> {
         val supervisor = SupervisorJob()
-        val dispatcher = Dispatchers.IO.limitedParallelism(4)
+        val dispatcher = Dispatchers.Default.limitedParallelism(4)
 
         params.map { transactionId ->
             CoroutineScope(supervisor + dispatcher).async {

@@ -5,6 +5,8 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.data.AuthScheme
 import io.github.smiley4.ktorswaggerui.data.AuthType
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.*
@@ -13,6 +15,7 @@ import io.ktor.server.auth.jwt.JWTPrincipal
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.resources.Resources
 import io.ktor.server.response.respond
 import kotlinx.serialization.json.Json
@@ -56,6 +59,17 @@ fun Application.module() {
                 description = "Username or password is invalid"
             }
         }
+    }
+    install(CORS) {
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Get)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeadersPrefixed("sec-")
+        allowHeader("Authorization")
+        exposeHeader("Authorization")
+        anyHost()
     }
     install(Resources)
     install(ContentNegotiation) {

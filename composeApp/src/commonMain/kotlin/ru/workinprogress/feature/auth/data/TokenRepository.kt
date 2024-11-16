@@ -12,7 +12,7 @@ class TokenRepository {
 
     fun set(
         accessToken: String = token.value.accessToken,
-        refreshToken: String = token.value.refreshToken
+        refreshToken: String = token.value.refreshToken.orEmpty()
     ) {
         this.token.value = BearerTokens(accessToken, refreshToken)
     }

@@ -53,25 +53,25 @@ kotlin {
 
     jvm("desktop")
 
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        moduleName = "composeApp"
-//        browser {
-//            val rootDirPath = project.rootDir.path
-//            val projectDirPath = project.projectDir.path
-//            commonWebpackConfig {
-//                outputFileName = "composeApp.js"
-//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-//                    static = (static ?: mutableListOf()).apply {
-//                        // Serve sources to debug inside browser
-//                        add(rootDirPath)
-//                        add(projectDirPath)
-//                    }
-//                }
-//            }
-//        }
-//        binaries.executable()
-//    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "composeApp"
+        browser {
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                }
+            }
+        }
+        binaries.executable()
+    }
 
     sourceSets {
         val desktopMain by getting
@@ -101,7 +101,6 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.navigation.compose)
             implementation(libs.compose.charts)
-            implementation(libs.ktor.client.cio)
 
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
@@ -109,12 +108,14 @@ kotlin {
         }
 
         desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
+            implementation(compose.desktop.macos_arm64)
+//            implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+            implementation(libs.ktor.client.cio)
         }
 
         iosMain.dependencies {
-//            implementation(libs.ktor.client.darwin)
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
@@ -148,6 +149,23 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+}
+
+
+applyKtorWasmWorkaround("3.0.0-beta-2")
+
+fun Project.applyKtorWasmWorkaround(version: String) {
+    configurations.all {
+        if (name.startsWith("wasmJs")) {
+            resolutionStrategy.eachDependency {
+                if (requested.group.startsWith("io.ktor") &&
+                    requested.name.startsWith("ktor-")
+                ) {
+                    useVersion(version)
+                }
+            }
+        }
+    }
 }
 
 afterEvaluate {

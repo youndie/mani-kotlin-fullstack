@@ -9,7 +9,6 @@ import io.ktor.client.request.delete
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +20,7 @@ import ru.workinprogress.feature.transaction.TransactionResource
 class TransactionRepository(private val httpClient: HttpClient) {
 
     private val data = MutableStateFlow(emptyList<Transaction>())
-    private val dispatcher = Dispatchers.IO
+    private val dispatcher = Dispatchers.Default
     val dataStateFlow = data.asStateFlow()
 
     suspend fun load() = withContext(dispatcher) {
