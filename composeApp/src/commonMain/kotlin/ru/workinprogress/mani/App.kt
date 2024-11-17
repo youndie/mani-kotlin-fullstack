@@ -20,10 +20,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
-import ru.workinprogress.feature.transaction.transactionsModule
+import org.koin.core.KoinApplication
+import org.koin.core.module.Module
 import ru.workinprogress.mani.components.MainAppBarState
 import ru.workinprogress.mani.components.ManiAppBar
-import ru.workinprogress.mani.data.appModule
 import ru.workinprogress.mani.navigation.ManiAppNavHost
 import ru.workinprogress.mani.navigation.ManiScreen
 import ru.workinprogress.mani.theme.AppTheme
@@ -96,15 +96,15 @@ fun ManiApp(
 
 @Composable
 @Preview
-fun App() {
-    KoinApplication(application = {
-        modules(appModule()
-                + transactionsModule)
-    }) {
+fun App(platformModules: List<Module> = emptyList()) {
+    KoinApplication(
+        application = {
+            modules(appModules + platformModules)
+        }) {
         AppTheme(darkTheme = true) {
             ManiApp()
         }
     }
-
 }
+
 

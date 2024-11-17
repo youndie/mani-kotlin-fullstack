@@ -5,10 +5,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import kotlinx.coroutines.flow.map
+import org.koin.compose.koinInject
+import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.feature.auth.ui.LoginComponent
 import ru.workinprogress.feature.main.ui.MainComponent
 import ru.workinprogress.feature.transaction.ui.component.AddTransactionComponent
@@ -21,9 +27,14 @@ fun ManiAppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
 ) {
+    val tokenRepository = koinInject<TokenRepository>()
+
+    val tokenState = tokenRepository.observeToken().collectAsStateWithLifecycle()
+    val isAuth = derivedStateOf { tokenState.value.refreshToken?.isNotEmpty() == true }
+
     NavHost(
         navController = navController,
-        startDestination = ManiScreen.Login.name,
+        startDestination = if (isAuth.value) ManiScreen.Main.name else ManiScreen.Login.name,
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())

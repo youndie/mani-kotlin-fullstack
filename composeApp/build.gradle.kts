@@ -66,6 +66,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.ktor.client.cio)
+            implementation(libs.koin.android)
+            implementation("androidx.preference:preference-ktx:1.2.1")
         }
         commonMain.dependencies {
             implementation(libs.ktor.client.core)

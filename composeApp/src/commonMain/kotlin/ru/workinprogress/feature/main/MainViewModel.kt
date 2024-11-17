@@ -29,11 +29,7 @@ class MainViewModel(
     val observe = state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            while (isActive) {
-                load()
-            }
-        }
+        viewModelScope.launch { load() }
     }
 
     fun onTransactionSelected(transactionUiItem: TransactionUiItem) {

@@ -2,6 +2,7 @@ package ru.workinprogress.feature.auth.data
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.server.auth.jwt.JWTCredential
 import io.ktor.server.util.toGMTDate
@@ -36,7 +37,12 @@ class AuthService(
     }
 
     suspend fun refreshToken(refreshToken: String): TokensResponse? {
-        val decodedRefreshToken = verifyRefreshToken(refreshToken)
+        val decodedRefreshToken = try {
+            verifyRefreshToken(refreshToken)
+        } catch (e: JWTDecodeException) {
+            return null
+        }
+
         val foundUser = userRepository.findUserByToken(refreshToken)
         return if (decodedRefreshToken != null && foundUser != null) {
             val usernameFromRefreshToken: String? = decodedRefreshToken.getClaim("username").asString()
