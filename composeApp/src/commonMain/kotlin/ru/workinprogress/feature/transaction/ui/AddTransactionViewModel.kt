@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.saveable
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,11 +20,11 @@ import ru.workinprogress.useCase.UseCase
 class AddTransactionViewModel(
     private val addTransactionUseCase: AddTransactionUseCase
 ) : ViewModel() {
-    private val state = MutableStateFlow<AddTransactionUiState>(AddTransactionUiState.Prepare())
+    private val state = MutableStateFlow<AddTransactionUiState>(AddTransactionUiState())
     val observe = state.asStateFlow()
 
     fun onCreateClicked() {
-        val stateValue = state.value as? AddTransactionUiState.Prepare ?: return
+        val stateValue = state.value
 
         viewModelScope.launch {
             val result = addTransactionUseCase.invoke(
@@ -42,7 +43,7 @@ class AddTransactionViewModel(
                 }
 
                 is UseCase.Result.Success -> {
-                    state.update { AddTransactionUiState.Finish }
+                    state.update { AddTransactionUiState(success = true) }
                 }
             }
         }
@@ -50,44 +51,41 @@ class AddTransactionViewModel(
 
     fun onAmountChanged(amount: String) {
         if (amount.toDoubleOrNull() != null || amount.isEmpty()) {
-            updatePrepareState { state ->
+            state.update { state ->
                 state.copy(amount = amount)
             }
         }
     }
 
-    fun onCommentChanged(comment: String) = updatePrepareState { state ->
+    fun onCommentChanged(comment: String) = state.update { state ->
         state.copy(comment = comment)
     }
 
-    fun onIncomeChanged(income: Boolean) = updatePrepareState { state ->
+    fun onIncomeChanged(income: Boolean) = state.update { state ->
         state.copy(income = income)
     }
 
-    fun onPeriodChanged(period: Transaction.Period) = updatePrepareState { state ->
+    fun onPeriodChanged(period: Transaction.Period) = state.update { state ->
         state.copy(period = period)
     }
 
-    fun onToggleDatePicker() = updatePrepareState { state ->
+    fun onExpandPeriodClicked() = state.update { state ->
+        state.copy(periods = Transaction.Period.entries.toImmutableList())
+    }
+
+    fun onToggleDatePicker() = state.update { state ->
         state.copy(date = state.date.copy(showDatePicker = state.date.showDatePicker.not()))
     }
 
-    fun onToggleUntilDatePicker() = updatePrepareState { state ->
+    fun onToggleUntilDatePicker() = state.update { state ->
         state.copy(date = state.until.copy(showDatePicker = state.date.showDatePicker.not()))
     }
 
-    fun onDateSelected(date: LocalDate) = updatePrepareState { state ->
+    fun onDateSelected(date: LocalDate) = state.update { state ->
         state.copy(date = state.date.copy(date = date))
     }
 
-    fun onDateUntilSelected(date: LocalDate) = updatePrepareState { state ->
+    fun onDateUntilSelected(date: LocalDate) = state.update { state ->
         state.copy(date = state.until.copy(date = date))
     }
-
-    private inline fun updatePrepareState(func: (AddTransactionUiState.Prepare) -> (AddTransactionUiState.Prepare)) {
-        (observe.value as? AddTransactionUiState.Prepare)?.let {
-            state.value = func(it)
-        }
-    }
-
 }

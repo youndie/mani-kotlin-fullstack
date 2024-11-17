@@ -1,0 +1,9 @@
+<resources>
+    <string name="repeat_one_time">One time</string>
+    <string name="repeat_week">Every week</string>
+    <string name="repeat_two_week">Every two weeks</string>
+    <string name="repeat_month">Every month</string>
+    <string name="repeat_quarter">Every quarter</string>
+    <string name="repeat_half_year">Every 6 months</string>
+    <string name="repeat_year">Every year</string>
+</resources>

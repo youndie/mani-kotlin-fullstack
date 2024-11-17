@@ -66,7 +66,6 @@ val networkModule = module {
 
                         if (response.status == HttpStatusCode.Unauthorized) {
                             tokenRepository.set("", "")
-                            throw RuntimeException()
                         }
 
                         val data = response.body<TokensResponse>()
