@@ -32,7 +32,9 @@ class AuthService(
     suspend fun authenticate(loginRequest: LoginParams): TokensResponse? {
         val foundUser: User? = userRepository.findUserByCredentials(loginRequest)
         return if (foundUser != null) {
-            newTokens(foundUser)
+            newTokens(foundUser).also { tokensResponse ->
+                userRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
+            }
         } else null
     }
 
@@ -42,12 +44,15 @@ class AuthService(
         } catch (e: JWTDecodeException) {
             return null
         }
-
         val foundUser = userRepository.findUserByToken(refreshToken)
         return if (decodedRefreshToken != null && foundUser != null) {
+            userRepository.removeToken(refreshToken, foundUser.id)
+
             val usernameFromRefreshToken: String? = decodedRefreshToken.getClaim("username").asString()
             if (usernameFromRefreshToken == foundUser.username) {
-                newTokens(foundUser)
+                newTokens(foundUser).also { tokensResponse ->
+                    userRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
+                }
             } else null
         } else null
     }
@@ -64,7 +69,7 @@ class AuthService(
         }
     }
 
-    private suspend fun newTokens(foundUser: User): TokensResponse {
+    private fun newTokens(foundUser: User): TokensResponse {
         val refreshToken = config.createToken(
             foundUser.id,
             foundUser.username,
@@ -77,8 +82,6 @@ class AuthService(
             foundUser.id,
             foundUser.username,
         )
-
-        userRepository.setToken(userId = foundUser.id, token = refreshToken)
 
         return TokensResponse(
             accessToken = accessToken,

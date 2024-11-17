@@ -4,9 +4,12 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import java.io.File
 
 class TokenStorageImpl : TokenStorage {
-    val file = File("session.txt").apply {
-        if (!exists()) {
-            createNewFile()
+
+    private val file by lazy {
+        File(FILENAME).apply {
+            if (!exists()) {
+                createNewFile()
+            }
         }
     }
 
@@ -15,14 +18,18 @@ class TokenStorageImpl : TokenStorage {
             file.readText().takeIf { it.isNotBlank() }
         } catch (e: Exception) {
             null
-        }?.split("\n")?.let { tokens ->
+        }?.split(SEPARATOR)?.let { tokens ->
             val (access, refresh) = tokens
             BearerTokens(access, refresh)
         }
     }
 
     override fun save(bearerTokens: BearerTokens) {
-        file.writeText("$bearerTokens.accessToken\n${bearerTokens.refreshToken}")
+        file.writeText("${bearerTokens.accessToken}$SEPARATOR${bearerTokens.refreshToken}")
     }
 
+    companion object {
+        private const val FILENAME = "session.txt"
+        private const val SEPARATOR = "\n"
+    }
 }

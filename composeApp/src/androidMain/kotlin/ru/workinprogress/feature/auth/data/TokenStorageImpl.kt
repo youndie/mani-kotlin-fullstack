@@ -6,12 +6,15 @@ import io.ktor.client.plugins.auth.providers.*
 class TokenStorageImpl(private val prefs: SharedPreferences) : TokenStorage {
     override fun load(): BearerTokens? {
         return BearerTokens(
-            prefs.getString("accessToken", "").orEmpty(), prefs.getString("refreshToken", "").orEmpty()
+            prefs.getString(BearerTokens::accessToken.name, "").orEmpty(),
+            prefs.getString(BearerTokens::refreshToken.name, "").orEmpty()
         )
     }
 
     override fun save(bearerTokens: BearerTokens) {
-        prefs.edit().putString("accessToken", bearerTokens.accessToken)
-            .putString("refreshToken", bearerTokens.refreshToken).commit()
+        prefs.edit()
+            .putString(BearerTokens::accessToken.name, bearerTokens.accessToken)
+            .putString(BearerTokens::refreshToken.name, bearerTokens.refreshToken)
+            .commit()
     }
 }

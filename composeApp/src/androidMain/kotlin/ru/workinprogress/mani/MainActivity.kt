@@ -14,6 +14,7 @@ import org.koin.dsl.module
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
@@ -21,12 +22,11 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             App(
-                platformModules =
-                    listOf(
-                        module {
-                            single<Context> { this@MainActivity }
-                        }
-                    )
+                platformModules = listOf(
+                    module {
+                        single<Context> { this@MainActivity }
+                    }
+                )
             )
         }
     }

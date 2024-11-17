@@ -8,13 +8,12 @@ import ru.workinprogress.feature.auth.data.TokenStorage
 
 class TokenStorageImpl : TokenStorage {
     override fun load() = BearerTokens(
-        window.localStorage["accessToken"].orEmpty(),
-        window.localStorage["refreshToken"].orEmpty(),
+        window.localStorage[BearerTokens::accessToken.name].orEmpty(),
+        window.localStorage[BearerTokens::refreshToken.name].orEmpty(),
     )
 
     override fun save(bearerTokens: BearerTokens) {
-        window.localStorage["accessToken"] = bearerTokens.accessToken
-        window.localStorage["refreshToken"] = bearerTokens.refreshToken.orEmpty()
+        window.localStorage[BearerTokens::accessToken.name] = bearerTokens.accessToken
+        window.localStorage[BearerTokens::refreshToken.name] = bearerTokens.refreshToken.orEmpty()
     }
-
 }

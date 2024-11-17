@@ -70,11 +70,17 @@ class UserRepository(private val mongoDatabase: MongoDatabase) {
         }
     }
 
-    suspend fun setToken(token: String, userId: String) {
+    suspend fun addToken(token: String, userId: String) {
         db.updateOne(
             Filters.eq("_id", ObjectId(userId)),
-            Updates.set<List<String>>(UserDb::tokens.name, listOf(token)),
-            UpdateOptions().upsert(true)
+            Updates.addToSet<String>(UserDb::tokens.name, token),
+        )
+    }
+
+    suspend fun removeToken(token: String, userId: String) {
+        db.updateOne(
+            Filters.eq("_id", ObjectId(userId)),
+            Updates.pull<String>(UserDb::tokens.name, token),
         )
     }
 

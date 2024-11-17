@@ -10,7 +10,6 @@ import ru.workinprogress.feature.auth.AuthResource
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.TokensResponse
 import ru.workinprogress.feature.auth.data.TokenRepository
-import ru.workinprogress.feature.auth.data.TokenRepositoryCommon
 import ru.workinprogress.useCase.UseCase
 
 class LoginUseCase(

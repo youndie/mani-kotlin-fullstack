@@ -8,8 +8,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDefaults
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -30,7 +32,7 @@ import ru.workinprogress.mani.components.MainAppBarState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainComponent(appBarState: MainAppBarState) {
+fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState) {
     val viewModel = koinViewModel<MainViewModel>()
     val state: State<MainUiState> = viewModel.observe.collectAsStateWithLifecycle()
 
@@ -40,6 +42,14 @@ fun MainComponent(appBarState: MainAppBarState) {
         viewModel::onShowDeleteDialogClicked,
         viewModel::onContextMenuClosed
     )
+
+    LaunchedEffect(state.value.errorMessage) {
+        state.value
+            .errorMessage
+            ?.let { string ->
+                snackbarHostState.showSnackbar(string, null, false, SnackbarDuration.Short)
+            }
+    }
 
     if (state.value.showDeleteDialog) {
         AlertDialog(
