@@ -46,9 +46,10 @@ kotlin {
             api(libs.kotlinx.datetime)
             api(libs.kotlinx.collections.immutable)
             api(libs.kotlinx.serialization.json)
+        }
 
-            implementation(libs.kotlin.test)
-
+        commonTest.dependencies {
+            api(libs.kotlin.test)
         }
     }
 }

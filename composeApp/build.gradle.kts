@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalComposeLibrary::class)
+
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -65,9 +68,9 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.preference.ktx)
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.android)
-            implementation("androidx.preference:preference-ktx:1.2.1")
         }
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
@@ -94,15 +97,19 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(projects.shared)
         }
-
         desktopMain.dependencies {
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
-
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(compose.uiTest)
+            implementation(libs.koin.test)
         }
     }
 }
@@ -137,7 +144,6 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
-
 
 applyKtorWasmWorkaround("3.0.0-beta-2")
 
