@@ -27,6 +27,7 @@ import ru.workinprogress.mani.components.MainAppBarState
 import ru.workinprogress.mani.components.ManiAppBar
 import ru.workinprogress.mani.navigation.ManiAppNavHost
 import ru.workinprogress.mani.navigation.ManiScreen
+import ru.workinprogress.mani.navigation.title
 import ru.workinprogress.mani.theme.AppTheme
 import kotlin.math.roundToInt
 
@@ -37,7 +38,7 @@ fun App(platformModules: List<Module> = emptyList()) {
         application = {
             modules(appModules + platformModules)
         }) {
-        AppTheme(darkTheme = true) {
+        AppTheme(darkTheme = false) {
             ManiApp()
         }
     }
@@ -59,7 +60,7 @@ fun ManiApp(
     }
 
     LaunchedEffect(currentScreen) {
-        appBarState.title.value = currentScreen.name
+        appBarState.title.value = currentScreen.title()
     }
 
     Box(

@@ -28,11 +28,7 @@ class MainAppBarState {
     val actions = mutableStateOf(listOf<Action>())
 }
 
-fun ManiScreen.title() = when (this) {
-    ManiScreen.Main -> "Home"
-    ManiScreen.Add -> "Add transaction"
-    ManiScreen.Login -> ""
-}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

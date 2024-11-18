@@ -16,6 +16,13 @@ data class AddTransactionUiState(
     val until: DateDataUiState = DateDataUiState(),
     val success: Boolean = false,
 ) {
+
+    val expanded
+        get() = periods != defaultPeriods
+
+    val valid get() = amount.toDoubleOrNull() != null
+
+
     companion object {
         private val defaultPeriods = listOf(
             Transaction.Period.OneTime,
@@ -25,5 +32,6 @@ data class AddTransactionUiState(
     }
 }
 
+
 @Serializable
-data class DateDataUiState(val date: LocalDate? = null, val showDatePicker: Boolean = false)
+data class DateDataUiState(val value: LocalDate? = null, val showDatePicker: Boolean = false)

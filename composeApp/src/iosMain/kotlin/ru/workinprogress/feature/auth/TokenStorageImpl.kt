@@ -14,5 +14,4 @@ class TokenStorageImpl : TokenStorage {
         NSUserDefaults.standardUserDefaults.setObject(bearerTokens.accessToken, BearerTokens::accessToken.name)
         NSUserDefaults.standardUserDefaults.setObject(bearerTokens.refreshToken, BearerTokens::refreshToken.name)
     }
-
 }

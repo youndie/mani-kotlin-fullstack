@@ -1,9 +1,7 @@
 package ru.workinprogress.feature.transaction.ui
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.saveable
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,8 +30,8 @@ class AddTransactionViewModel(
                     amount = stateValue.amount.toDouble(),
                     income = stateValue.income,
                     period = stateValue.period,
-                    date = stateValue.date.date ?: today(),
-                    until = stateValue.until.date,
+                    date = stateValue.date.value ?: today(),
+                    until = stateValue.until.value,
                     comment = stateValue.comment
                 )
             )
@@ -78,14 +76,14 @@ class AddTransactionViewModel(
     }
 
     fun onToggleUntilDatePicker() = state.update { state ->
-        state.copy(date = state.until.copy(showDatePicker = state.date.showDatePicker.not()))
+        state.copy(until = state.until.copy(showDatePicker = state.until.showDatePicker.not()))
     }
 
     fun onDateSelected(date: LocalDate) = state.update { state ->
-        state.copy(date = state.date.copy(date = date))
+        state.copy(date = state.date.copy(value = date, showDatePicker = false))
     }
 
     fun onDateUntilSelected(date: LocalDate) = state.update { state ->
-        state.copy(date = state.until.copy(date = date))
+        state.copy(until = state.until.copy(value = date, showDatePicker = false))
     }
 }
