@@ -28,7 +28,6 @@ navigationCompose = "2.8.0-alpha10"
 preferenceKtx = "1.2.1"
 slf4jApi = "2.0.16"
 swaggerParser = "2.1.22"
-uiTextGoogleFonts = "1.7.5"
 
 [libraries]
 
