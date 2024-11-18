@@ -7,11 +7,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -39,6 +39,28 @@ fun App(platformModules: List<Module> = emptyList()) {
         }
     }
 }
+
+
+fun createTypography(parent: Typography, fontFamily: FontFamily): Typography {
+    return Typography(
+        parent.displayLarge.copy(fontFamily = fontFamily),
+        parent.displayMedium.copy(fontFamily = fontFamily),
+        parent.displaySmall.copy(fontFamily = fontFamily),
+        parent.headlineLarge.copy(fontFamily = fontFamily),
+        parent.headlineMedium.copy(fontFamily = fontFamily),
+        parent.headlineSmall.copy(fontFamily = fontFamily),
+        parent.titleLarge.copy(fontFamily = fontFamily),
+        parent.titleMedium.copy(fontFamily = fontFamily),
+        parent.titleSmall.copy(fontFamily = fontFamily),
+        parent.bodyLarge.copy(fontFamily = fontFamily),
+        parent.bodyMedium.copy(fontFamily = fontFamily),
+        parent.bodySmall.copy(fontFamily = fontFamily),
+        parent.labelLarge.copy(fontFamily = fontFamily),
+        parent.labelMedium.copy(fontFamily = fontFamily),
+        parent.labelSmall.copy(fontFamily = fontFamily)
+    )
+}
+
 
 @Composable
 fun ManiApp(
