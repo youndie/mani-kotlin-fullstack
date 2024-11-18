@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.datetime.LocalDate
 import org.bson.types.ObjectId
-import ru.workinprogress.feature.transaction.CreateTransactionParams
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.mani.db.deleteById
 import ru.workinprogress.mani.model.stringValue
@@ -15,7 +14,7 @@ class TransactionRepository(mongoDatabase: MongoDatabase) {
 
     private val db = mongoDatabase.getCollection<TransactionDb>("transaction")
 
-    suspend fun create(transaction: CreateTransactionParams, userId: String): String {
+    suspend fun create(transaction: Transaction, userId: String): String {
         return db.insertOne(
             TransactionDb(
                 id = ObjectId(),

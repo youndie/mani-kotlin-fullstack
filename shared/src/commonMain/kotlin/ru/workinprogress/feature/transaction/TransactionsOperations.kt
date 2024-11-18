@@ -2,6 +2,7 @@ package ru.workinprogress.feature.transaction
 
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import ru.workinprogress.feature.chart.ChartResponse
 import ru.workinprogress.mani.today
@@ -18,9 +19,15 @@ fun createDates(from: LocalDate, to: LocalDate): List<LocalDate> {
 
 fun List<Transaction>.defaultPeriod(): Pair<LocalDate, LocalDate> {
     val from = this.minOf { transaction -> transaction.date }
-    val to = today().plus(3, DateTimeUnit.MONTH)
+    val to = defaultPeriodAppend(today())
     return from to to
 }
+
+const val DEFAULT_PERIOD_VALUE = 3
+val DEFAULT_PERIOD_UNIT = DateTimeUnit.MONTH
+
+fun defaultPeriodAppend(date: LocalDate) =
+    date.plus(DEFAULT_PERIOD_VALUE, DEFAULT_PERIOD_UNIT)
 
 fun List<Transaction>.toChartInternal(): ChartResponse {
     if (isEmpty()) return ChartResponse.Empty
@@ -59,7 +66,7 @@ fun List<Transaction>.simulate(from: LocalDate, to: LocalDate): Map<LocalDate, L
             scheduledForDate.add(transaction)
 
             scheduled.scheduleTransaction(
-                transaction,
+                transaction, to,
                 when (transaction.period) {
                     Transaction.Period.OneTime -> currentDate
                     Transaction.Period.Week -> currentDate.plus(1, DateTimeUnit.WEEK)
@@ -80,9 +87,10 @@ fun List<Transaction>.simulate(from: LocalDate, to: LocalDate): Map<LocalDate, L
 
 private fun MutableMap<LocalDate, List<Transaction>>.scheduleTransaction(
     transaction: Transaction,
+    to: LocalDate,
     nextDate: LocalDate
 ) {
-    if (transaction.until == null || transaction.until >= nextDate) {
+    if ((transaction.until == null || transaction.until >= nextDate) && to > nextDate) {
         this[nextDate] = (this[nextDate]?.toMutableList() ?: mutableListOf()).apply {
             this.add(transaction)
         }

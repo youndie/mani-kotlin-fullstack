@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
-import ru.workinprogress.feature.transaction.CreateTransactionParams
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.TransactionResource
 
@@ -27,27 +26,18 @@ class TransactionRepository(private val httpClient: HttpClient) {
         data.value = httpClient.get(TransactionResource()).body<List<Transaction>>()
     }
 
-    suspend fun create(params: CreateTransactionParams): Boolean {
-        val temp = Transaction(
-            id = "temp",
-            amount = params.amount,
-            income = params.income,
-            date = params.date,
-            until = params.until,
-            period = params.period,
-            comment = params.comment
-        )
-        data.value += temp
+    suspend fun create(params: Transaction): Boolean {
+        data.value += params
 
         try {
             val created = httpClient.post(TransactionResource()) {
                 setBody(params)
             }.body<Transaction>()
 
-            data.value = data.value - temp + created
+            data.value = data.value - params + created
             return true
         } catch (e: Exception) {
-            data.value -= temp
+            data.value -= params
             throw e
         }
     }

@@ -1,10 +1,12 @@
 package ru.workinprogress.feature.transaction.ui.model
 
+import androidx.compose.ui.text.AnnotatedString
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import ru.workinprogress.feature.transaction.Transaction
+import ru.workinprogress.mani.today
 
 data class AddTransactionUiState(
     val amount: String = "",
@@ -15,6 +17,7 @@ data class AddTransactionUiState(
     val date: DateDataUiState = DateDataUiState(),
     val until: DateDataUiState = DateDataUiState(),
     val success: Boolean = false,
+    val futureInformation: AnnotatedString = AnnotatedString(""),
 ) {
 
     val expanded
@@ -22,6 +25,16 @@ data class AddTransactionUiState(
 
     val valid get() = amount.toDoubleOrNull() != null
 
+    val tempTransaction
+        get() = Transaction(
+            id = "temp",
+            amount = amount.toDoubleOrNull() ?: 0.0,
+            income = income,
+            period = period,
+            date = date.value ?: today(),
+            until = until.value,
+            comment = comment
+        )
 
     companion object {
         private val defaultPeriods = listOf(

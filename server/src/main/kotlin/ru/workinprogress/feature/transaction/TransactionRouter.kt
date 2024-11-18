@@ -23,13 +23,13 @@ fun Routing.transactionRouting() {
         post<TransactionResource>({
             description = "Add new transaction for user"
             request {
-                body<CreateTransactionParams>()
+                body<Transaction>()
             }
             response {
                 HttpStatusCode.Created to { body<Transaction>() }
             }
         }) {
-            val transaction = call.receive<CreateTransactionParams>()
+            val transaction = call.receive<Transaction>()
 
             val user = call.currentUserId()
             val id = transactionRepository.create(transaction, user)

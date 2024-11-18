@@ -90,7 +90,7 @@ class TransactionOperationsTest {
                 Transaction.Period.Month,
                 "3 Times 1000"
             ),
-        ).simulate(LocalDate(2000, 1, 1) to LocalDate(2000, 3, 1))
+        ).simulate(LocalDate(2000, 1, 1) to defaultPeriodAppend(LocalDate(2000, 1, 1)))
 
         assertEquals(3, result.flatMap { it.value }.size)
         assertEquals(result[LocalDate(2000, 1, 1)]?.firstOrNull()?.amount, 1000.0)
