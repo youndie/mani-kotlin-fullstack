@@ -117,9 +117,8 @@ class MainViewModel(
 
     fun onLogoutClicked() {
         viewModelScope.launch {
-            if (logoutUseCase() is UseCase.Result.Success) {
-                state.update { state -> MainUiState(logout = true) }
-            }
+            logoutUseCase()
+            state.value = MainUiState()
         }
     }
 

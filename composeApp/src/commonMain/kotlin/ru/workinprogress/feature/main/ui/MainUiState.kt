@@ -14,6 +14,5 @@ data class MainUiState(
     val selectedTransactions: ImmutableList<TransactionUiItem> = emptyList<TransactionUiItem>().toImmutableList(),
     val showDeleteDialog: Boolean = false,
     val showProfile: Boolean = false,
-    val logout: Boolean = false,
 )
 

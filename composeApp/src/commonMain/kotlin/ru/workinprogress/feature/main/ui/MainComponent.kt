@@ -31,7 +31,7 @@ import ru.workinprogress.mani.components.MainAppBarState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState, onLogout: () -> Unit) {
+fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState) {
     val viewModel = koinViewModel<MainViewModel>()
     val state: State<MainUiState> = viewModel.observe.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -50,12 +50,6 @@ fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostS
             ?.let { string ->
                 snackbarHostState.showSnackbar(string, null, false, SnackbarDuration.Short)
             }
-    }
-
-    LaunchedEffect(state.value.logout) {
-        if (state.value.logout) {
-            onLogout()
-        }
     }
 
     if (state.value.showProfile) {
