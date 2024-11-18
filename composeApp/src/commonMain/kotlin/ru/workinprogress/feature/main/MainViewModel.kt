@@ -106,6 +106,9 @@ class MainViewModel(
         }
     }
 
+    fun onProfileClicked() {
+        TODO("Not yet implemented")
+    }
 
 }
 

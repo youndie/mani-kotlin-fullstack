@@ -9,10 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import ru.workinprogress.mani.navigation.ManiScreen
-
+import kotlinx.collections.immutable.toImmutableList
+import ru.workinprogress.mani.emptyImmutableList
 
 data class Action(
     val name: String,
@@ -24,11 +23,35 @@ class MainAppBarState {
     val showBack = mutableStateOf(false)
     val title = mutableStateOf("")
     val contextTitle = mutableStateOf("")
-    val contextMode = mutableStateOf(false)
-    val actions = mutableStateOf(listOf<Action>())
+    val contextMode get() = contextModeState.value
+    val actions get() = actionsState.value
+
+    private val contextModeState = mutableStateOf(false)
+    private val actionsState = mutableStateOf(emptyImmutableList<Action>())
+    private val backUpActions = mutableStateOf(emptyImmutableList<Action>())
+
+    fun showAction(action: Action) {
+        this.actionsState.value = this.actionsState.value.plus(action).toImmutableList()
+    }
+
+    fun removeAction(action: Action) {
+        this.actionsState.value = this.actionsState.value.minus(action).toImmutableList()
+    }
+
+    fun showContextMenu(actions: List<Action>) {
+        backUpActions.value = this.actionsState.value.toImmutableList()
+        this.actionsState.value = actions.toImmutableList()
+        this.contextModeState.value = true
+    }
+
+    fun closeContextMenu() {
+        if (backUpActions.value.isNotEmpty()) {
+            this.actionsState.value = backUpActions.value.toImmutableList()
+            backUpActions.value = emptyImmutableList()
+        }
+        contextModeState.value = false
+    }
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,18 +60,18 @@ fun ManiAppBar(
     onBack: () -> Unit
 ) {
     TopAppBar(
-        title = { Text(if (appbarState.contextMode.value) appbarState.contextTitle.value else appbarState.title.value) },
+        title = { Text(if (appbarState.contextMode) appbarState.contextTitle.value else appbarState.title.value) },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            containerColor = if (appbarState.contextMode) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
+            titleContentColor = if (appbarState.contextMode) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
         ),
         actions = {
             AnimatedVisibility(
-                appbarState.actions.value.isNotEmpty(),
+                appbarState.actions.isNotEmpty(),
                 enter = fadeIn() + expandIn(expandFrom = Alignment.CenterStart),
                 exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterStart)
             ) {
-                appbarState.actions.value.forEach { action ->
+                appbarState.actions.forEach { action ->
                     IconButton(onClick = {
                         action.onClick()
                     }) {
@@ -73,13 +96,13 @@ fun ManiAppBar(
                 }
             }
             AnimatedVisibility(
-                appbarState.contextMode.value,
+                appbarState.contextMode,
                 enter = fadeIn() + expandIn(expandFrom = Alignment.CenterEnd),
                 exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterEnd)
             ) {
                 IconButton(
                     onClick = {
-                        appbarState.contextMode.value = false
+                        appbarState.closeContextMenu()
                     }) {
                     Icon(
                         imageVector = Icons.Default.Close, contentDescription = "back"

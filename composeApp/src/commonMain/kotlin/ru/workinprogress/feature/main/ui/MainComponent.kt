@@ -7,21 +7,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarDefaults
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 import ru.workinprogress.feature.chart.ui.ChartComponent
 import ru.workinprogress.feature.main.MainViewModel
@@ -35,6 +32,8 @@ import ru.workinprogress.mani.components.MainAppBarState
 fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState) {
     val viewModel = koinViewModel<MainViewModel>()
     val state: State<MainUiState> = viewModel.observe.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
 
     connectToAppBarState(
         state.value,
@@ -49,6 +48,35 @@ fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostS
             ?.let { string ->
                 snackbarHostState.showSnackbar(string, null, false, SnackbarDuration.Short)
             }
+    }
+
+    DisposableEffect(Unit) {
+        val profileAction = Action("Profile", Icons.Default.Person) {
+            viewModel.onProfileClicked()
+        }
+        val observer = LifecycleEventObserver { lifecycleOwner, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    coroutineScope.launch {
+                        appBarState.showAction(profileAction)
+                    }
+                }
+
+                Lifecycle.Event.ON_STOP -> {
+                    coroutineScope.launch {
+                        appBarState.removeAction(profileAction)
+                    }
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     if (state.value.showDeleteDialog) {
@@ -97,7 +125,7 @@ fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostS
                         TransactionItem(
                             transaction,
                             transaction in state.value.selectedTransactions,
-                            appBarState.contextMode.value,
+                            appBarState.contextMode,
                             viewModel::onTransactionSelected
                         )
                     }
@@ -120,19 +148,16 @@ fun connectToAppBarState(
 ) {
     LaunchedEffect(mainUiState.selectedTransactions) {
         val selected = mainUiState.selectedTransactions
-        appBarState.contextMode.value = selected.isNotEmpty()
-        appBarState.actions.value = if (selected.isEmpty()) {
-            emptyList()
+        if (selected.isEmpty()) {
+            appBarState.closeContextMenu()
         } else {
-            listOf(Action("Delete", Icons.Default.Delete, onDeleteClicked))
-        }
-        if (selected.isNotEmpty()) {
             appBarState.contextTitle.value = "${selected.size} transactions"
+            appBarState.showContextMenu(listOf(Action("Delete", Icons.Default.Delete, onDeleteClicked)))
         }
     }
 
-    LaunchedEffect(appBarState.contextMode.value) {
-        if (!appBarState.contextMode.value) {
+    LaunchedEffect(appBarState.contextMode) {
+        if (!appBarState.contextMode) {
             onContextMenuClosed()
         }
     }

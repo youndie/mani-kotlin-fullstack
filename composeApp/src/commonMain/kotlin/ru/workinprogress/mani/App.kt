@@ -56,7 +56,7 @@ fun ManiApp(
 
     LaunchedEffect(backStackEntry) {
         appBarState.showBack.value = navController.previousBackStackEntry != null
-        appBarState.contextMode.value = false
+        appBarState.closeContextMenu()
     }
 
     LaunchedEffect(currentScreen) {
