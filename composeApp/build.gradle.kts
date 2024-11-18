@@ -99,12 +99,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
-            implementation("com.russhwolf:multiplatform-settings:1.2.0")
-            implementation("com.russhwolf:multiplatform-settings-datastore:1.2.0")
-            implementation("com.russhwolf:multiplatform-settings-coroutines:1.2.0")
-            implementation("com.russhwolf:multiplatform-settings-serialization:1.2.0")
-            implementation("com.russhwolf:multiplatform-settings-no-arg:1.2.0")
-            implementation("com.russhwolf:multiplatform-settings-make-observable:1.2.0")
+            implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.coroutines)
+            implementation(libs.multiplatform.settings.serialization)
+            implementation(libs.multiplatform.settings.no.arg)
+            implementation(libs.multiplatform.settings.make.observable)
 
             implementation(projects.shared)
         }

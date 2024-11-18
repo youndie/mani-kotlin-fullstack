@@ -24,6 +24,7 @@ logback = "1.5.11"
 kotlinx-coroutines = "1.9.0"
 koinBom = "4.0.0"
 mongodbDriverKotlinCoroutine = "5.1.0"
+multiplatformSettings = "1.2.0"
 navigationCompose = "2.8.0-alpha10"
 preferenceKtx = "1.2.1"
 slf4jApi = "2.0.16"
@@ -80,6 +81,11 @@ koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j" }
 koin-test = { module = "io.insert-koin:koin-test" }
 
 mongodb-driver-kotlin-coroutine = { module = "org.mongodb:mongodb-driver-kotlin-coroutine", version.ref = "mongodbDriverKotlinCoroutine" }
+multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatformSettings" }
+multiplatform-settings-coroutines = { module = "com.russhwolf:multiplatform-settings-coroutines", version.ref = "multiplatformSettings" }
+multiplatform-settings-make-observable = { module = "com.russhwolf:multiplatform-settings-make-observable", version.ref = "multiplatformSettings" }
+multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatformSettings" }
+multiplatform-settings-serialization = { module = "com.russhwolf:multiplatform-settings-serialization", version.ref = "multiplatformSettings" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4jApi" }
 swagger-parser = { module = "io.swagger.parser.v3:swagger-parser", version.ref = "swaggerParser" }
