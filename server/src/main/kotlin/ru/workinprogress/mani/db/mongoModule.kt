@@ -5,7 +5,7 @@ import org.koin.dsl.module
 import ru.workinprogress.mani.model.MongoConfig
 
 fun mongoModule(mongoConfig: MongoConfig) = module {
-    single {
+    single<MongoClient> {
         MongoClient.create(
             "mongodb://${mongoConfig.userName}:${mongoConfig.password}@${mongoConfig.host}/?retryWrites=true&w=majority&appName=Mani"
         )

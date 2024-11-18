@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.koin.logger.slf4j)
 
 //    testImplementation(libs.ktor.server.tests)
-//    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.kotlin.test.junit)
+    testImplementation(libs.koin.test)
+
 }
 

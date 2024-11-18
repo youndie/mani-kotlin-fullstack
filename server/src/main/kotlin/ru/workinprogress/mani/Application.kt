@@ -98,8 +98,9 @@ fun Application.module() {
     }
     install(Koin) {
         slf4jLogger()
-        modules(modules(mongoConfig, jwtConfig))
+        modules(appModules(mongoConfig, jwtConfig))
     }
 
     configureRouting()
 }
+

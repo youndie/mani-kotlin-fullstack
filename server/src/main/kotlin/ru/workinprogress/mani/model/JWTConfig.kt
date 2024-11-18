@@ -8,12 +8,12 @@ import java.time.Clock
 import java.util.Date
 
 data class JWTConfig(
-    val name: String,
-    val realm: String,
-    val secret: String,
-    val audience: String,
-    val issuer: String,
-    val expirationSeconds: Long
+    val name: String = "",
+    val realm: String = "",
+    val secret: String = "",
+    val audience: String = "",
+    val issuer: String = "",
+    val expirationSeconds: Long = 0L
 ) {
     fun createToken(
         id: String,

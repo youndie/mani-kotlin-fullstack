@@ -15,14 +15,17 @@ import kotlinx.datetime.toJavaInstant
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.TokensResponse
 import ru.workinprogress.feature.user.User
+import ru.workinprogress.feature.user.data.TokenRepository
 import ru.workinprogress.feature.user.data.UserRepository
 import ru.workinprogress.mani.model.JWTConfig
 import java.util.Date
 
 class AuthService(
     val userRepository: UserRepository,
+    val tokenRepository: TokenRepository,
     val config: JWTConfig,
 ) {
+
     private val verifier = JWT
         .require(Algorithm.HMAC256(config.secret))
         .withAudience(config.audience)
@@ -33,7 +36,7 @@ class AuthService(
         val foundUser: User? = userRepository.findUserByCredentials(loginRequest)
         return if (foundUser != null) {
             newTokens(foundUser).also { tokensResponse ->
-                userRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
+                tokenRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
             }
         } else null
     }
@@ -44,14 +47,14 @@ class AuthService(
         } catch (e: JWTDecodeException) {
             return null
         }
-        val foundUser = userRepository.findUserByToken(refreshToken)
+        val foundUser = tokenRepository.findUserByToken(refreshToken)
         return if (decodedRefreshToken != null && foundUser != null) {
-            userRepository.removeToken(refreshToken, foundUser.id)
+            tokenRepository.removeToken(refreshToken, foundUser.id)
 
             val usernameFromRefreshToken: String? = decodedRefreshToken.getClaim("username").asString()
             if (usernameFromRefreshToken == foundUser.username) {
                 newTokens(foundUser).also { tokensResponse ->
-                    userRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
+                    tokenRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
                 }
             } else null
         } else null
