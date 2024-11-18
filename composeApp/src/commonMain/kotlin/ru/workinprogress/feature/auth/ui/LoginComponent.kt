@@ -31,15 +31,6 @@ import ru.workinprogress.feature.auth.domain.LoginUseCase
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun LoginComponent(onSuccess: () -> Unit) {
-    rememberKoinModules {
-        listOf(
-            module {
-                singleOf(::LoginUseCase)
-
-                viewModelOf(::LoginViewModel)
-            }
-        )
-    }
 
     val viewModel = koinViewModel<LoginViewModel>()
     val state = viewModel.observe.collectAsStateWithLifecycle()

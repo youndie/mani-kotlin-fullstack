@@ -3,7 +3,7 @@ package ru.workinprogress.mani.navigation
 enum class ManiScreen {
     Main,
     Add,
-    Login
+    Login,
 }
 
 fun ManiScreen.title() = when (this) {

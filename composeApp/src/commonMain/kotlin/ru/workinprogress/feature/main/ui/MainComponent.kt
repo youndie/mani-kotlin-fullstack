@@ -2,6 +2,7 @@ package ru.workinprogress.feature.main.ui
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -29,7 +31,7 @@ import ru.workinprogress.mani.components.MainAppBarState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState) {
+fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState, onLogout: () -> Unit) {
     val viewModel = koinViewModel<MainViewModel>()
     val state: State<MainUiState> = viewModel.observe.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -49,6 +51,32 @@ fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostS
                 snackbarHostState.showSnackbar(string, null, false, SnackbarDuration.Short)
             }
     }
+
+    LaunchedEffect(state.value.logout) {
+        if (state.value.logout) {
+            onLogout()
+        }
+    }
+
+    if (state.value.showProfile) {
+        Popup(
+            alignment = Alignment.TopEnd,
+            onDismissRequest = {
+                viewModel.onProfileDismiss()
+            },
+        ) {
+            Card(modifier = Modifier.padding(16.dp)) {
+                Column(Modifier.width(IntrinsicSize.Min)) {
+                    ListItem({ Text("Logout") }, modifier = Modifier.clickable {
+                        viewModel.onLogoutClicked()
+                    })
+                }
+            }
+
+        }
+    }
+
+
 
     DisposableEffect(Unit) {
         val profileAction = Action("Profile", Icons.Default.Person) {

@@ -38,7 +38,9 @@ fun ManiAppNavHost(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).then(modifier)
     ) {
         composable(ManiScreen.Main.name) {
-            MainComponent(appBarState, snackbarHostState)
+            MainComponent(appBarState, snackbarHostState) {
+
+            }
         }
         composable(ManiScreen.Add.name) {
             AddTransactionComponent {

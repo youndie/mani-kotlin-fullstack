@@ -5,13 +5,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.workinprogress.feature.auth.domain.LogoutUseCase
 import ru.workinprogress.feature.main.ui.MainUiState
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
@@ -24,6 +20,7 @@ import ru.workinprogress.useCase.UseCase
 class MainViewModel(
     private val transactionsUseCase: GetTransactionsUseCase,
     private val deleteTransactionsUseCase: DeleteTransactionsUseCase,
+    private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
     private val state = MutableStateFlow(MainUiState())
     val observe = state.asStateFlow()
@@ -107,7 +104,23 @@ class MainViewModel(
     }
 
     fun onProfileClicked() {
-        TODO("Not yet implemented")
+        state.update { state ->
+            state.copy(showProfile = true)
+        }
+    }
+
+    fun onProfileDismiss() {
+        state.update { state ->
+            state.copy(showProfile = false)
+        }
+    }
+
+    fun onLogoutClicked() {
+        viewModelScope.launch {
+            if (logoutUseCase() is UseCase.Result.Success) {
+                state.update { state -> MainUiState(logout = true) }
+            }
+        }
     }
 
 }
