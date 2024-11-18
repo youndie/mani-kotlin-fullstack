@@ -6,4 +6,9 @@
     <string name="repeat_quarter">Every quarter</string>
     <string name="repeat_half_year">Every 6 months</string>
     <string name="repeat_year">Every year</string>
+
+    <plurals name="transactions">
+        <item quantity="one">%1$d transaction</item>
+        <item quantity="other">%1$d transactions</item>
+    </plurals>
 </resources>

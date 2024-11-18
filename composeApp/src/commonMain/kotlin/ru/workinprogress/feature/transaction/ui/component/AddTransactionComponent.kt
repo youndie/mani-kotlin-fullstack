@@ -2,11 +2,14 @@ package ru.workinprogress.feature.transaction.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -104,25 +107,36 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 24.dp),
     ) {
 
         Card(
-            colors = CardDefaults.cardColors().copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-            shape = MaterialTheme.shapes.medium.copy(topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp))
+            colors = CardDefaults.cardColors()
+                .copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            shape = MaterialTheme.shapes.medium.copy(
+                topStart = CornerSize(0.dp),
+                topEnd = CornerSize(0.dp)
+            )
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 32.dp),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 32.dp),
                 verticalArrangement = spacedBy(8.dp)
             ) {
                 OutlinedTextField(
                     stateValue.amount,
                     viewModel::onAmountChanged,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
                     keyboardActions = KeyboardActions(onNext = { viewModel.onToggleDatePicker() }),
                     modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     maxLines = 1,
-                    visualTransformation = CurrencyVisualTransformation(Currency.Usd),
+                    visualTransformation = CurrencyVisualTransformation(stateValue.currency),
                     label = { Text("Amount") }
                 )
 
@@ -146,11 +160,18 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
                             Text(
                                 "Repeat",
                                 style = MaterialTheme.typography.labelMedium,
-                                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 16.dp,
+                                    bottom = 4.dp
+                                )
                             )
                         }
 
-                        FlowRow(horizontalArrangement = spacedBy(8.dp), modifier = Modifier.animateContentSize()) {
+                        FlowRow(
+                            horizontalArrangement = spacedBy(8.dp),
+                            modifier = Modifier.animateContentSize()
+                        ) {
                             stateValue.periods.forEach { period ->
                                 key(period) {
                                     FilterChip(
@@ -190,7 +211,12 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                 Text(
                     stateValue.futureInformation,
-                    modifier = Modifier.padding(start = 32.dp, top = 12.dp, bottom = 4.dp, end = 32.dp),
+                    modifier = Modifier.padding(
+                        start = 32.dp,
+                        top = 12.dp,
+                        bottom = 4.dp,
+                        end = 32.dp
+                    ),
                     style = MaterialTheme.typography.labelMedium
                 )
             }

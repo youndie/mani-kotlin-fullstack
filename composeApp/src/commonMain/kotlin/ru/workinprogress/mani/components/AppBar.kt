@@ -24,7 +24,7 @@ data class Action(
 
 class MainAppBarState {
     val showBack = mutableStateOf(false)
-    val title = mutableStateOf("")
+    val title = mutableStateOf(" ")
     val contextTitle = mutableStateOf("")
     val contextMode get() = contextModeState.value
     val actions get() = actionsState.value

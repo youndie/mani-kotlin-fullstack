@@ -3,6 +3,8 @@ package ru.workinprogress.mani
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
+import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent

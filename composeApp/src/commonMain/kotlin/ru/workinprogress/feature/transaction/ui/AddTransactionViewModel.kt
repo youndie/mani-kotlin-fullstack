@@ -8,71 +8,45 @@ import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import ru.workinprogress.feature.currency.Currency
-import ru.workinprogress.feature.transaction.*
+import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
+import ru.workinprogress.feature.transaction.DEFAULT_PERIOD_UNIT
+import ru.workinprogress.feature.transaction.DEFAULT_PERIOD_VALUE
+import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.Transaction.Period
+import ru.workinprogress.feature.transaction.amountSigned
+import ru.workinprogress.feature.transaction.defaultPeriodAppend
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
+import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.ui.model.AddTransactionUiState
 import ru.workinprogress.mani.orToday
 import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
 
-fun AddTransactionUiState.addFutureInformation() = this.copy(futureInformation = buildFutureInformation(this))
+class AddTransactionViewModel(
+    private val addTransactionUseCase: AddTransactionUseCase,
+    private val getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
+) : ViewModel() {
+    private val state = MutableStateFlow(AddTransactionUiState())
 
-fun buildFutureInformation(state: AddTransactionUiState, currency: Currency = Currency.Usd): AnnotatedString {
-    return buildAnnotatedString {
-        withStyle(style = SpanStyle(color = if (state.income) Color.Green else Color.Red)) {
-            append(if (state.income) "+${state.amount} ${currency.symbol}" else "-${state.amount} ${currency.symbol}")
-        }
+    val observe =
+        state.map { it.addFutureInformation() }
+            .flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.Lazily, AddTransactionUiState())
 
-        if (state.period == Period.OneTime) {
-            this.append(" on ")
-        } else {
-            append(" from ")
-        }
-
-        append("${state.date.value ?: today()}")
-
-        if (state.period == Period.OneTime) {
-            return@buildAnnotatedString
-        }
-
-        fun proceedSimulate(simulation: Map<LocalDate, List<Transaction>>) {
-            append(simulation.count { entry -> entry.value.isNotEmpty() }.toString())
-            append(" times,")
-            append(
-                " total: ${
-                    simulation.flatMap { it.value }.sumOf { transaction -> transaction.amountSigned }.toInt()
-                } ${currency.symbol}"
-            )
-        }
-
-        if (state.until.value != null) {
-            append(" to ")
-            append("${state.until.value}.")
-            append(" Repeat ")
-
-            proceedSimulate(listOf(state.tempTransaction).run {
-                simulate(state.date.value.orToday, state.until.value)
-            })
-        } else {
-            this.append(". In $DEFAULT_PERIOD_VALUE ${DEFAULT_PERIOD_UNIT.toString().lowercase()}'s repeat ")
-            proceedSimulate(listOf(state.tempTransaction).run {
-                simulate(state.date.value.orToday, defaultPeriodAppend(state.date.value.orToday))
-            })
+    init {
+        viewModelScope.launch(Dispatchers.Default) {
+            state.update { it.copy(currency = getCurrentCurrencyUseCase.get()) }
         }
     }
-}
-
-class AddTransactionViewModel(
-    private val addTransactionUseCase: AddTransactionUseCase
-) : ViewModel() {
-    private val state = MutableStateFlow<AddTransactionUiState>(AddTransactionUiState())
-    val observe =
-        state.map { it.addFutureInformation() }.stateIn(viewModelScope, SharingStarted.Lazily, AddTransactionUiState())
 
     fun onCreateClicked() {
         val stateValue = state.value
@@ -109,7 +83,6 @@ class AddTransactionViewModel(
         }
     }
 
-
     fun onCommentChanged(comment: String) = state.update { state ->
         state.copy(comment = comment)
     }
@@ -141,4 +114,63 @@ class AddTransactionViewModel(
     fun onDateUntilSelected(date: LocalDate) = state.update { state ->
         state.copy(until = state.until.copy(value = date, showDatePicker = false))
     }
+
+    private fun AddTransactionUiState.addFutureInformation() =
+        this.copy(futureInformation = buildFutureInformation(this))
+
+    private fun buildFutureInformation(
+        state: AddTransactionUiState,
+    ): AnnotatedString {
+        val currency = state.currency
+        return buildAnnotatedString {
+            withStyle(style = SpanStyle(color = if (state.income) Color.Green else Color.Red)) {
+                append(if (state.income) "+${state.amount} ${currency.symbol}" else "-${state.amount} ${currency.symbol}")
+            }
+
+            if (state.period == Period.OneTime) {
+                this.append(" on ")
+            } else {
+                append(" from ")
+            }
+
+            append("${state.date.value ?: today()}")
+
+            if (state.period == Period.OneTime) {
+                return@buildAnnotatedString
+            }
+
+            fun proceedSimulate(simulation: Map<LocalDate, List<Transaction>>) {
+                append(simulation.count { entry -> entry.value.isNotEmpty() }.toString())
+                append(" times,")
+                append(
+                    " total: ${
+                        simulation.flatMap { it.value }
+                            .sumOf { transaction -> transaction.amountSigned }.toInt()
+                    } ${currency.symbol}"
+                )
+            }
+            if (state.until.value != null) {
+                append(" to ")
+                append("${state.until.value}.")
+                append(" Repeat ")
+
+                proceedSimulate(listOf(state.tempTransaction).run {
+                    simulate(state.date.value.orToday, state.until.value)
+                })
+            } else {
+                this.append(
+                    ". In $DEFAULT_PERIOD_VALUE ${
+                        DEFAULT_PERIOD_UNIT.toString().lowercase()
+                    }'s repeat "
+                )
+                proceedSimulate(listOf(state.tempTransaction).run {
+                    simulate(
+                        state.date.value.orToday,
+                        defaultPeriodAppend(state.date.value.orToday)
+                    )
+                })
+            }
+        }
+    }
+
 }

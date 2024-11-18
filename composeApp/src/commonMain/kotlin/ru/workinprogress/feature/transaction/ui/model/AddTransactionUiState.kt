@@ -5,6 +5,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
+import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.mani.today
 
@@ -18,6 +19,7 @@ data class AddTransactionUiState(
     val until: DateDataUiState = DateDataUiState(),
     val success: Boolean = false,
     val futureInformation: AnnotatedString = AnnotatedString(""),
+    val currency: Currency = Currency("", "", "")
 ) {
 
     val expanded

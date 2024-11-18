@@ -35,7 +35,7 @@ fun ManiAppNavHost(
     NavHost(
         navController = navController,
         startDestination = if (isAuth.value) ManiScreen.Main.name else ManiScreen.Login.name,
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).then(modifier)
+        modifier = Modifier.fillMaxSize().then(modifier)
     ) {
         composable(ManiScreen.Main.name) {
             MainComponent(appBarState, snackbarHostState)

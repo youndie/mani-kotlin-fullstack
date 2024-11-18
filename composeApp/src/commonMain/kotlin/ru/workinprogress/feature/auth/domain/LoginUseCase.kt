@@ -25,7 +25,7 @@ class LoginUseCase(
                 }.body<TokensResponse>()
             }
 
-            tokenRepository.set(result.accessToken,result.refreshToken )
+            tokenRepository.set(result.accessToken, result.refreshToken)
 
             return Result.Success(true)
         } catch (e: Exception) {

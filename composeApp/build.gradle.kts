@@ -71,6 +71,8 @@ kotlin {
             implementation(libs.androidx.preference.ktx)
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.android)
+            implementation("androidx.core:core-splashscreen:1.0.0")
+
         }
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
@@ -78,6 +80,7 @@ kotlin {
             implementation(libs.ktor.client.logging)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+            kotlin("math")
 
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
@@ -95,6 +98,14 @@ kotlin {
             implementation(libs.compose.charts)
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
+
+            implementation("com.russhwolf:multiplatform-settings:1.2.0")
+            implementation("com.russhwolf:multiplatform-settings-datastore:1.2.0")
+            implementation("com.russhwolf:multiplatform-settings-coroutines:1.2.0")
+            implementation("com.russhwolf:multiplatform-settings-serialization:1.2.0")
+            implementation("com.russhwolf:multiplatform-settings-no-arg:1.2.0")
+            implementation("com.russhwolf:multiplatform-settings-make-observable:1.2.0")
+
             implementation(projects.shared)
         }
         desktopMain.dependencies {

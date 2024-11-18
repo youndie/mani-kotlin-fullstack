@@ -5,9 +5,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.auth.domain.LogoutUseCase
+import ru.workinprogress.feature.currency.Currency
+import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
 import ru.workinprogress.feature.main.ui.MainUiState
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
@@ -20,13 +26,20 @@ import ru.workinprogress.useCase.UseCase
 class MainViewModel(
     private val transactionsUseCase: GetTransactionsUseCase,
     private val deleteTransactionsUseCase: DeleteTransactionsUseCase,
+    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
     private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
+
+    private lateinit var currency: Currency
+
     private val state = MutableStateFlow(MainUiState())
     val observe = state.asStateFlow()
 
     init {
         viewModelScope.launch { load() }
+        viewModelScope.launch {
+            currency = getCurrencyUseCase.get()
+        }
     }
 
     fun onTransactionSelected(transactionUiItem: TransactionUiItem) {
@@ -79,6 +92,7 @@ class MainViewModel(
         }
     }
 
+
     private suspend fun load() {
         when (val result = transactionsUseCase()) {
             is UseCase.Result.Error -> {
@@ -94,7 +108,7 @@ class MainViewModel(
                             .filterValues { transactions -> transactions.isNotEmpty() }
                             .filterKeys { defaultMinDate < it }.mapValues { entry ->
                                 entry.value.map { transaction ->
-                                    TransactionUiItem(transaction)
+                                    TransactionUiItem(transaction, currency)
                                 }.toImmutableList()
                             }.toImmutableMap())
                     }

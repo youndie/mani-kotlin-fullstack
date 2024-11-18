@@ -13,12 +13,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import org.jetbrains.compose.resources.stringResource
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
+import ru.workinprogress.feature.transaction.ui.model.stringResource
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TransactionItem(
+    modifier: Modifier = Modifier,
     transaction: TransactionUiItem,
     selected: Boolean,
     selectionMode: Boolean,
@@ -34,7 +37,7 @@ fun TransactionItem(
     )
 
     ListItem(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .combinedClickable(
                 onClick = {
@@ -48,15 +51,9 @@ fun TransactionItem(
                 },
                 onLongClickLabel = "Long Click Label",
             ),
-        colors = ListItemDefaults.colors(containerColor = containerColor,),
-        supportingContent = { Text("${transaction.period}") },
-        trailingContent = {
-            if (transaction.income) {
-                Text(transaction.amount.roundToInt().toString())
-            } else {
-                Text((transaction.amount.roundToInt() * -1).toString())
-            }
-        },
+        colors = ListItemDefaults.colors(containerColor = containerColor),
+        supportingContent = { Text(stringResource(transaction.period.stringResource)) },
+        trailingContent = { Text(transaction.amount) },
         headlineContent = { Text(transaction.comment) })
 }
 
