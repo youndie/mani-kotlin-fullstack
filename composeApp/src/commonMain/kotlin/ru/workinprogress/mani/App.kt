@@ -38,7 +38,7 @@ fun App(platformModules: List<Module> = emptyList()) {
         application = {
             modules(appModules + platformModules)
         }) {
-        AppTheme(darkTheme = false) {
+        AppTheme(darkTheme = true) {
             ManiApp()
         }
     }

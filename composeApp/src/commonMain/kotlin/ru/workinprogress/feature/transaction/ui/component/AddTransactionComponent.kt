@@ -3,6 +3,7 @@ package ru.workinprogress.feature.transaction.ui.component
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,39 +57,32 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
     }
 
     Column(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
-        verticalArrangement = spacedBy(16.dp)
+        modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+        verticalArrangement = spacedBy(24.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+
+        Card(
+            colors = CardDefaults.cardColors().copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            shape = MaterialTheme.shapes.medium.copy(topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp))
         ) {
-            OutlinedTextField(
-                stateValue.amount,
-                viewModel::onAmountChanged,
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
-                visualTransformation = CurrencyVisualTransformation(Currency.Usd),
-                label = { Text("Amount") }
-            )
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Checkbox(stateValue.income, viewModel::onIncomeChanged)
-                Text("Income")
-            }
-            OutlinedTextField(
-                stateValue.comment,
-                viewModel::onCommentChanged,
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 2,
-                label = { Text("Comment") }
-            )
-        }
-
-        Card(colors = CardDefaults.cardColors().copy(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)) {
             Column(
                 modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 24.dp),
                 verticalArrangement = spacedBy(8.dp)
             ) {
+                OutlinedTextField(
+                    stateValue.amount,
+                    viewModel::onAmountChanged,
+                    modifier = Modifier.fillMaxWidth(),
+                    maxLines = 1,
+                    visualTransformation = CurrencyVisualTransformation(Currency.Usd),
+                    label = { Text("Amount") }
+                )
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(stateValue.income, viewModel::onIncomeChanged)
+                    Text("Income")
+                }
+
                 TransactionDatePicker(
                     label = "Date",
                     value = stateValue.date.value?.formatted,
@@ -99,25 +93,32 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
                 )
 
                 if (stateValue.date.value != null) {
-                    Text("Repeat", modifier = Modifier.padding(start = 16.dp, top = 16.dp))
+                    Column(modifier = Modifier.padding(bottom = 4.dp)) {
+                        Text(
+                            "Repeat",
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 4.dp)
+                        )
 
-                    FlowRow(horizontalArrangement = spacedBy(8.dp), modifier = Modifier.animateContentSize()) {
-                        stateValue.periods.forEach { period ->
-                            key(period) {
-                                FilterChip(
-                                    onClick = { viewModel.onPeriodChanged(period) },
-                                    selected = stateValue.period == period,
-                                    label = {
-                                        Text(stringResource(period.stringResource))
-                                    })
+                        FlowRow(horizontalArrangement = spacedBy(8.dp), modifier = Modifier.animateContentSize()) {
+                            stateValue.periods.forEach { period ->
+                                key(period) {
+                                    FilterChip(
+                                        onClick = { viewModel.onPeriodChanged(period) },
+                                        selected = stateValue.period == period,
+                                        label = {
+                                            Text(stringResource(period.stringResource))
+                                        })
+                                }
+                            }
+
+                            if (!stateValue.expanded) {
+                                TextButton(viewModel::onExpandPeriodClicked) {
+                                    Text("more")
+                                }
                             }
                         }
 
-                        if (!stateValue.expanded) {
-                            TextButton(viewModel::onExpandPeriodClicked) {
-                                Text("more")
-                            }
-                        }
                     }
 
                     if (stateValue.period != Transaction.Period.OneTime) {
@@ -131,7 +132,20 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
                         )
                     }
                 }
+
             }
+        }
+
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        ) {
+            OutlinedTextField(
+                stateValue.comment,
+                viewModel::onCommentChanged,
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2,
+                label = { Text("Comment") }
+            )
         }
 
         Button(
