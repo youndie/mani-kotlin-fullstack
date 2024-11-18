@@ -4,12 +4,17 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.shape.CornerSize
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.datetime.*
@@ -72,6 +77,7 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
                 OutlinedTextField(
                     stateValue.amount,
                     viewModel::onAmountChanged,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
                     maxLines = 1,
                     visualTransformation = CurrencyVisualTransformation(Currency.Usd),
@@ -114,7 +120,7 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
 
                             if (!stateValue.expanded) {
                                 TextButton(viewModel::onExpandPeriodClicked) {
-                                    Text("more")
+                                    Text("More")
                                 }
                             }
                         }
@@ -136,12 +142,17 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
             }
         }
 
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         Column(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
         ) {
             OutlinedTextField(
                 stateValue.comment,
                 viewModel::onCommentChanged,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide() }),
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 2,
                 label = { Text("Comment") }

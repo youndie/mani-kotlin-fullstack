@@ -15,10 +15,6 @@ class LoginViewModel(private val loginUseCase: LoginUseCase) : ViewModel() {
     private val state = MutableStateFlow(LoginUiState())
     val observe = state.asStateFlow()
 
-    init {
-        onLoginClicked()
-    }
-
     fun onUsernameChanged(username: String) {
         state.update {
             it.copy(username = username)
