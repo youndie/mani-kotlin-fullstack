@@ -15,7 +15,6 @@ fun appModules(mongoConfig: MongoConfig, jwtConfig: JWTConfig) =
     ) + featureModules()
 
 private fun configModule(jwtConfig: JWTConfig) = module {
-    single<JWTConfig> { jwtConfig }
 }
 
 private fun featureModules() = listOf(
