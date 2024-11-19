@@ -6,24 +6,32 @@ import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.patch
 import io.ktor.client.plugins.resources.post
-import io.ktor.client.request.delete
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.TransactionResource
 
-class TransactionRepository(private val httpClient: HttpClient) {
+interface TransactionRepository {
+    val dataStateFlow: StateFlow<List<Transaction>>
+    suspend fun load()
+    fun getById(transactionId: String): Transaction
+    suspend fun create(params: Transaction): Boolean
+    suspend fun update(params: Transaction): Boolean
+    suspend fun delete(transactionId: String): Boolean
+}
+
+ class TransactionRepositoryImpl(private val httpClient: HttpClient) : TransactionRepository {
 
     private val data = MutableStateFlow(emptyList<Transaction>())
     private val dispatcher = Dispatchers.Default
-    val dataStateFlow = data.asStateFlow()
+    override val dataStateFlow: StateFlow<List<Transaction>> = data.asStateFlow()
 
-    suspend fun create(params: Transaction): Boolean {
+    override suspend fun create(params: Transaction): Boolean {
         data.value += params
 
         try {
@@ -39,11 +47,15 @@ class TransactionRepository(private val httpClient: HttpClient) {
         }
     }
 
-    suspend fun load() = withContext(dispatcher) {
+    override suspend fun load() = withContext(dispatcher) {
         data.value = httpClient.get(TransactionResource()).body<List<Transaction>>()
     }
 
-    suspend fun update(params: Transaction): Boolean {
+    override fun getById(transactionId: String): Transaction {
+        return dataStateFlow.value.first { it.id == transactionId }
+    }
+
+    override suspend fun update(params: Transaction): Boolean {
         val old = data.value.first { it.id == params.id }
 
         data.value -= old
@@ -67,7 +79,7 @@ class TransactionRepository(private val httpClient: HttpClient) {
         return false
     }
 
-    suspend fun delete(transactionId: String): Boolean {
+    override suspend fun delete(transactionId: String): Boolean {
         val transaction = dataStateFlow.value.find { it.id == transactionId } ?: return true
 
         data.value -= transaction
@@ -86,7 +98,4 @@ class TransactionRepository(private val httpClient: HttpClient) {
         return false
     }
 
-    fun getById(transactionId: String): Transaction {
-        return dataStateFlow.value.first { it.id == transactionId }
-    }
 }

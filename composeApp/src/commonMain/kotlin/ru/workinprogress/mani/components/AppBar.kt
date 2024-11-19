@@ -26,6 +26,11 @@ data class Action(
 )
 
 class MainAppBarState {
+    private val enabledState = mutableStateOf(false)
+    private val contextModeState = mutableStateOf(false)
+    private val actionsState = mutableStateOf(emptySet<Action>().toImmutableSet())
+    private val backUpActions = mutableStateOf(emptySet<Action>().toImmutableSet())
+
     val enabled get() = enabledState.value
     val showBack = mutableStateOf(false)
     val title = mutableStateOf("")
@@ -37,10 +42,6 @@ class MainAppBarState {
                 && actions.isEmpty()
                 && !contextMode
 
-    private val enabledState = mutableStateOf(false)
-    private val contextModeState = mutableStateOf(false)
-    private val actionsState = mutableStateOf(emptySet<Action>().toImmutableSet())
-    private val backUpActions = mutableStateOf(emptySet<Action>().toImmutableSet())
 
     fun showAction(action: Action) {
         if (this.enabled.not()) {
@@ -160,5 +161,4 @@ fun ManiAppBar(
             )
         }
     }
-
 }

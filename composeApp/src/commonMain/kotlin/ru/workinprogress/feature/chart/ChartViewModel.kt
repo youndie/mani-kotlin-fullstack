@@ -1,15 +1,12 @@
 package ru.workinprogress.feature.chart
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.chart.ui.model.ChartUi
-import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.data.CurrentCurrencyRepository
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.data.TransactionRepository

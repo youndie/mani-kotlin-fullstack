@@ -1,0 +1,146 @@
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.koin.core.context.startKoin
+import org.koin.core.context.stopKoin
+import org.koin.dsl.module
+import org.koin.test.KoinTest
+import org.koin.test.get
+import ru.workinprogress.feature.currency.Currency
+import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
+import ru.workinprogress.feature.currency.data.CurrentCurrencyRepository
+import ru.workinprogress.feature.transaction.Transaction
+import ru.workinprogress.feature.transaction.data.TransactionRepository
+import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
+import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
+import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
+import ru.workinprogress.mani.today
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertTrue
+
+val currencyRepository = object : CurrentCurrencyRepository {
+    override var currency = Currency.Usd
+}
+
+private fun testModule(withError: Boolean = false) = module {
+    single<TransactionRepository> { FakeTransactionsRepository(withError) }
+    single<GetTransactionsUseCase> { GetTransactionsUseCase(get()) }
+    single<GetCurrentCurrencyUseCase> { GetCurrentCurrencyUseCase(get()) }
+    single<CurrentCurrencyRepository> { currencyRepository }
+    single<DeleteTransactionsUseCase> { DeleteTransactionsUseCase(get()) }
+    single<TransactionsViewModel> { TransactionsViewModel(get(), get(), get()) }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class TransactionsViewModelTest : KoinTest {
+
+    private lateinit var viewModel: TransactionsViewModel
+
+    @BeforeTest
+    fun setUp() {
+        // Start Koin
+        startKoin {
+            modules(testModule(false))
+        }
+        viewModel = get()
+        Dispatchers.setMain(StandardTestDispatcher())
+    }
+
+    //
+    @Test
+    fun testFetchNewsUpdatesStateWhenAPICallIsSuccessful() = runTest {
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
+
+        assertTrue(viewModel.observe.value.errorMessage == null)
+        assertTrue(
+            viewModel.observe.value.data.isNotEmpty(),
+            "Expected transactions to be fetched but got an empty list."
+        )
+    }
+
+    @AfterTest
+    fun tearDown() {
+        stopKoin()
+        Dispatchers.resetMain()
+    }
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class TransactionsViewModelErrorTest : KoinTest {
+
+    private lateinit var viewModel: TransactionsViewModel
+
+    @BeforeTest
+    fun setUp() {
+        // Start Koin
+        startKoin {
+            modules(testModule(true))
+        }
+        viewModel = get()
+        Dispatchers.setMain(StandardTestDispatcher())
+    }
+
+    @Test
+    fun testFetchNewsResetsStateWhenAPICallFails() = runTest {
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
+
+        assertTrue(viewModel.observe.value.errorMessage == "fake")
+        assertTrue(
+            viewModel.observe.value.data.isEmpty(),
+            "Expected an empty list due to API failure but got ${viewModel.observe.value.data.size} items."
+        )
+    }
+
+    @AfterTest
+    fun tearDown() {
+        stopKoin()
+        Dispatchers.resetMain()
+    }
+}
+
+private class FakeTransactionsRepository(private val shouldCrash: Boolean = false) :
+    TransactionRepository {
+    private val data = MutableStateFlow(emptyList<Transaction>())
+
+    override val dataStateFlow: StateFlow<List<Transaction>> = data
+
+    override suspend fun load() {
+        if (shouldCrash) throw RuntimeException("fake")
+        data.value = listOf(
+            Transaction(
+                "", 500.0, true, today(), null, Transaction.Period.OneTime, ""
+            )
+        )
+    }
+
+    override fun getById(transactionId: String): Transaction {
+        return data.value.first { it.id == transactionId }
+    }
+
+    override suspend fun create(params: Transaction): Boolean {
+        data.value += params
+        return true
+    }
+
+    override suspend fun update(params: Transaction): Boolean {
+        data.value = data.value - getById(params.id) + params
+        return true
+    }
+
+    override suspend fun delete(transactionId: String): Boolean {
+        data.value -= getById(transactionId)
+        return true
+    }
+}

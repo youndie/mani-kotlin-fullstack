@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -38,14 +39,15 @@ fun LoginComponent(onSuccess: () -> Unit) {
                 modifier = Modifier.padding(24.dp)
             ) {
                 Text(
-                    "Mani",
+                    text = "Mani",
                     style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("appname")
                 )
                 Spacer(Modifier.height(24.dp))
                 OutlinedTextField(
                     state.value.username,
                     viewModel::onUsernameChanged,
+                    Modifier.testTag("username"),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
@@ -56,6 +58,7 @@ fun LoginComponent(onSuccess: () -> Unit) {
                 OutlinedTextField(
                     state.value.password,
                     viewModel::onPasswordChanged,
+                    Modifier.testTag("password"),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
@@ -68,7 +71,7 @@ fun LoginComponent(onSuccess: () -> Unit) {
                 Spacer(Modifier.height(24.dp))
                 Button(
                     { viewModel.onLoginClicked() },
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login")
                 ) {
                     Text("Login")
                 }
