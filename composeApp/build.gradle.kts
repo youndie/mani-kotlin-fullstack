@@ -4,6 +4,7 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -27,6 +28,8 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
+        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+        instrumentedTestVariant.sourceSetTree.set(KotlinSourceSetTree.test)
     }
 
     listOf(
@@ -71,7 +74,7 @@ kotlin {
             implementation(libs.androidx.preference.ktx)
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.android)
-            implementation("androidx.core:core-splashscreen:1.0.0")
+            implementation(libs.androidx.core.splashscreen)
 
         }
         commonMain.dependencies {
@@ -127,13 +130,13 @@ kotlin {
 android {
     namespace = "ru.workinprogress.mani"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
-
     defaultConfig {
         applicationId = "ru.workinprogress.mani"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     packaging {
         resources {
@@ -152,6 +155,8 @@ android {
 }
 
 dependencies {
+    androidTestImplementation(libs.androidx.ui.test.junit4.android)
+    debugImplementation(libs.androidx.ui.test.manifest)
     debugImplementation(compose.uiTooling)
 }
 
@@ -175,7 +180,10 @@ compose.desktop {
     application {
         // all your other configuration, etc
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
+        jvmArgs(
+            "--add-opens",
+            "java.desktop/java.awt.peer=ALL-UNNAMED"
+        ) // recommended but not necessary
 
         if (System.getProperty("os.name").contains("Mac")) {
             jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
