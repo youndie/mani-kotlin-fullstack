@@ -1,4 +1,4 @@
-package ru.workinprogress.feature.transaction.ui.component
+package ru.workinprogress.feature.transaction.ui.utils
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.OffsetMapping

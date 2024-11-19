@@ -72,8 +72,35 @@ import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.stringResource
+import ru.workinprogress.feature.transaction.ui.utils.CurrencyVisualTransformation
 import ru.workinprogress.mani.navigation.TransactionRoute
 
+
+@Composable
+fun AddTransactionComponent(onNavigateBack: () -> Unit) {
+    rememberKoinModules {
+        listOf(module {
+            singleOf(::AddTransactionUseCase)
+            viewModelOf(::AddTransactionViewModel).bind<BaseTransactionViewModel>()
+        })
+    }
+
+    TransactionComponentImpl(onNavigateBack)
+}
+
+
+@Composable
+fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
+    rememberKoinModules {
+        listOf(module {
+            single<TransactionRoute> { transactionRoute }
+            singleOf(::UpdateTransactionUseCase)
+            viewModelOf(::EditTransactionViewModel).bind<BaseTransactionViewModel>()
+        })
+    }
+
+    TransactionComponentImpl(onNavigateBack)
+}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -297,29 +324,3 @@ inline val Long?.toDate
         Instant.fromEpochMilliseconds(it).toLocalDateTime(TimeZone.currentSystemDefault()).date
     }
 
-
-@Composable
-fun AddTransactionComponent(onNavigateBack: () -> Unit) {
-    rememberKoinModules {
-        listOf(module {
-            singleOf(::AddTransactionUseCase)
-            viewModelOf(::AddTransactionViewModel).bind<BaseTransactionViewModel>()
-        })
-    }
-
-    TransactionComponentImpl(onNavigateBack)
-}
-
-
-@Composable
-fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
-    rememberKoinModules {
-        listOf(module {
-            single<TransactionRoute> { transactionRoute }
-            singleOf(::UpdateTransactionUseCase)
-            viewModelOf(::EditTransactionViewModel).bind<BaseTransactionViewModel>()
-        })
-    }
-
-    TransactionComponentImpl(onNavigateBack)
-}

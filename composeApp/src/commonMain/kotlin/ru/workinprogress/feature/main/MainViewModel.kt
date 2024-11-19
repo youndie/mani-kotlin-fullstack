@@ -136,5 +136,9 @@ class MainViewModel(
         }
     }
 
+    fun onHistoryClicked() {
+
+    }
+
 }
 

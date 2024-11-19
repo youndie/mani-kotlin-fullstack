@@ -10,9 +10,9 @@ import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionUseCase
 
 val transactionsModule = module {
-    viewModelOf(::MainViewModel)
     singleOf(::DeleteTransactionsUseCase)
     singleOf(::GetTransactionsUseCase)
     singleOf(::GetTransactionUseCase)
+
     singleOf(::TransactionRepository)
 }

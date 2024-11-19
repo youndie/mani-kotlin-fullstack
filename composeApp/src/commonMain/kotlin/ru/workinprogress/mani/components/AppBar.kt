@@ -1,6 +1,7 @@
 package ru.workinprogress.mani.components
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -12,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.IntOffset
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableSet
 import ru.workinprogress.mani.emptyImmutableList
 import kotlin.math.roundToInt
 
@@ -36,34 +39,38 @@ class MainAppBarState {
 
     private val enabledState = mutableStateOf(false)
     private val contextModeState = mutableStateOf(false)
-    private val actionsState = mutableStateOf(emptyImmutableList<Action>())
-    private val backUpActions = mutableStateOf(emptyImmutableList<Action>())
+    private val actionsState = mutableStateOf(emptySet<Action>().toImmutableSet())
+    private val backUpActions = mutableStateOf(emptySet<Action>().toImmutableSet())
 
     fun showAction(action: Action) {
         if (this.enabled.not()) {
             this.enabledState.value = true
         }
-        this.actionsState.value = this.actionsState.value.plus(action).toImmutableList()
+        this.actionsState.value = this.actionsState.value.plus(action).toImmutableSet()
     }
 
     fun removeAction(action: Action) {
         if (contextMode) {
-            this.backUpActions.value = this.backUpActions.value.minus(action).toImmutableList()
+            this.backUpActions.value = this.backUpActions.value.minus(action).toImmutableSet()
         } else {
-            this.actionsState.value = this.actionsState.value.minus(action).toImmutableList()
+            this.actionsState.value = this.actionsState.value.minus(action).toImmutableSet()
         }
     }
 
-    fun showContextMenu(actions: List<Action>) {
-        backUpActions.value = this.actionsState.value.toImmutableList()
-        this.actionsState.value = actions.toImmutableList()
-        this.contextModeState.value = true
+    fun showContextMenu(actions: ImmutableSet<Action>) {
+        if (this.contextModeState.value) {
+            this.actionsState.value = actions.toImmutableSet()
+        } else {
+            backUpActions.value = this.actionsState.value.toImmutableSet()
+            this.actionsState.value = actions.toImmutableSet()
+            this.contextModeState.value = true
+        }
     }
 
     fun closeContextMenu() {
         if (contextModeState.value.not()) return
-        this.actionsState.value = backUpActions.value.toImmutableList()
-        backUpActions.value = emptyImmutableList()
+        this.actionsState.value = backUpActions.value.toImmutableSet()
+        backUpActions.value = emptySet<Action>().toImmutableSet()
         contextModeState.value = false
     }
 }
@@ -105,18 +112,23 @@ fun ManiAppBar(
                         enter = fadeIn() + expandIn(expandFrom = Alignment.CenterStart),
                         exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterStart)
                     ) {
-                        appbarState.actions.forEach { action ->
-                            IconButton(onClick = {
-                                action.onClick()
-                            }) {
-                                Icon(imageVector = action.icon, contentDescription = action.name)
+                        Row {
+                            appbarState.actions.forEach { action ->
+                                IconButton(onClick = {
+                                    action.onClick()
+                                }) {
+                                    Icon(
+                                        imageVector = action.icon,
+                                        contentDescription = action.name
+                                    )
+                                }
                             }
                         }
                     }
                 },
                 navigationIcon = {
                     AnimatedVisibility(
-                        appbarState.showBack.value,
+                        appbarState.showBack.value && !appbarState.contextMode,
                         enter = fadeIn() + expandIn(expandFrom = Alignment.CenterEnd),
                         exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterEnd)
                     ) {
