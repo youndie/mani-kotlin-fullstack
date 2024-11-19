@@ -2,16 +2,41 @@ package ru.workinprogress.feature.transaction.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -26,27 +51,35 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
-import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
+import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.AddTransactionViewModel
-import ru.workinprogress.feature.transaction.ui.model.AddTransactionUiState
+import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
+import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
+import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.stringResource
+import ru.workinprogress.mani.navigation.TransactionRoute
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
-    val viewModel = koinViewModel<AddTransactionViewModel>()
-    val state: State<AddTransactionUiState> = viewModel.observe.collectAsStateWithLifecycle()
+private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
+    val viewModel = koinViewModel<BaseTransactionViewModel>()
+    val state: State<TransactionUiState> = viewModel.observe.collectAsStateWithLifecycle()
     val stateValue = state.value
 
     val datePickerState = rememberDatePickerState(
@@ -241,11 +274,11 @@ private fun AddTransactionComponentImpl(onNavigateBack: () -> Unit) {
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = viewModel::onCreateClicked,
+            onClick = viewModel::onSubmitClicked,
             enabled = stateValue.valid,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            Text("Create")
+            Text(if (stateValue.edit) "Save" else "Create")
         }
     }
 }
@@ -270,9 +303,23 @@ fun AddTransactionComponent(onNavigateBack: () -> Unit) {
     rememberKoinModules {
         listOf(module {
             singleOf(::AddTransactionUseCase)
-            viewModelOf(::AddTransactionViewModel)
+            viewModelOf(::AddTransactionViewModel).bind<BaseTransactionViewModel>()
         })
     }
 
-    AddTransactionComponentImpl(onNavigateBack)
+    TransactionComponentImpl(onNavigateBack)
+}
+
+
+@Composable
+fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
+    rememberKoinModules {
+        listOf(module {
+            single<TransactionRoute> { transactionRoute }
+            singleOf(::UpdateTransactionUseCase)
+            viewModelOf(::EditTransactionViewModel).bind<BaseTransactionViewModel>()
+        })
+    }
+
+    TransactionComponentImpl(onNavigateBack)
 }

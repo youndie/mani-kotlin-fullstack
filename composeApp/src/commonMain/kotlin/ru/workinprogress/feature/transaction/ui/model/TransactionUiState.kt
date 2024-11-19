@@ -9,7 +9,8 @@ import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.mani.today
 
-data class AddTransactionUiState(
+data class TransactionUiState(
+    val id: String = "temp",
     val amount: String = "",
     val income: Boolean = true,
     val period: Transaction.Period = Transaction.Period.OneTime,
@@ -19,7 +20,8 @@ data class AddTransactionUiState(
     val until: DateDataUiState = DateDataUiState(),
     val success: Boolean = false,
     val futureInformation: AnnotatedString = AnnotatedString(""),
-    val currency: Currency = Currency("", "", "")
+    val currency: Currency = Currency("", "", ""),
+    val edit: Boolean = false
 ) {
 
     val expanded
@@ -29,7 +31,7 @@ data class AddTransactionUiState(
 
     val tempTransaction
         get() = Transaction(
-            id = "temp",
+            id = id,
             amount = amount.toDoubleOrNull() ?: 0.0,
             income = income,
             period = period,
@@ -39,14 +41,25 @@ data class AddTransactionUiState(
         )
 
     companion object {
+        operator fun invoke(transaction: Transaction?, currency: Currency) = transaction?.let {
+            TransactionUiState(
+                transaction.id,
+                transaction.amount.toString(),
+                transaction.income,
+                transaction.period,
+                defaultPeriods,
+                transaction.comment,
+                DateDataUiState(transaction.date),
+                DateDataUiState(transaction.until),
+                currency = currency
+            )
+        } ?: TransactionUiState()
+
         private val defaultPeriods = listOf(
-            Transaction.Period.OneTime,
-            Transaction.Period.TwoWeek,
-            Transaction.Period.Month
+            Transaction.Period.OneTime, Transaction.Period.TwoWeek, Transaction.Period.Month
         ).toImmutableList()
     }
 }
-
 
 @Serializable
 data class DateDataUiState(val value: LocalDate? = null, val showDatePicker: Boolean = false)

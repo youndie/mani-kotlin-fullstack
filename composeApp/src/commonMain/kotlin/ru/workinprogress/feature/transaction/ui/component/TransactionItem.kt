@@ -25,8 +25,10 @@ fun TransactionItem(
     transaction: TransactionUiItem,
     selected: Boolean,
     selectionMode: Boolean,
-    onItemSelected: (TransactionUiItem) -> Unit
-) {
+    onItemSelected: (TransactionUiItem) -> Unit,
+    onItemClicked: (TransactionUiItem) -> Unit,
+
+    ) {
     val haptics = LocalHapticFeedback.current
     val containerColor by animateColorAsState(
         if (selected) {
@@ -43,6 +45,8 @@ fun TransactionItem(
                 onClick = {
                     if (selectionMode) {
                         onItemSelected(transaction)
+                    } else {
+                        onItemClicked(transaction)
                     }
                 },
                 onLongClick = {

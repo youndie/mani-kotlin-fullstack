@@ -2,6 +2,7 @@ package ru.workinprogress.feature.transaction
 
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.delete
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.get
+import io.github.smiley4.ktorswaggerui.dsl.routing.resources.patch
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.post
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -53,6 +54,26 @@ fun Routing.transactionRouting() {
             }
         }) {
             call.respond(HttpStatusCode.OK, transactionRepository.getByUser(call.currentUserId()))
+        }
+
+        patch<TransactionResource.ById>({
+            request {
+                pathParameter<String>("id")
+                body<Transaction>()
+            }
+            response {
+                HttpStatusCode.OK to { body<Transaction>() }
+            }
+        }) { path ->
+            val new = call.receive<Transaction>()
+            val old = transactionRepository.getById(path.id)
+
+            if (old?.userId != call.currentUserId()) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@patch
+            }
+            transactionRepository.update(new, old.userId)
+            call.respond(HttpStatusCode.OK, new)
         }
 
         delete<TransactionResource.ById>({

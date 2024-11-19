@@ -13,3 +13,13 @@ class AddTransactionUseCase(private val transactionsRepository: TransactionRepos
         }
     }
 }
+
+class UpdateTransactionUseCase(private val transactionsRepository: TransactionRepository) :
+    UseCase<Transaction, Boolean>() {
+
+    override suspend operator fun invoke(params: Transaction): Result<Boolean> {
+        return withTry {
+            transactionsRepository.update(params)
+        }
+    }
+}

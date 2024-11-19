@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -42,7 +43,11 @@ import ru.workinprogress.mani.components.MainAppBarState
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostState) {
+fun MainComponent(
+    appBarState: MainAppBarState,
+    snackbarHostState: SnackbarHostState,
+    onTransactionClicked: (String) -> Unit
+) {
     val viewModel = koinViewModel<MainViewModel>()
     val state: State<MainUiState> = viewModel.observe.collectAsStateWithLifecycle()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -168,16 +173,16 @@ fun MainComponent(appBarState: MainAppBarState, snackbarHostState: SnackbarHostS
                     }
                 }
             }
-            day.value.forEach { transaction ->
-                item {
-                    TransactionItem(
-                        Modifier.animateItem(),
-                        transaction,
-                        transaction in state.value.selectedTransactions,
-                        appBarState.contextMode,
-                        viewModel::onTransactionSelected
-                    )
-                }
+            items(day.value) { transaction ->
+                TransactionItem(
+                    Modifier.animateItem(),
+                    transaction,
+                    transaction in state.value.selectedTransactions,
+                    appBarState.contextMode,
+                    viewModel::onTransactionSelected,
+                    { onTransactionClicked(it.id) }
+                )
+
             }
         }
 

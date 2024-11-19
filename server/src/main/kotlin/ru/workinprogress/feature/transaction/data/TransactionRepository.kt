@@ -16,16 +16,7 @@ class TransactionRepository(mongoDatabase: MongoDatabase) {
 
     suspend fun create(transaction: Transaction, userId: String): String {
         return db.insertOne(
-            TransactionDb(
-                id = ObjectId(),
-                amount = transaction.amount,
-                income = transaction.income,
-                date = transaction.date.toString(),
-                until = transaction.until?.toString(),
-                period = transaction.period.name,
-                comment = transaction.comment,
-                userId = userId,
-            )
+            mapToDb(transaction, userId = userId)
         ).insertedId.stringValue
     }
 
@@ -34,7 +25,15 @@ class TransactionRepository(mongoDatabase: MongoDatabase) {
     }
 
     suspend fun getByUser(userId: String): List<Transaction> {
-        return db.find<TransactionDb>(Filters.eq(TransactionDb::userId.name, userId)).toList().map { it.mapFromDb() }
+        return db.find<TransactionDb>(Filters.eq(TransactionDb::userId.name, userId)).toList()
+            .map { it.mapFromDb() }
+    }
+
+    suspend fun update(transaction: Transaction, userId: String) {
+        val id = ObjectId(transaction.id)
+        db.replaceOne(
+            Filters.eq("_id", id), mapToDb(transaction, id, userId)
+        )
     }
 
     suspend fun delete(id: String): Boolean {
@@ -42,6 +41,19 @@ class TransactionRepository(mongoDatabase: MongoDatabase) {
     }
 
     companion object {
+
+        private fun mapToDb(transaction: Transaction, id: ObjectId = ObjectId(), userId: String) =
+            TransactionDb(
+                id = id,
+                amount = transaction.amount,
+                income = transaction.income,
+                date = transaction.date.toString(),
+                until = transaction.until?.toString(),
+                period = transaction.period.name,
+                comment = transaction.comment,
+                userId = userId,
+            )
+
         fun TransactionDb.mapFromDb(): Transaction {
             return Transaction(
                 id = id.toHexString(),

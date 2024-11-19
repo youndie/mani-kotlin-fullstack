@@ -4,6 +4,8 @@ abstract class UseCase<P, T> {
     abstract suspend operator fun invoke(params: P): Result<T>
 
     protected inline fun withTry(func: () -> T): Result<T> = withTry<T>(func)
+    suspend fun get(params: P) = ((invoke(params)) as Result.Success<T>).data
+    suspend fun getOrNull(params: P) = ((invoke(params)) as? Result.Success<T>)?.data
 
     sealed class Result<T> {
         class Error<T>(val throwable: Throwable) : Result<T>()

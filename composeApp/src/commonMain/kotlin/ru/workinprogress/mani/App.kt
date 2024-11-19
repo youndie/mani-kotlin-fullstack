@@ -16,9 +16,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
+import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.mani.components.MainAppBarState
 import ru.workinprogress.mani.components.ManiAppBar
 import ru.workinprogress.mani.navigation.ManiAppNavHost
@@ -47,8 +49,12 @@ fun ManiApp(
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen =
+
+    val currentScreen = try {
         ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Preload.name)
+    } catch (e: Exception) {
+        ManiScreen.Edit
+    }
 
     LaunchedEffect(backStackEntry) {
         appBarState.showBack.value = navController.previousBackStackEntry != null

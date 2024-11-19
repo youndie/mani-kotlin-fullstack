@@ -15,11 +15,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.feature.auth.ui.LoginComponent
 import ru.workinprogress.feature.main.ui.MainComponent
+import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.ui.component.AddTransactionComponent
+import ru.workinprogress.feature.transaction.ui.component.EditTransactionComponent
 import ru.workinprogress.mani.components.MainAppBarState
 
 @Composable
@@ -40,7 +44,9 @@ fun ManiAppNavHost(
         modifier = Modifier.fillMaxSize().then(modifier)
     ) {
         composable(ManiScreen.Main.name) {
-            MainComponent(appBarState, snackbarHostState)
+            MainComponent(appBarState, snackbarHostState) {
+                navController.navigate(TransactionRoute(it))
+            }
         }
         composable(ManiScreen.Add.name) {
             AddTransactionComponent {
@@ -55,5 +61,14 @@ fun ManiAppNavHost(
         composable(ManiScreen.Preload.name) {
             Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLowest))
         }
+        composable<TransactionRoute> {
+            val transaction = it.toRoute<TransactionRoute>()
+            EditTransactionComponent(transaction) {
+                navController.popBackStack()
+            }
+        }
     }
 }
+
+@Serializable
+class TransactionRoute(val id: String)
