@@ -67,7 +67,12 @@ kotlin {
 
     sourceSets {
         val desktopMain by getting
-
+        val desktopTest by getting {
+            dependencies {
+                implementation(compose.desktop.uiTestJUnit4)
+                implementation(compose.desktop.currentOs)
+            }
+        }
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -115,6 +120,7 @@ kotlin {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
+
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
