@@ -9,7 +9,6 @@ import kotlin.test.Test
 
 class ClientKoinModuleTest {
 
-    //https://github.com/InsertKoinIO/koin/issues/2029
     @OptIn(KoinExperimentalAPI::class)
     @Test
     fun checkKoinModule() {

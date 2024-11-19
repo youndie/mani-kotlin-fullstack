@@ -159,13 +159,27 @@ fun MainComponent(
         viewModel::onDismissDeleteDialog
     )
 
-
-
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
         item {
             val handle = LocalPinnableContainer.current?.pin()
             ChartComponent()
         }
+
+        item {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                Text(
+                    state.value.futureInformation,
+                    modifier = Modifier.padding(
+                        start = 32.dp,
+                        top = 12.dp,
+                        bottom = 4.dp,
+                        end = 32.dp
+                    ),
+                    style = MaterialTheme.typography.labelMedium
+                )
+            }
+        }
+
         state.value.transactions.forEach { day ->
             val (date, list) = day
             TransactionsDay(

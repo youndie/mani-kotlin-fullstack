@@ -186,10 +186,7 @@ compose.desktop {
     application {
         // all your other configuration, etc
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-        jvmArgs(
-            "--add-opens",
-            "java.desktop/java.awt.peer=ALL-UNNAMED"
-        ) // recommended but not necessary
+        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
 
         if (System.getProperty("os.name").contains("Mac")) {
             jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")

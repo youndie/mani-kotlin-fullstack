@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.main
 
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
@@ -19,7 +20,7 @@ import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
-import ru.workinprogress.mani.defaultMinDate
+import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
 
 
@@ -103,14 +104,23 @@ class MainViewModel(
 
             is UseCase.Result.Success -> {
                 result.data.flowOn(Dispatchers.Default).collectLatest { transactions ->
+                    val transactionsByDays = transactions.run { simulate() }
+                        .filterValues { transactions -> transactions.isNotEmpty() }
+                        .filterKeys { today() <= it }.mapValues { entry ->
+                            entry.value.map { transaction ->
+                                TransactionUiItem(transaction, currency)
+                            }.toImmutableList()
+                        }.toImmutableMap()
+
+                    val firstOfTheFirst = transactionsByDays.entries.first().value.first()
+
                     state.update { state ->
-                        state.copy(transactions = transactions.run { simulate() }
-                            .filterValues { transactions -> transactions.isNotEmpty() }
-                            .filterKeys { defaultMinDate < it }.mapValues { entry ->
-                                entry.value.map { transaction ->
-                                    TransactionUiItem(transaction, currency)
-                                }.toImmutableList()
-                            }.toImmutableMap())
+                        state.copy(
+                            transactions = transactionsByDays,
+                            futureInformation = buildAnnotatedString {
+                                append("next transaction ${firstOfTheFirst.date}: ")
+                                append(firstOfTheFirst.amount)
+                            })
                     }
                 }
             }

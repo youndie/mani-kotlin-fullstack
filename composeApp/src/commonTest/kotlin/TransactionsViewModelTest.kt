@@ -1,5 +1,6 @@
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -20,6 +21,7 @@ import ru.workinprogress.feature.transaction.data.TransactionRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
+import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.today
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -56,7 +58,7 @@ class TransactionsViewModelTest : KoinTest {
 
     //
     @Test
-    fun testFetchNewsUpdatesStateWhenAPICallIsSuccessful() = runTest {
+    fun testLoadTransactions() = runTest {
         while (viewModel.observe.value.loading) {
             runCurrent()
         }
@@ -67,6 +69,32 @@ class TransactionsViewModelTest : KoinTest {
             "Expected transactions to be fetched but got an empty list."
         )
     }
+//
+//    @Test
+//    fun testDeleteSelectedTransactions() = runTest {
+//        while (viewModel.observe.value.loading) {
+//            runCurrent()
+//        }
+//
+//        viewModel.onTransactionSelected(TransactionUiItem(toDelete, currencyRepository.currency))
+//        assertTrue(
+//            TransactionUiItem(
+//                toDelete,
+//                currencyRepository.currency
+//            ) in viewModel.observe.value.selectedTransactions
+//        )
+//
+//        viewModel.onDeleteClicked()
+//        runCurrent()
+////        assertTrue(viewModel.observe.value.selectedTransactions.isEmpty())
+//        while (viewModel.observe.value.selectedTransactions.isEmpty().not()) {
+//            runCurrent()
+//        }
+//        runCurrent()
+//
+//        assertTrue(viewModel.observe.value.data.flatMap { it.value }.none { it.id == toDelete.id })
+//    }
+
 
     @AfterTest
     fun tearDown() {
@@ -91,7 +119,7 @@ class TransactionsViewModelErrorTest : KoinTest {
     }
 
     @Test
-    fun testFetchNewsResetsStateWhenAPICallFails() = runTest {
+    fun testLoadTransactionsFailed() = runTest {
         while (viewModel.observe.value.loading) {
             runCurrent()
         }
@@ -110,6 +138,10 @@ class TransactionsViewModelErrorTest : KoinTest {
     }
 }
 
+val toDelete = Transaction(
+    "toDelete", 500.0, true, today(), null, Transaction.Period.OneTime, ""
+)
+
 private class FakeTransactionsRepository(private val shouldCrash: Boolean = false) :
     TransactionRepository {
     private val data = MutableStateFlow(emptyList<Transaction>())
@@ -121,7 +153,8 @@ private class FakeTransactionsRepository(private val shouldCrash: Boolean = fals
         data.value = listOf(
             Transaction(
                 "", 500.0, true, today(), null, Transaction.Period.OneTime, ""
-            )
+            ),
+            toDelete
         )
     }
 

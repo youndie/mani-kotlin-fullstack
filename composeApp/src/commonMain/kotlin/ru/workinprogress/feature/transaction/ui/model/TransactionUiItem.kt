@@ -24,6 +24,7 @@ data class TransactionUiItem(
             return TransactionUiItem(
                 id = transaction.id,
                 amount = buildAnnotatedString {
+
                     withStyle(style = SpanStyle(color = if (transaction.income) Color.Green else Color.Red)) {
                         append(if (transaction.income) "+${transaction.amount.roundToInt()} ${currency.symbol}" else "-${transaction.amount.roundToInt()} ${currency.symbol}")
                     }

@@ -280,7 +280,6 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                     style = MaterialTheme.typography.labelMedium
                 )
             }
-
         }
 
         Spacer(modifier = Modifier.height(16.dp))
