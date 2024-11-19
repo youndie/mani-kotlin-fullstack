@@ -34,27 +34,38 @@ fun LoginComponent(onSuccess: () -> Unit) {
     Box(contentAlignment = Alignment.Center) {
         Card {
             Column(
-                verticalArrangement = spacedBy(8.dp, Alignment.CenterVertically),
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier.padding(24.dp)
             ) {
-                Text("Login", style = MaterialTheme.typography.headlineMedium)
-                Spacer(Modifier.height(4.dp))
+                Text(
+                    "Mani",
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(Modifier.height(24.dp))
                 OutlinedTextField(
                     state.value.username,
                     viewModel::onUsernameChanged,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
                     label = { Text("Username") }
                 )
+                Spacer(Modifier.height(8.dp))
                 OutlinedTextField(
                     state.value.password,
                     viewModel::onPasswordChanged,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                    ),
                     keyboardActions = KeyboardActions(onDone = {
                         viewModel.onLoginClicked()
                     }),
                     visualTransformation = PasswordVisualTransformation(),
                     label = { Text("Password") })
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(24.dp))
                 Button(
                     { viewModel.onLoginClicked() },
                     modifier = Modifier.align(Alignment.CenterHorizontally)

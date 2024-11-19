@@ -30,37 +30,14 @@ import kotlin.math.roundToInt
 @Composable
 @Preview
 fun App(platformModules: List<Module> = emptyList()) {
-    KoinApplication(
-        application = {
-            modules(appModules + platformModules)
-        }) {
+    KoinApplication(application = {
+        modules(appModules + platformModules)
+    }) {
         AppTheme(darkTheme = true) {
             ManiApp()
         }
     }
 }
-
-
-fun createTypography(parent: Typography, fontFamily: FontFamily): Typography {
-    return Typography(
-        parent.displayLarge.copy(fontFamily = fontFamily),
-        parent.displayMedium.copy(fontFamily = fontFamily),
-        parent.displaySmall.copy(fontFamily = fontFamily),
-        parent.headlineLarge.copy(fontFamily = fontFamily),
-        parent.headlineMedium.copy(fontFamily = fontFamily),
-        parent.headlineSmall.copy(fontFamily = fontFamily),
-        parent.titleLarge.copy(fontFamily = fontFamily),
-        parent.titleMedium.copy(fontFamily = fontFamily),
-        parent.titleSmall.copy(fontFamily = fontFamily),
-        parent.bodyLarge.copy(fontFamily = fontFamily),
-        parent.bodyMedium.copy(fontFamily = fontFamily),
-        parent.bodySmall.copy(fontFamily = fontFamily),
-        parent.labelLarge.copy(fontFamily = fontFamily),
-        parent.labelMedium.copy(fontFamily = fontFamily),
-        parent.labelSmall.copy(fontFamily = fontFamily)
-    )
-}
-
 
 @Composable
 fun ManiApp(
@@ -70,7 +47,8 @@ fun ManiApp(
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val currentScreen = ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Main.name)
+    val currentScreen =
+        ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Preload.name)
 
     LaunchedEffect(backStackEntry) {
         appBarState.showBack.value = navController.previousBackStackEntry != null
@@ -82,8 +60,7 @@ fun ManiApp(
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
+        modifier = modifier.fillMaxSize()
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(WindowInsets.safeDrawing)
     ) {
@@ -99,18 +76,18 @@ fun ManiApp(
             floatingActionButton = {
                 AnimatedVisibility(
                     currentScreen == ManiScreen.Main,
-                    exit = fadeOut() + slideOut(targetOffset = {
-                        IntOffset(
-                            0,
-                            (it.height / 2f).roundToInt()
-                        )
-                    }),
-                    enter = fadeIn() + slideIn(initialOffset = {
-                        IntOffset(
-                            0,
-                            (it.height / 2f).roundToInt()
-                        )
-                    })
+                    exit = fadeOut() + slideOut(
+                        targetOffset = {
+                            IntOffset(
+                                0, (it.height / 2f).roundToInt()
+                            )
+                        }),
+                    enter = fadeIn() + slideIn(
+                        initialOffset = {
+                            IntOffset(
+                                0, (it.height / 2f).roundToInt()
+                            )
+                        })
                 ) {
                     FloatingActionButton(onClick = {
                         navController.navigate(ManiScreen.Add.name)
@@ -121,8 +98,7 @@ fun ManiApp(
                         )
                     }
                 }
-            }
-        ) { padding ->
+            }) { padding ->
             ManiAppNavHost(
                 modifier = Modifier.padding(padding),
                 navController = navController,

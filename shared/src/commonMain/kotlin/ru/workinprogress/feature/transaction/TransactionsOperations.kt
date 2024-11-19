@@ -7,6 +7,9 @@ import kotlinx.datetime.plus
 import ru.workinprogress.feature.chart.ChartResponse
 import ru.workinprogress.mani.today
 
+const val DEFAULT_PERIOD_VALUE = 3
+val DEFAULT_PERIOD_UNIT = DateTimeUnit.MONTH
+
 fun createDates(from: LocalDate, to: LocalDate): List<LocalDate> {
     return buildList {
         var currentDate = from
@@ -22,9 +25,6 @@ fun List<Transaction>.defaultPeriod(): Pair<LocalDate, LocalDate> {
     val to = defaultPeriodAppend(today())
     return from to to
 }
-
-const val DEFAULT_PERIOD_VALUE = 3
-val DEFAULT_PERIOD_UNIT = DateTimeUnit.MONTH
 
 fun defaultPeriodAppend(date: LocalDate) =
     date.plus(DEFAULT_PERIOD_VALUE, DEFAULT_PERIOD_UNIT)

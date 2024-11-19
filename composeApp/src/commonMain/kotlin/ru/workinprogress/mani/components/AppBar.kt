@@ -23,8 +23,9 @@ data class Action(
 )
 
 class MainAppBarState {
+    val enabled get() = enabledState.value
     val showBack = mutableStateOf(false)
-    val title = mutableStateOf(" ")
+    val title = mutableStateOf("")
     val contextTitle = mutableStateOf("")
     val contextMode get() = contextModeState.value
     val actions get() = actionsState.value
@@ -33,16 +34,24 @@ class MainAppBarState {
                 && actions.isEmpty()
                 && !contextMode
 
+    private val enabledState = mutableStateOf(false)
     private val contextModeState = mutableStateOf(false)
     private val actionsState = mutableStateOf(emptyImmutableList<Action>())
     private val backUpActions = mutableStateOf(emptyImmutableList<Action>())
 
     fun showAction(action: Action) {
+        if (this.enabled.not()) {
+            this.enabledState.value = true
+        }
         this.actionsState.value = this.actionsState.value.plus(action).toImmutableList()
     }
 
     fun removeAction(action: Action) {
-        this.actionsState.value = this.actionsState.value.minus(action).toImmutableList()
+        if (contextMode) {
+            this.backUpActions.value = this.backUpActions.value.minus(action).toImmutableList()
+        } else {
+            this.actionsState.value = this.actionsState.value.minus(action).toImmutableList()
+        }
     }
 
     fun showContextMenu(actions: List<Action>) {
@@ -52,10 +61,9 @@ class MainAppBarState {
     }
 
     fun closeContextMenu() {
-        if (backUpActions.value.isNotEmpty()) {
-            this.actionsState.value = backUpActions.value.toImmutableList()
-            backUpActions.value = emptyImmutableList()
-        }
+        if (contextModeState.value.not()) return
+        this.actionsState.value = backUpActions.value.toImmutableList()
+        backUpActions.value = emptyImmutableList()
         contextModeState.value = false
     }
 }
@@ -66,73 +74,79 @@ fun ManiAppBar(
     appbarState: MainAppBarState = remember { MainAppBarState() },
     onBack: () -> Unit
 ) {
-    AnimatedVisibility(
-        appbarState.empty.not(),
-        exit = fadeOut() + slideOut(targetOffset = {
-            IntOffset(
-                0,
-                -(it.height / 2f).roundToInt()
-            )
-        }),
-        enter = fadeIn() + slideIn(initialOffset = {
-            IntOffset(
-                0,
-                -(it.height / 2f).roundToInt()
-            )
-        })
-    ) {
-        TopAppBar(
-            modifier = Modifier,
-            title = { Text(if (appbarState.contextMode) appbarState.contextTitle.value else appbarState.title.value) },
-            colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = if (appbarState.contextMode) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainer,
-                titleContentColor = if (appbarState.contextMode) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface,
-            ),
-            actions = {
-                AnimatedVisibility(
-                    appbarState.actions.isNotEmpty(),
-                    enter = fadeIn() + expandIn(expandFrom = Alignment.CenterStart),
-                    exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterStart)
-                ) {
-                    appbarState.actions.forEach { action ->
-                        IconButton(onClick = {
-                            action.onClick()
-                        }) {
-                            Icon(imageVector = action.icon, contentDescription = action.name)
+    if (appbarState.enabled) {
+        AnimatedVisibility(
+            appbarState.empty.not(),
+            exit = fadeOut() + slideOut(targetOffset = {
+                IntOffset(
+                    0,
+                    -(it.height / 2f).roundToInt()
+                )
+            }),
+            enter = fadeIn() + slideIn(initialOffset = {
+                IntOffset(
+                    0,
+                    -(it.height / 2f).roundToInt()
+                )
+            })
+        ) {
+            TopAppBar(
+                modifier = Modifier,
+                title = { Text(if (appbarState.contextMode) appbarState.contextTitle.value else appbarState.title.value) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = if (appbarState.contextMode) {
+                        MaterialTheme.colorScheme.surfaceContainerLow
+                    } else MaterialTheme.colorScheme.surfaceContainer,
+                    titleContentColor = if (appbarState.contextMode) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface,
+                ),
+                actions = {
+                    AnimatedVisibility(
+                        appbarState.actions.isNotEmpty(),
+                        enter = fadeIn() + expandIn(expandFrom = Alignment.CenterStart),
+                        exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterStart)
+                    ) {
+                        appbarState.actions.forEach { action ->
+                            IconButton(onClick = {
+                                action.onClick()
+                            }) {
+                                Icon(imageVector = action.icon, contentDescription = action.name)
+                            }
+                        }
+                    }
+                },
+                navigationIcon = {
+                    AnimatedVisibility(
+                        appbarState.showBack.value,
+                        enter = fadeIn() + expandIn(expandFrom = Alignment.CenterEnd),
+                        exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterEnd)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                onBack()
+                            }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "back"
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        appbarState.contextMode,
+                        enter = fadeIn() + expandIn(expandFrom = Alignment.CenterEnd),
+                        exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterEnd)
+                    ) {
+                        IconButton(
+                            onClick = {
+                                appbarState.closeContextMenu()
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Close, contentDescription = "back"
+                            )
                         }
                     }
                 }
-            },
-            navigationIcon = {
-                AnimatedVisibility(
-                    appbarState.showBack.value,
-                    enter = fadeIn() + expandIn(expandFrom = Alignment.CenterEnd),
-                    exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterEnd)
-                ) {
-                    IconButton(
-                        onClick = {
-                            onBack()
-                        }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back"
-                        )
-                    }
-                }
-                AnimatedVisibility(
-                    appbarState.contextMode,
-                    enter = fadeIn() + expandIn(expandFrom = Alignment.CenterEnd),
-                    exit = fadeOut() + shrinkOut(shrinkTowards = Alignment.CenterEnd)
-                ) {
-                    IconButton(
-                        onClick = {
-                            appbarState.closeContextMenu()
-                        }) {
-                        Icon(
-                            imageVector = Icons.Default.Close, contentDescription = "back"
-                        )
-                    }
-                }
-            }
-        )
+            )
+        }
     }
+
 }

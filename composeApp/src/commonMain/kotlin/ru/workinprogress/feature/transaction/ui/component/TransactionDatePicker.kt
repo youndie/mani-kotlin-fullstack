@@ -56,11 +56,9 @@ fun TransactionDatePicker(
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis
                         ?.toDate
-                        ?.let {
-                            onDateSelected(it)
-                        }
+                        ?.let(onDateSelected)
                 }) {
-                    Text("Ok")
+                    Text("OK")
                 }
             },
             dismissButton = {

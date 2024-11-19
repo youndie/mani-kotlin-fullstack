@@ -34,23 +34,19 @@ fun ChartComponent(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<ChartViewModel>()
     val state: ChartUi? by viewModel.observe.collectAsStateWithLifecycle(null)
 
-    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxWidth().padding(16.dp)) {
-        Row(
-            modifier = Modifier
-                .aspectRatio(3 / 2f)
-                .padding(horizontal = 8.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            state?.let { chart ->
-                ChartImpl(
-                    chart.days.values.toImmutableList(),
-                    chart.days.keys
-                        .groupBy { "${it.year}-${it.monthNumber}" }
-                        .map { it.value.first().format(format) }
-                        .toImmutableList(),
-                    currency = chart.currency
-                )
-            }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.fillMaxWidth().padding(16.dp),
+    ) {
+        state?.let { chart ->
+            ChartImpl(
+                chart.days.values.toImmutableList(),
+                chart.days.keys
+                    .groupBy { "${it.year}-${it.monthNumber}" }
+                    .map { it.value.first().format(format) }
+                    .toImmutableList(),
+                currency = chart.currency
+            )
         }
     }
 }

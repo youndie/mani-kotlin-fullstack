@@ -23,7 +23,7 @@ import ru.workinprogress.feature.currency.Currency
 import kotlin.math.absoluteValue
 
 @Composable
-fun RowScope.ChartImpl(
+fun ChartImpl(
     values: ImmutableList<Double>,
     labels: ImmutableList<String>,
     currency: Currency
@@ -50,13 +50,16 @@ fun RowScope.ChartImpl(
     Card(
         colors = CardDefaults.cardColors()
             .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier.height(270.dp)
+        modifier = Modifier
+            .heightIn(max = 270.dp)
             .widthIn(max = 480.dp)
-            .weight(1f)
+            .aspectRatio(3 / 2f)
             .border(2.dp, Color.Transparent, RoundedCornerShape(12.dp)),
         elevation = CardDefaults.elevatedCardElevation(2.dp),
     ) {
-        Box(modifier = Modifier.fillMaxSize().padding(vertical = 12.dp, horizontal = 12.dp)) {
+        Box(
+            modifier = Modifier.fillMaxSize().padding(vertical = 12.dp, horizontal = 12.dp)
+        ) {
             LineChart(
                 modifier = Modifier.fillMaxSize(),
                 data = data,

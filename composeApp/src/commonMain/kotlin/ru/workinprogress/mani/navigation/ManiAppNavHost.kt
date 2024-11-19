@@ -1,8 +1,11 @@
 package ru.workinprogress.mani.navigation
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
@@ -28,7 +31,6 @@ fun ManiAppNavHost(
     snackbarHostState: SnackbarHostState,
 ) {
     val tokenRepository = koinInject<TokenRepository>()
-
     val tokenState = tokenRepository.observeToken().collectAsStateWithLifecycle()
     val isAuth = derivedStateOf { tokenState.value.refreshToken?.isNotEmpty() == true }
 
@@ -49,6 +51,9 @@ fun ManiAppNavHost(
             LoginComponent {
                 navController.navigateAndClean(ManiScreen.Main.name)
             }
+        }
+        composable(ManiScreen.Preload.name) {
+            Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLowest))
         }
     }
 }
