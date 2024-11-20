@@ -36,6 +36,7 @@ jobs:
         with:
           push: true
           tags: localhost:5000/mani/backend:latest
+          build-contexts:
 
       - name: Inspect
         run: |
