@@ -21,4 +21,5 @@ jobs:
     - name: Test
       run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
     - name: Build
-      run: ./gradlew :server:jar :composeApp:assembleDebug :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon
+      run: ./gradlew :server:jar :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon
+#:composeApp:assembleDebug
