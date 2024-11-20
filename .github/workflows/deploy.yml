@@ -36,7 +36,7 @@ jobs:
         with:
           push: true
           tags: localhost:5000/mani/backend:latest
-          platforms: macos/arm64
+        platforms: linux/arm64
       - name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/mani/backend:latest     
