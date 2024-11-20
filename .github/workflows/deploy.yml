@@ -6,6 +6,11 @@ on:
 jobs:
   build:
     runs-on: [ macos, self-hosted ]
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -31,9 +36,9 @@ jobs:
         with:
           context: ./server/
           push: true
-          tags: localhost:5000/mani/backend:latest
+          tags: localhost:5000/mani/mani-backend:latest
           platforms: linux/arm64
       - name: Inspect
         run: |
-          docker buildx imagetools inspect localhost:5000/mani/backend:latest
+          docker buildx imagetools inspect localhost:5000/mani/mani-backend:latest
 
