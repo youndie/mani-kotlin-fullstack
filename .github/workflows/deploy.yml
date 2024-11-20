@@ -5,7 +5,7 @@ on:
 
 jobs:
   test:
-    runs-on: [linux, self-hosted]
+    runs-on: [macos, self-hosted]
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
