@@ -43,3 +43,12 @@ dependencies {
 
 }
 
+val copyFrontend = task<Copy>("copyFrontend") {
+    val jsBrowserDistribution =
+        project(rootProject.projects.composeApp.path).tasks.named("wasmJsBrowserDevelopmentExecutableDistribution")
+    from(jsBrowserDistribution)
+    include("styles.css", "composeApp.js", "index.html", "**.wasm", "composeResources/**/*")
+    destinationDir = file("$projectDir/build/resources/main/static")
+}
+
+project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)

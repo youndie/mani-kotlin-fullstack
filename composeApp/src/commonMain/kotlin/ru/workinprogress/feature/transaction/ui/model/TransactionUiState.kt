@@ -1,6 +1,7 @@
 package ru.workinprogress.feature.transaction.ui.model
 
 import androidx.compose.ui.text.AnnotatedString
+import ir.ehsannarmani.compose_charts.extensions.format
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
@@ -44,7 +45,7 @@ data class TransactionUiState(
         operator fun invoke(transaction: Transaction?, currency: Currency) = transaction?.let {
             TransactionUiState(
                 transaction.id,
-                transaction.amount.toString(),
+                transaction.amount.format(0),
                 transaction.income,
                 transaction.period,
                 defaultPeriods,
