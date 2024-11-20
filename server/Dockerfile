@@ -1,4 +1,4 @@
-FROM eclipse-temurin:20-jre-alpine
+FROM --platform=$BUILDPLATFORM eclipse-temurin:20-jre-alpine
 
 EXPOSE 8080:8080
 
