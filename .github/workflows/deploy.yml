@@ -36,9 +36,9 @@ jobs:
         with:
           context: ./server/
           push: true
-          tags: localhost:5000/mani/mani-backend:latest
+          tags: mani-backend:latest
           platforms: linux/arm64
       - name: Inspect
         run: |
-          docker buildx imagetools inspect localhost:5000/mani/mani-backend:latest
+          docker buildx imagetools inspect mani/mani-backend:latest
 
