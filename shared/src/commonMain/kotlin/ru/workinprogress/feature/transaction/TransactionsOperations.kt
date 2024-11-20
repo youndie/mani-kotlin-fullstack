@@ -2,10 +2,10 @@ package ru.workinprogress.feature.transaction
 
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import ru.workinprogress.feature.chart.ChartResponse
 import ru.workinprogress.mani.today
+import kotlin.math.sign
 
 const val DEFAULT_PERIOD_VALUE = 3
 val DEFAULT_PERIOD_UNIT = DateTimeUnit.MONTH
@@ -82,6 +82,39 @@ fun List<Transaction>.simulate(from: LocalDate, to: LocalDate): Map<LocalDate, L
     }
 
     return scheduled.toList().sortedBy { it.first }.toMap()
+}
+
+//searches for dates on which the balance sign changes
+fun Map<LocalDate, List<Transaction>>.findZeroEvents(): Pair<LocalDate?, LocalDate?> {
+    var positiveDate: LocalDate? = null
+    var negativeDate: LocalDate? = null
+
+    entries.runningFoldIndexed(
+        0.toDouble(),
+        { index, acc, item ->
+            val nextValue = acc + item.value.sumOf { transaction ->
+                transaction.amountSigned
+            }
+
+            if (index == 0) return@runningFoldIndexed nextValue
+
+            val alreadyChangeSign = positiveDate != null || negativeDate != null
+            if (nextValue.sign != acc.sign && (acc != 0.0 || alreadyChangeSign)) {
+                if (nextValue.sign > acc.sign) {
+                    positiveDate = item.value.first().date
+                } else {
+                    negativeDate = item.value.first().date
+                }
+            }
+
+            if (positiveDate != null && negativeDate != null) {
+                return positiveDate to negativeDate
+            }
+
+            nextValue
+        })
+
+    return positiveDate to negativeDate
 }
 
 private fun MutableMap<LocalDate, List<Transaction>>.scheduleTransaction(

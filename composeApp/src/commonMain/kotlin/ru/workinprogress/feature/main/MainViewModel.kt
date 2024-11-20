@@ -12,6 +12,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.format
+import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.char
 import kotlinx.datetime.plus
 import ru.workinprogress.feature.auth.domain.LogoutUseCase
 import ru.workinprogress.feature.currency.Currency
@@ -21,15 +24,14 @@ import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.amountSigned
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
+import ru.workinprogress.feature.transaction.findZeroEvents
 import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.ui.model.NegativeColor
 import ru.workinprogress.feature.transaction.ui.model.PositiveColor
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
-import ru.workinprogress.feature.transaction.ui.model.TransactionsByDays
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
-import kotlin.math.sign
 
 
 class MainViewModel(
@@ -48,6 +50,22 @@ class MainViewModel(
         viewModelScope.launch { load() }
         viewModelScope.launch {
             currency = getCurrencyUseCase.get()
+        }
+    }
+
+    private suspend fun load() {
+        when (val result = transactionsUseCase()) {
+            is UseCase.Result.Error -> {
+                state.update { state ->
+                    state.copy(errorMessage = result.throwable.message)
+                }
+            }
+
+            is UseCase.Result.Success -> {
+                result.data
+                    .flowOn(Dispatchers.Default)
+                    .collectLatest(::dispatch)
+            }
         }
     }
 
@@ -101,38 +119,6 @@ class MainViewModel(
         }
     }
 
-
-    private fun findZeroEvents(transactionsByDays: Map<LocalDate, List<Transaction>>): Pair<LocalDate?, LocalDate?> {
-        var positiveDate: LocalDate? = null
-        var negativeDate: LocalDate? = null
-
-        transactionsByDays.entries.runningFoldIndexed(
-            0.toDouble(),
-            { index, acc, item ->
-                val nextValue = acc + item.value.sumOf { transaction ->
-                    transaction.amountSigned
-                }
-
-                if (index == 0) return@runningFoldIndexed nextValue
-
-                if (nextValue.sign != acc.sign) {
-                    if (nextValue.sign > acc.sign) {
-                        positiveDate = item.value.first().date
-                    } else {
-                        negativeDate = item.value.first().date
-                    }
-                }
-
-                if (positiveDate != null && negativeDate != null) {
-                    return positiveDate to negativeDate
-                }
-
-                nextValue
-            })
-
-        return positiveDate to negativeDate
-    }
-
     private fun dispatch(transactions: List<Transaction>) {
         val simulationResult = transactions.run { simulate() }
 
@@ -158,88 +144,86 @@ class MainViewModel(
                         it.key.year == monthDate.year
             }.flatMap { it.value }.sumOf { it.amountSigned }
 
-    private fun buildFutureInformation(
-        simulationResult: Map<LocalDate, List<Transaction>>
-    ) = buildAnnotatedString {
-        val filteredTransactions =
-            simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
-                .filterKeys { today() <= it }
+    private fun buildFutureInformation(simulationResult: Map<LocalDate, List<Transaction>>) =
+        buildAnnotatedString {
 
-        val todayAmount = simulationResult.entries
-            .runningFold(0.0) { acc, entry ->
-                if (entry.key > today()) acc
-                else acc + entry.value.sumOf { it.amountSigned }
-            }.last()
+            val localDateFormat = LocalDate.Format {
+                dayOfMonth()
+                char(' ')
+                monthName(MonthNames.ENGLISH_ABBREVIATED)
+                char(' ')
+                year()
+            }
+            val filteredTransactions =
+                simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
+                    .filterKeys { today() <= it }
 
-        val firstOfTheFirst = filteredTransactions.entries.first().value.first()
+            val todayAmount = simulationResult.entries
+                .runningFold(0.0) { acc, entry ->
+                    if (entry.key > today()) acc
+                    else acc + entry.value.sumOf { it.amountSigned }
+                }.last()
 
+            val firstOfTheFirst = filteredTransactions.entries.first().value.first()
 
-
-        append("today amount: ")
-        append(buildColoredAmount(todayAmount, currency, useSign = false))
-        append("\n")
-        append("next transaction ${firstOfTheFirst.date}: ")
-        append(buildColoredAmount(firstOfTheFirst.amount, currency))
-        append("\n")
-
-        append(
-            "in month: "
-        )
-        append(
-            buildColoredAmount(
-                simulationResult.sumByMonth(today()),
-                currency
+            append("balance: ")
+            append(buildColoredAmount(todayAmount, currency))
+            append("\n")
+            append(
+                "today balance change: "
             )
-        )
-        append(
-            " in next month: "
-        )
-        append(
-            buildColoredAmount(
-                simulationResult.sumByMonth(today().plus(1, DateTimeUnit.MONTH)), currency
+            append(buildColoredAmount(filteredTransactions.filter { it.key == today() }.entries.flatMap { it.value }
+                .sumOf { it.amountSigned }, currency))
+            append("\n")
+            append("next transaction ${firstOfTheFirst.date.format(localDateFormat)}: ")
+            append(buildColoredAmount(firstOfTheFirst.amount, currency))
+            append("\n")
+
+            append(
+                "in month: "
             )
-        )
-        append("\n")
+            append(
+                buildColoredAmount(
+                    simulationResult.sumByMonth(today()),
+                    currency
+                )
+            )
+            append(
+                ", in next month: "
+            )
+            append(
+                buildColoredAmount(
+                    simulationResult.sumByMonth(today().plus(1, DateTimeUnit.MONTH)), currency
+                )
+            )
+            append("\n")
 
-        val (positiveDate, negativeDate) = findZeroEvents(simulationResult)
+            val (positiveDate, negativeDate) = simulationResult.findZeroEvents()
 
-        if (positiveDate == null && negativeDate == null) {
-            append("no zero events")
-        } else {
-            append("next zero event: ")
+            if (positiveDate == null && negativeDate == null) {
+                append("no zero events")
+            } else {
+                append("balance will become ")
 
-            when {
-                (todayAmount > 0 && negativeDate != null) -> {
-                    withStyle(style = SpanStyle(color = NegativeColor)) {
-                        append(negativeDate.toString())
+                when {
+                    (todayAmount > 0 && negativeDate != null) -> {
+                        withStyle(style = SpanStyle(color = NegativeColor)) {
+                            append("negative: ")
+                        }
+
+                        append(negativeDate.format(localDateFormat))
                     }
-                }
 
-                (todayAmount < 0 && positiveDate != null) -> {
-                    withStyle(style = SpanStyle(color = PositiveColor)) {
-                        append(positiveDate.toString())
+                    (todayAmount < 0 && positiveDate != null) -> {
+                        withStyle(style = SpanStyle(color = PositiveColor)) {
+                            append("positive: ")
+                        }
+
+                        append(positiveDate.format(localDateFormat))
                     }
                 }
             }
         }
-
-    }
-
-    private suspend fun load() {
-        when (val result = transactionsUseCase()) {
-            is UseCase.Result.Error -> {
-                state.update { state ->
-                    state.copy(errorMessage = result.throwable.message)
-                }
-            }
-
-            is UseCase.Result.Success -> {
-                result.data
-                    .flowOn(Dispatchers.Default)
-                    .collectLatest(::dispatch)
-            }
-        }
-    }
 
     fun onProfileClicked() {
         state.update { state ->
@@ -258,11 +242,6 @@ class MainViewModel(
             logoutUseCase()
             state.value = MainUiState()
         }
-    }
-
-
-    fun onHistoryClicked() {
-
     }
 
 }

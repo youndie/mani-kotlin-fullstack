@@ -154,8 +154,7 @@ private class FakeTransactionsRepository(private val shouldCrash: Boolean = fals
         data.value = listOf(
             Transaction(
                 "", 500.0, true, LocalDate(2000, 1, 1), null, Transaction.Period.OneTime, ""
-            ),
-            toDelete
+            ), toDelete
         )
     }
 

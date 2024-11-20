@@ -22,6 +22,5 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
     - name: Test
       run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
-
     - name: Build
       run: ./gradlew :server:jar :composeApp:assembleDebug :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon
