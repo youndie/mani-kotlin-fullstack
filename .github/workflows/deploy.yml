@@ -32,7 +32,7 @@ jobs:
           driver-opts: network=host
       - name: Build and push to local registry
         uses: docker/build-push-action@v6
-        context: '{{defaultContext}}:server'
+        context: `{{defaultContext}}:server`
         with:
           push: true
           tags: localhost:5000/mani/backend:latest
