@@ -6,7 +6,6 @@ on:
 jobs:
   test:
     runs-on: [linux, self-hosted]
-    env:
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
