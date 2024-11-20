@@ -1,3 +1,5 @@
+import io.ktor.plugin.features.*
+
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
@@ -52,3 +54,12 @@ val copyFrontend = task<Copy>("copyFrontend") {
 }
 
 project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)
+
+ktor {
+    docker {
+        jreVersion.set(JavaVersion.VERSION_21)
+        localImageName.set("mani-backend")
+        imageTag.set("0.0.1-preview")
+        customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
+    }
+}
