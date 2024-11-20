@@ -80,7 +80,12 @@ fun MainComponent(
         state.value
             .errorMessage
             ?.let { string ->
-                snackbarHostState.showSnackbar(string, null, false, SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(
+                    string,
+                    null,
+                    false,
+                    SnackbarDuration.Short
+                )
             }
     }
 
@@ -220,14 +225,6 @@ fun TransactionDeleteDialog(
                 }
             })
     }
-}
-
-private val localDateFormat = LocalDate.Format {
-    dayOfMonth()
-    char(' ')
-    monthName(MonthNames.ENGLISH_FULL)
-    char(' ')
-    year()
 }
 
 @Composable

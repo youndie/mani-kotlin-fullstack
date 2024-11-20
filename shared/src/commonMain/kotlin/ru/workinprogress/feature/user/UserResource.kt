@@ -7,8 +7,3 @@ import io.ktor.resources.Resource
 class UserResource {
 }
 
-
-@Resource("/products")
-class Products {
-}
-

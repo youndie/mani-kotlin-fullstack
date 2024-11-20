@@ -183,6 +183,8 @@ fun Project.applyKtorWasmWorkaround(version: String) {
 
 compose.desktop {
     application {
+        mainClass = "MainKt"
+
         // all your other configuration, etc
         jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
         jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED") // recommended but not necessary
