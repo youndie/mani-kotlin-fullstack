@@ -1,6 +1,9 @@
 name: Test
 
 on:
+  pull-request:
+    branches:
+      main
 
 jobs:
   test:
