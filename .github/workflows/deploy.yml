@@ -23,20 +23,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build
-        run: ./gradlew :server:publishImageToLocalRegistry --no-daemon
-#      - name: Archive production artifacts
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: build
-#          path: |
-#            server/build
-#      - name: Build and push to local registry
-#        uses: docker/build-push-action@v6
-#        with:
-#          push: true
-#          tags: localhost:5000/mani/backend:latest
-#          platforms: linux/arm64
-#      - name: Inspect
-#        run: |
-#          docker buildx imagetools inspect localhost:5000/mani/backend:latest
-#
+      #  run: ./gradlew :server:publishImageToLocalRegistry --no-daemon
+        run: ./gradlew :server:buildFatJar --no-daemon
+
+      - name: Build and push to local registry
+        uses: docker/build-push-action@v6
+        with:
+          context: ./server/
+          push: true
+          tags: localhost:5000/mani/backend:latest
+          platforms: linux/arm64
+      - name: Inspect
+        run: |
+          docker buildx imagetools inspect localhost:5000/mani/backend:latest
+
