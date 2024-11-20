@@ -7,6 +7,7 @@ import ru.workinprogress.feature.currency.currencyRouting
 import ru.workinprogress.feature.transaction.transactionRouting
 import ru.workinprogress.feature.user.userRouting
 import ru.workinprogress.mani.utilz.swagger
+import ru.workinprogress.mani.utilz.wasmJsApp
 
 
 fun Application.configureRouting() {
@@ -16,5 +17,6 @@ fun Application.configureRouting() {
         currencyRouting()
         transactionRouting()
         userRouting()
+        wasmJsApp()
     }
 }

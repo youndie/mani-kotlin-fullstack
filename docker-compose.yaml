@@ -1,6 +1,3 @@
-# Use root/example as user/password credentials
-version: '3.1'
-
 services:
   mongo:
     image: mongo
@@ -11,7 +8,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
   mani:
-    image: mani-backend:staging
+    image: mani/backend:latest
     ports:
       - '8080:8080'
     environment:

@@ -12,10 +12,12 @@ import ru.workinprogress.feature.auth.TokensResponse
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.useCase.UseCase
 
+abstract class AuthUseCase : UseCase<LoginParams, Boolean>()
+
 class LoginUseCase(
     private val httpClient: HttpClient,
     private val tokenRepository: TokenRepository
-) : UseCase<LoginParams, Boolean>() {
+) : AuthUseCase() {
 
     override suspend operator fun invoke(params: LoginParams): Result<Boolean> {
         try {

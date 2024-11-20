@@ -1,5 +1,9 @@
 package ru.workinprogress.mani.navigation
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,12 +25,14 @@ import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.feature.auth.ui.LoginComponent
+import ru.workinprogress.feature.auth.ui.SignupComponent
 import ru.workinprogress.feature.main.ui.MainComponent
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.ui.component.AddTransactionComponent
 import ru.workinprogress.feature.transaction.ui.component.EditTransactionComponent
 import ru.workinprogress.feature.transaction.ui.component.TransactionsListComponent
 import ru.workinprogress.mani.components.MainAppBarState
+import kotlin.math.roundToInt
 
 @Composable
 @NonRestartableComposable
@@ -56,13 +63,41 @@ fun ManiAppNavHost(
                 navController.popBackStack()
             }
         }
-        composable(ManiScreen.Login.name) {
-            LoginComponent {
+        composable(
+            ManiScreen.Login.name,
+        ) {
+            LoginComponent({
+                navController.navigate(ManiScreen.Signup.name)
+            }) {
                 navController.navigateAndClean(ManiScreen.Main.name)
             }
         }
+        composable(
+            ManiScreen.Signup.name, enterTransition = {
+                slideIn(initialOffset = {
+                    IntOffset(
+                        0,
+                        (it.height / 2f).roundToInt()
+                    )
+                }) + fadeIn()
+            }, exitTransition = {
+                fadeOut() + slideOut(targetOffset = {
+                    IntOffset(
+                        0,
+                        (it.height / 2f).roundToInt()
+                    )
+                })
+            })
+        {
+            SignupComponent({ navController.popBackStack() }) {
+                navController.navigate(ManiScreen.Login.name)
+            }
+        }
         composable(ManiScreen.Preload.name) {
-            Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.surfaceContainerLowest))
+            Box(
+                modifier.fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+            )
         }
         composable(ManiScreen.History.name) {
             TransactionsListComponent(

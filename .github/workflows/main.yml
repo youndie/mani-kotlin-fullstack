@@ -1,26 +1,25 @@
 name: Test
 
 on:
-  push:
   pull_request:
-    branches: main
-  
+    branches: [ "main" ]
+
 jobs:
   test:
-    runs-on: [linux, self-hosted]
+    runs-on: [ macos, self-hosted ]
     env:
       ANDROID_HOME: /Users/youndie/Library/Android/sdk
     steps:
-    - name: Checkout sources
-      uses: actions/checkout@v4
-    - name: Setup Java
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: 20
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-    - name: Test
-      run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
-    - name: Build
-      run: ./gradlew :server:jar :composeApp:assembleDebug :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 20
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Test
+        run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
+      - name: Build
+        run: ./gradlew :server:jar :composeApp:assembleDebug :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon

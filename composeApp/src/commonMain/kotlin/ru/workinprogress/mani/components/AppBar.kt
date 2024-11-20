@@ -52,10 +52,13 @@ class MainAppBarState {
                 && actions.isEmpty()
                 && !contextMode
 
+    private fun enable() {
+        this.enabledState.value = true
+    }
 
     fun showAction(action: Action) {
         if (this.enabled.not()) {
-            this.enabledState.value = true
+            enable()
         }
         this.actionsState.value = this.actionsState.value.plus(action).toImmutableSet()
     }
