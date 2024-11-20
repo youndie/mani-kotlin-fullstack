@@ -33,7 +33,6 @@ jobs:
       - name: Build and push to local registry
         uses: docker/build-push-action@v6
         with:
-          context: '{{defaultContext}}:server'
           push: true
           tags: localhost:5000/mani/backend:latest
           platforms: linux/arm64
