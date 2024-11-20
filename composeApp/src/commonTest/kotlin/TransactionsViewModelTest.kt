@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -139,7 +140,7 @@ class TransactionsViewModelErrorTest : KoinTest {
 }
 
 val toDelete = Transaction(
-    "toDelete", 500.0, true, today(), null, Transaction.Period.OneTime, ""
+    "toDelete", 500.0, true, LocalDate(2000, 1, 1), null, Transaction.Period.OneTime, ""
 )
 
 private class FakeTransactionsRepository(private val shouldCrash: Boolean = false) :
@@ -152,7 +153,7 @@ private class FakeTransactionsRepository(private val shouldCrash: Boolean = fals
         if (shouldCrash) throw RuntimeException("fake")
         data.value = listOf(
             Transaction(
-                "", 500.0, true, today(), null, Transaction.Period.OneTime, ""
+                "", 500.0, true, LocalDate(2000, 1, 1), null, Transaction.Period.OneTime, ""
             ),
             toDelete
         )
