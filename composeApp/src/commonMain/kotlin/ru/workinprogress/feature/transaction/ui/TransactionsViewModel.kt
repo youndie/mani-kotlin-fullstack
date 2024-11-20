@@ -5,23 +5,20 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.simulate
-import ru.workinprogress.feature.transaction.ui.component.TransactionListUiState
-import ru.workinprogress.feature.transaction.ui.component.showData
-import ru.workinprogress.feature.transaction.ui.component.showError
-import ru.workinprogress.feature.transaction.ui.component.showLoading
+import ru.workinprogress.feature.transaction.ui.model.TransactionListUiState
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.defaultMinDate
+import ru.workinprogress.mani.today
+import ru.workinprogress.uiState.showData
+import ru.workinprogress.uiState.showError
+import ru.workinprogress.uiState.showLoading
 import ru.workinprogress.useCase.UseCase
 
 class TransactionsViewModel(
@@ -37,7 +34,8 @@ class TransactionsViewModel(
         load()
     }
 
-     fun load() {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun load() {
         viewModelScope.launch {
             state.showLoading()
 
@@ -48,18 +46,25 @@ class TransactionsViewModel(
                 }
 
                 is UseCase.Result.Success -> {
-                    result.data
-                        .map { transactions ->
-                            transactions.run { simulate() }
-                                .filterValues { transactions -> transactions.isNotEmpty() }
-                                .filterKeys { defaultMinDate < it }.mapValues { entry ->
-                                    entry.value.map { transaction ->
-                                        TransactionUiItem(transaction, currency)
-                                    }.toImmutableList()
-                                }.toImmutableMap()
-                        }.flowOn(Dispatchers.Default).collectLatest {
-                            state.showData(it)
-                        }
+                    result.data.mapLatest { transactions ->
+                        transactions.run { simulate() }
+                            .filterValues { transactions -> transactions.isNotEmpty() }
+                            .filterKeys {
+                                today() > it
+                            }
+                            .mapValues { entry ->
+                                entry.value.map { transaction ->
+                                    TransactionUiItem(transaction, currency)
+                                }.toImmutableList()
+                            }
+                            .entries
+                            .sortedByDescending { it.key }
+                            .associate {
+                                it.key to it.value
+                            }.toImmutableMap()
+                    }.flowOn(Dispatchers.Default).collectLatest {
+                        state.showData(it)
+                    }
                 }
             }
         }

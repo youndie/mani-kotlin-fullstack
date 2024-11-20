@@ -16,7 +16,6 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import org.jetbrains.compose.resources.stringResource
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.feature.transaction.ui.model.stringResource
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -27,8 +26,7 @@ fun TransactionItem(
     selectionMode: Boolean,
     onItemSelected: (TransactionUiItem) -> Unit,
     onItemClicked: (TransactionUiItem) -> Unit,
-
-    ) {
+) {
     val haptics = LocalHapticFeedback.current
     val containerColor by animateColorAsState(
         if (selected) {
@@ -57,7 +55,7 @@ fun TransactionItem(
             ),
         colors = ListItemDefaults.colors(containerColor = containerColor),
         supportingContent = { Text(stringResource(transaction.period.stringResource)) },
-        trailingContent = { Text(transaction.amount) },
+        trailingContent = { Text(transaction.amountText) },
         headlineContent = { Text(transaction.comment) })
 }
 

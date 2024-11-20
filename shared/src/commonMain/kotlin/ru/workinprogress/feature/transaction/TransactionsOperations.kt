@@ -26,8 +26,7 @@ fun List<Transaction>.defaultPeriod(): Pair<LocalDate, LocalDate> {
     return from to to
 }
 
-fun defaultPeriodAppend(date: LocalDate) =
-    date.plus(DEFAULT_PERIOD_VALUE, DEFAULT_PERIOD_UNIT)
+fun defaultPeriodAppend(date: LocalDate) = date.plus(DEFAULT_PERIOD_VALUE, DEFAULT_PERIOD_UNIT)
 
 fun List<Transaction>.toChartInternal(): ChartResponse {
     if (isEmpty()) return ChartResponse.Empty

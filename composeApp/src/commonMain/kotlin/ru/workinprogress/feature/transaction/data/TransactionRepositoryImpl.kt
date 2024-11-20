@@ -6,6 +6,9 @@ import io.ktor.client.plugins.resources.delete
 import io.ktor.client.plugins.resources.get
 import io.ktor.client.plugins.resources.patch
 import io.ktor.client.plugins.resources.post
+import io.ktor.client.plugins.resources.put
+import io.ktor.client.request.patch
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +28,11 @@ interface TransactionRepository {
     suspend fun delete(transactionId: String): Boolean
 }
 
- class TransactionRepositoryImpl(private val httpClient: HttpClient) : TransactionRepository {
+interface TransactionDataSource {
+
+}
+
+class TransactionRepositoryImpl(private val httpClient: HttpClient) : TransactionRepository {
 
     private val data = MutableStateFlow(emptyList<Transaction>())
     private val dispatcher = Dispatchers.Default
@@ -70,6 +77,8 @@ interface TransactionRepository {
                 data.value += updated
 
                 return true
+            } else {
+                data.value += old
             }
         } catch (e: Exception) {
             data.value += old

@@ -170,10 +170,10 @@ fun MainComponent(
                 Text(
                     state.value.futureInformation,
                     modifier = Modifier.padding(
-                        start = 32.dp,
+                        start = 24.dp,
                         top = 12.dp,
-                        bottom = 4.dp,
-                        end = 32.dp
+                        bottom = 16.dp,
+                        end = 24.dp
                     ),
                     style = MaterialTheme.typography.labelMedium
                 )

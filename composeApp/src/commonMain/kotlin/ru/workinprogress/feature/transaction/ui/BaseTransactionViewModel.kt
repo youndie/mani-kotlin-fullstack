@@ -1,10 +1,7 @@
 package ru.workinprogress.feature.transaction.ui
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
@@ -21,6 +18,7 @@ import ru.workinprogress.feature.transaction.amountSigned
 import ru.workinprogress.feature.transaction.defaultPeriodAppend
 import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
+import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
 import ru.workinprogress.mani.today
 
@@ -82,9 +80,13 @@ abstract class BaseTransactionViewModel : ViewModel() {
     ): AnnotatedString {
         val currency = state.currency
         return buildAnnotatedString {
-            withStyle(style = SpanStyle(color = if (state.income) Color.Green else Color.Red)) {
-                append(if (state.income) "+${state.amount} ${currency.symbol}" else "-${state.amount} ${currency.symbol}")
-            }
+            append(
+                buildColoredAmount(
+                    amount = state.amount,
+                    currency = state.currency,
+                    sign = state.income
+                )
+            )
 
             if (state.period == Transaction.Period.OneTime) {
                 this.append(" on ")
@@ -102,11 +104,10 @@ abstract class BaseTransactionViewModel : ViewModel() {
                 append(simulation.count { entry -> entry.value.isNotEmpty() }.toString())
                 append(" times,")
                 append(
-                    " total: ${
-                        simulation.flatMap { it.value }
-                            .sumOf { transaction -> transaction.amountSigned }.toInt()
-                    } ${currency.symbol}"
+                    " total: "
                 )
+                append(buildColoredAmount(simulation.flatMap { it.value }
+                    .sumOf { transaction -> transaction.amountSigned }, currency))
             }
             if (state.until.value != null) {
                 append(" to ")

@@ -1,10 +1,16 @@
 package ru.workinprogress.mani
 
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.datetime.*
 
 fun <T> emptyImmutableList(): ImmutableList<T> = emptyList<T>().toImmutableList()
+fun <K, V> emptyImmutableMap(): ImmutableMap<K, V> = emptyMap<K, V>().toImmutableMap()
+fun <T> emptyImmutableSet(): ImmutableSet<T> = emptySet<T>().toImmutableSet()
 
 fun today() = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 val LocalDate?.orToday get() = this ?: today()

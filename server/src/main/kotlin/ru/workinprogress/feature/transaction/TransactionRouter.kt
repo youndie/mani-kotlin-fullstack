@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.transaction
 
+import io.github.smiley4.ktorswaggerui.dsl.routing.put
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.delete
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.get
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.patch

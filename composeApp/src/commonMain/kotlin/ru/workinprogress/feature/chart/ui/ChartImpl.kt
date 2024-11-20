@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -20,6 +19,7 @@ import ir.ehsannarmani.compose_charts.extensions.format
 import ir.ehsannarmani.compose_charts.models.*
 import kotlinx.collections.immutable.ImmutableList
 import ru.workinprogress.feature.currency.Currency
+import ru.workinprogress.feature.transaction.ui.model.formatMoney
 import kotlin.math.absoluteValue
 
 @Composable
@@ -91,7 +91,7 @@ fun ChartImpl(
                 popupProperties = PopupProperties(
                     textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
                     contentBuilder = {
-                        it.format(0) + " ${currency.symbol}"
+                        formatMoney(it, currency)
                     },
                     containerColor = MaterialTheme.colorScheme.inverseSurface
                 ),
