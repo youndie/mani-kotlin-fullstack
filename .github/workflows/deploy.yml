@@ -1,12 +1,12 @@
-name: Test
+name: Deploy
 
 on:
+  push:
 
 jobs:
   test:
     runs-on: [linux, self-hosted]
     env:
-      ANDROID_HOME: /Users/youndie/Library/Android/sdk
     steps:
     - name: Checkout sources
       uses: actions/checkout@v4
@@ -17,7 +17,5 @@ jobs:
         java-version: 20
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
-    - name: Test
-      run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
     - name: Build
-      run: ./gradlew :server:jar :composeApp:assembleDebug :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon
+      run: ./gradlew :server:buildFatJar --no-daemon
