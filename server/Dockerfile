@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM eclipse-temurin:20-jre-alpine
+FROM eclipse-temurin:20-jre-alpine
 
 EXPOSE 8080:8080
 

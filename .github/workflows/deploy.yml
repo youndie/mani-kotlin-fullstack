@@ -33,10 +33,11 @@ jobs:
 
       - name: Build and push to local registry
         uses: docker/build-push-action@v6
+        context: "{{defaultContext}}:server"
         with:
           push: true
           tags: localhost:5000/mani/backend:latest
-          platforms: linux/arm64,linux/amd64
+          platforms: linux/arm64
       - name: Inspect
         run: |
           docker buildx imagetools inspect localhost:5000/mani/backend:latest     
