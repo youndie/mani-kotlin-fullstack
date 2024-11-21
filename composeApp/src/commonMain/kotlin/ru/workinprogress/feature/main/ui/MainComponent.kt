@@ -2,16 +2,12 @@ package ru.workinprogress.feature.main.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
@@ -19,9 +15,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -29,10 +25,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format
-import kotlinx.datetime.format.MonthNames
-import kotlinx.datetime.format.char
 import mani.composeapp.generated.resources.Res
 import mani.composeapp.generated.resources.transactions
 import org.jetbrains.compose.resources.getPluralString
@@ -42,12 +34,10 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import ru.workinprogress.feature.chart.ui.ChartComponent
 import ru.workinprogress.feature.main.MainViewModel
-import ru.workinprogress.feature.transaction.ui.component.TransactionItem
 import ru.workinprogress.feature.transaction.ui.component.TransactionsDay
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.Action
 import ru.workinprogress.mani.components.MainAppBarState
-import kotlin.reflect.KFunction0
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -139,7 +129,8 @@ fun MainComponent(
                     .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 Column(Modifier.width(IntrinsicSize.Min)) {
-                    ListItem({ Text("Logout") },
+                    ListItem(
+                        { Text("Logout") },
                         trailingContent = {
                             Icon(
                                 Icons.Default.KeyboardArrowRight,
@@ -149,7 +140,7 @@ fun MainComponent(
                         colors = ListItemDefaults.colors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
                         ),
-                        modifier = Modifier.clickable {
+                        modifier = Modifier.testTag("logout").clickable {
                             viewModel.onLogoutClicked()
                         })
                 }
@@ -164,7 +155,7 @@ fun MainComponent(
         viewModel::onDismissDeleteDialog
     )
 
-    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+    LazyColumn(modifier = Modifier.fillMaxHeight().testTag("transactions")) {
         item {
             val handle = LocalPinnableContainer.current?.pin()
             ChartComponent()

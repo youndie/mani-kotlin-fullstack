@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.pluginSerialization)
+    alias(libs.plugins.baselineprofile)
 }
 
 composeCompiler {
@@ -80,6 +81,7 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(libs.koin.android)
             implementation(libs.androidx.core.splashscreen)
+            implementation(libs.androidx.profileinstaller)
 
         }
         commonMain.dependencies {
@@ -152,6 +154,18 @@ android {
         getByName("release") {
             isMinifyEnabled = false
         }
+        create("benchmark") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
+        create("benchmark1") {
+            initWith(buildTypes.getByName("release"))
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            isDebuggable = false
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -160,7 +174,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.profileinstaller)
     androidTestImplementation(libs.androidx.ui.test.junit4.android)
+    baselineProfile(projects.baselineprofile)
     debugImplementation(libs.androidx.ui.test.manifest)
     debugImplementation(compose.uiTooling)
 }
@@ -209,4 +225,6 @@ afterEvaluate {
     }
 }
 
-
+baselineProfile {
+    dexLayoutOptimization = true
+}

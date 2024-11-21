@@ -11,16 +11,13 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
-import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.mani.components.MainAppBarState
 import ru.workinprogress.mani.components.ManiAppBar
 import ru.workinprogress.mani.navigation.ManiAppNavHost
@@ -31,12 +28,15 @@ import kotlin.math.roundToInt
 
 @Composable
 @Preview
-fun App(platformModules: List<Module> = emptyList()) {
+fun App(
+    modifier: Modifier = Modifier,
+    platformModules: List<Module> = emptyList()
+) {
     KoinApplication(application = {
         modules(appModules + platformModules)
     }) {
         AppTheme(darkTheme = true) {
-            ManiApp()
+            ManiApp(modifier)
         }
     }
 }

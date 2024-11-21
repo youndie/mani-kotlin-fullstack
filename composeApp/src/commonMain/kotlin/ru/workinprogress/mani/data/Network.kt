@@ -20,6 +20,7 @@ import ru.workinprogress.feature.auth.TokensResponse
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.mani.BASE_URL
 import ru.workinprogress.mani.REALM
+import ru.workinprogress.mani.SECURE
 
 
 val networkModule = module {
@@ -81,7 +82,7 @@ val networkModule = module {
             defaultRequest {
                 contentType(Json)
                 url {
-                    protocol = URLProtocol.HTTPS
+                    protocol = if (SECURE) URLProtocol.HTTPS else URLProtocol.HTTP
                     host = BASE_URL
                     port = 8080
                 }

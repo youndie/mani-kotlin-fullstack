@@ -37,7 +37,7 @@ fun Application.module() {
             description = "Mani API for testing and demonstration purposes."
         }
         server {
-            url = "http://localhost:8080/"
+            url = "${if (SECURE) "https" else "http"}://${BASE_URL}:${PORT}/"
             description = "Development Server"
         }
         schemas {
