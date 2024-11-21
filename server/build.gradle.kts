@@ -54,8 +54,6 @@ val copyFrontend = task<Copy>("copyFrontend") {
 
 project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)
 
-
-
 ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_21)
