@@ -9,6 +9,9 @@ jobs:
   build:
     runs-on: [ self-hosted ]
     steps:
+      - name: Get changed Docker Compose files
+        run: |
+          git diff --name-only HEAD^ HEAD | grep 'docker-compose.yml' > changed_files.txt
       - name: Deploy to Portainer
         uses: BramKelchtermans/portainer-deploy-action@beta-0.2
         with:
