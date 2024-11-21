@@ -7,8 +7,6 @@ plugins {
     application
 }
 
-val appName = "mani-backend"
-
 group = "ru.workinprogress.mani"
 version = "0.0.1"
 
@@ -59,7 +57,16 @@ ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_21)
         localImageName.set("mani-backend")
-        imageTag.set("0.0.1-preview")
+        imageTag.set("0.0.1")
         customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
+
+        externalRegistry.set(
+            DockerImageRegistry.externalRegistry(
+                username = providers.gradleProperty("REGISTRY_USERNAME"),
+                password = providers.gradleProperty("REGISTRY_PASSWORD"),
+                project = provider { "mani" },
+                hostname = providers.gradleProperty("REGISTRY_HOSTNAME"),
+            )
+        )
     }
 }
