@@ -84,7 +84,7 @@ val networkModule = module {
                 url {
                     protocol = if (SECURE) URLProtocol.HTTPS else URLProtocol.HTTP
                     host = BASE_URL
-                    port = 8080
+//                    port = 8080
                 }
             }
         }
