@@ -62,12 +62,11 @@ ktor {
         localImageName.set("mani-backend")
         imageTag.set("0.0.1")
         customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
-
         externalRegistry.set(
             DockerImageRegistry.externalRegistry(
                 username = providers.gradleProperty("REGISTRY_USERNAME"),
                 password = providers.gradleProperty("REGISTRY_PASSWORD"),
-                project = provider { "mani" },
+                project = provider { "mani-backend" },
                 hostname = providers.gradleProperty("REGISTRY_HOSTNAME"),
             )
         )
