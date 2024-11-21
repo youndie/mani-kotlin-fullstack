@@ -25,5 +25,5 @@ jobs:
         with:
           portainer_url: ${{ secrets.PORTAINER_URL }}
           portainer_api_key: ${{ secrets.PORTAINER_API_KEY }}
-          changed_files_path: 'mani-staging-path.txt'
+          changed_files_path: /mani-staging/mani-staging/docker-compose.yaml
         
