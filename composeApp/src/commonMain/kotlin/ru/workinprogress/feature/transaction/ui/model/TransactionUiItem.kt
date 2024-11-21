@@ -58,10 +58,14 @@ fun buildColoredAmount(
     sign: Boolean = amount > 0,
     useSign: Boolean = true,
 ): AnnotatedString = buildAnnotatedString {
-    withStyle(style = SpanStyle(color = if (sign) PositiveColor else NegativeColor)) {
-        if (useSign) {
-            append(if (sign) "+" else "−")
+    if (amount != 0.0) {
+        withStyle(style = SpanStyle(color = if (sign) PositiveColor else NegativeColor)) {
+            if (useSign) {
+                append(if (sign) "+" else "−")
+            }
+            append(formatMoney(amount, currency))
         }
+    } else {
         append(formatMoney(amount, currency))
     }
 }

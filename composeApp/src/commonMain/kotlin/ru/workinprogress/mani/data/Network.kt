@@ -81,7 +81,7 @@ val networkModule = module {
             defaultRequest {
                 contentType(Json)
                 url {
-                    protocol = URLProtocol.HTTP
+                    protocol = URLProtocol.HTTPS
                     host = BASE_URL
                     port = 8080
                 }

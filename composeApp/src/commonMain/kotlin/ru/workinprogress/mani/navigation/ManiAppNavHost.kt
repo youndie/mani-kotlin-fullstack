@@ -7,8 +7,6 @@ import androidx.compose.animation.slideOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -27,7 +25,6 @@ import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.feature.auth.ui.LoginComponent
 import ru.workinprogress.feature.auth.ui.SignupComponent
 import ru.workinprogress.feature.main.ui.MainComponent
-import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.ui.component.AddTransactionComponent
 import ru.workinprogress.feature.transaction.ui.component.EditTransactionComponent
 import ru.workinprogress.feature.transaction.ui.component.TransactionsListComponent
@@ -66,7 +63,7 @@ fun ManiAppNavHost(
         composable(
             ManiScreen.Login.name,
         ) {
-            LoginComponent({
+            LoginComponent(appBarState, {
                 navController.navigate(ManiScreen.Signup.name)
             }) {
                 navController.navigateAndClean(ManiScreen.Main.name)

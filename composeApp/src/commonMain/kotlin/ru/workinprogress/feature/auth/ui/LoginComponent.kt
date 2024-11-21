@@ -4,15 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -24,7 +21,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
@@ -35,7 +31,6 @@ import org.koin.dsl.module
 import ru.workinprogress.feature.auth.domain.AuthUseCase
 import ru.workinprogress.feature.auth.domain.LoginUseCase
 import ru.workinprogress.feature.auth.domain.SignupUseCase
-import ru.workinprogress.mani.components.Action
 import ru.workinprogress.mani.components.MainAppBarState
 
 
@@ -59,7 +54,8 @@ fun AuthComponentImpl(
                     modifier = Modifier.padding(horizontal = 16.dp).testTag("appname")
                 )
                 Spacer(Modifier.height(24.dp))
-                OutlinedTextField(state.username,
+                OutlinedTextField(
+                    state.username,
                     onUsernameChanged,
                     Modifier.testTag("username"),
                     keyboardOptions = KeyboardOptions(
@@ -67,7 +63,8 @@ fun AuthComponentImpl(
                     ),
                     label = { Text("Username") })
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(state.password,
+                OutlinedTextField(
+                    state.password,
                     onPasswordChanged,
                     Modifier.testTag("password"),
                     keyboardOptions = KeyboardOptions(
@@ -160,18 +157,46 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
             viewModel::onPasswordChanged,
             viewModel::onLoginClicked
         )
-        Spacer(Modifier.height(32.dp))
+        Spacer(Modifier.height(128.dp))
     }
 }
 
 @Composable
-fun LoginComponent(onSignupClicked: () -> Unit, onSuccess: () -> Unit) {
+fun LoginComponent(
+    appBarState: MainAppBarState,
+    onSignupClicked: () -> Unit,
+    onSuccess: () -> Unit
+) {
     rememberKoinModules {
         listOf(module {
             singleOf(::LoginUseCase).bind<AuthUseCase>()
 
             viewModelOf(::AuthViewModel)
         })
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(Unit) {
+
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> {
+                    appBarState.disable()
+                }
+
+                Lifecycle.Event.ON_STOP -> {
+
+                }
+
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     val viewModel = koinViewModel<AuthViewModel>()

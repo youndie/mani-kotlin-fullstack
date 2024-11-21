@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: [ macos, self-hosted ]
+    runs-on: [ self-hosted ]
     env:
       ANDROID_HOME: /Users/youndie/Library/Android/sdk
     steps:

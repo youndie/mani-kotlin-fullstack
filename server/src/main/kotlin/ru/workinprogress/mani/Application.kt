@@ -5,19 +5,16 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.github.smiley4.ktorswaggerui.SwaggerUI
 import io.github.smiley4.ktorswaggerui.data.AuthScheme
 import io.github.smiley4.ktorswaggerui.data.AuthType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpMethod
-import io.ktor.http.HttpStatusCode
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
-import io.ktor.server.auth.Authentication
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.jwt.jwt
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.netty.*
-import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.resources.Resources
-import io.ktor.server.response.respond
+import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.resources.*
+import io.ktor.server.response.*
 import kotlinx.serialization.json.Json
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
@@ -69,7 +66,7 @@ fun Application.module() {
         allowHeadersPrefixed("sec-")
         allowHeader("Authorization")
         exposeHeader("Authorization")
-        anyHost()
+        hosts.add(BASE_URL)
     }
     install(Resources)
     install(ContentNegotiation) {

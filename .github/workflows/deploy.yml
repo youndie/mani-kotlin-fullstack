@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: [ macos, self-hosted ]
+    runs-on: [ self-hosted ]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4

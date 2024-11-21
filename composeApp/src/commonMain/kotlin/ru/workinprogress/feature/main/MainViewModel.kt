@@ -176,7 +176,7 @@ class MainViewModel(
                 .sumOf { it.amountSigned }, currency))
             append("\n")
             append("next transaction ${firstOfTheFirst.date.format(localDateFormat)}: ")
-            append(buildColoredAmount(firstOfTheFirst.amount, currency))
+            append(buildColoredAmount(firstOfTheFirst.amountSigned, currency))
             append("\n")
 
             append(

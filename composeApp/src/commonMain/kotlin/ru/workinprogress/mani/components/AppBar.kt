@@ -56,6 +56,10 @@ class MainAppBarState {
         this.enabledState.value = true
     }
 
+    fun disable() {
+        this.enabledState.value = false
+    }
+
     fun showAction(action: Action) {
         if (this.enabled.not()) {
             enable()
