@@ -9,21 +9,10 @@ jobs:
   build:
     runs-on: [ self-hosted ]
     steps:
-      - name: Checkout sources
-        uses: actions/checkout@v4
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: 21
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-      - name: Build
-        run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
       - name: Deploy to Portainer
         uses: BramKelchtermans/portainer-deploy-action@beta-0.2
         with:
           portainer_url: ${{ secrets.PORTAINER_URL }}
           portainer_api_key: ${{ secrets.PORTAINER_API_KEY }}
           changed_files_path: ${{ github.workspace }}/mani-staging/mani-staging/docker-compose.yaml
-        
+
