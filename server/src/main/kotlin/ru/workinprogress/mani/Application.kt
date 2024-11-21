@@ -64,9 +64,13 @@ fun Application.module() {
         allowHeader(HttpHeaders.AccessControlAllowOrigin)
         allowHeader(HttpHeaders.ContentType)
         allowHeadersPrefixed("sec-")
+        allowHeader("X-Real-IP")
+        allowHeader("X-Forwarded-For")
+        allowHeader("X-Forwarded-Proto")
         allowHeader("Authorization")
         exposeHeader("Authorization")
-        hosts.add(BASE_URL)
+        anyHost()
+//        hosts.add(BASE_URL)
     }
     install(Resources)
     install(ContentNegotiation) {
