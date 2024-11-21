@@ -1,4 +1,4 @@
-import io.ktor.plugin.features.DockerImageRegistry
+import io.ktor.plugin.features.*
 
 plugins {
     alias(libs.plugins.kotlinJvm)
@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "ru.workinprogress.mani"
-version = "0.0.1"
+version = "0.0.1-${providers.gradleProperty("BUILD_NUMBER").get()}"
 
 application {
     mainClass.set("ru.workinprogress.mani.ApplicationKt")
@@ -60,7 +60,7 @@ ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_21)
         localImageName.set("mani-backend")
-        imageTag.set("0.0.1")
+        imageTag.set("0.0.1-${providers.gradleProperty("BUILD_NUMBER").get()}")
         customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
         externalRegistry.set(
             DockerImageRegistry.externalRegistry(
