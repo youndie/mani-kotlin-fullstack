@@ -1,4 +1,4 @@
-import io.ktor.plugin.features.*
+import io.ktor.plugin.features.DockerImageRegistry
 
 plugins {
     alias(libs.plugins.kotlinJvm)
@@ -12,7 +12,8 @@ version = "0.0.1"
 
 application {
     mainClass.set("ru.workinprogress.mani.ApplicationKt")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
+    applicationDefaultJvmArgs =
+        listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
 }
 
 dependencies {
@@ -52,6 +53,8 @@ val copyFrontend = task<Copy>("copyFrontend") {
 }
 
 project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)
+
+
 
 ktor {
     docker {

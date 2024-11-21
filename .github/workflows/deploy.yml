@@ -15,8 +15,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
-          java-version: 20
+          java-version: 21
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build
-        run: ./gradlew :server:publishImageToLocalRegistry -dREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -dREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -dREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
+        run: ./gradlew :server:publishImage -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
