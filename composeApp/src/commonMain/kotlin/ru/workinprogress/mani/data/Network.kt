@@ -82,7 +82,6 @@ val networkModule = module {
                 url {
                     protocol = URLProtocol.HTTPS
                     host = BASE_URL
-                    port = 8080
                 }
             }
         }
