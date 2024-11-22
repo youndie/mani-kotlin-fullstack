@@ -26,6 +26,8 @@ jobs:
         with:
           token: ${{ secrets.PORTAINER_API_KEY }}
           url: ${{ secrets.PORTAINER_URL }}
-          name: stack-name
+          name: mani-staging
           standalone: true
           file: /mani-staging/mani-staging/docker-compose.yaml
+          username: ${{ secrets.GIT_USER }}
+          password: ${{ secrets.GIT_PASSWORD }}
