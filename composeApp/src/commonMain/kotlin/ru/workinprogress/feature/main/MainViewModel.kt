@@ -30,6 +30,7 @@ import ru.workinprogress.feature.transaction.ui.model.NegativeColor
 import ru.workinprogress.feature.transaction.ui.model.PositiveColor
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
+import ru.workinprogress.mani.emptyImmutableMap
 import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
 
@@ -79,6 +80,8 @@ class MainViewModel(
             }
 
             is UseCase.Result.Success -> {
+                state.update { state -> state.copy(loading = false, transactions = emptyImmutableMap()) }
+
                 result.data
                     .flowOn(Dispatchers.Default)
                     .collectLatest(::dispatch)

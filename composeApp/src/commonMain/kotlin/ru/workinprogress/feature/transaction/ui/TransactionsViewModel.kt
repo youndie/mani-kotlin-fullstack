@@ -16,6 +16,7 @@ import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.ui.model.TransactionListUiState
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
+import ru.workinprogress.mani.emptyImmutableMap
 import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
 
@@ -61,6 +62,8 @@ class TransactionsViewModel(
                 }
 
                 is UseCase.Result.Success -> {
+                    state.update { state -> state.copy(loading = false, data = emptyImmutableMap()) }
+
                     result.data.mapLatest { transactions ->
                         transactions.run { simulate() }
                             .filterValues { transactions -> transactions.isNotEmpty() }
