@@ -63,15 +63,19 @@ fun buildColoredAmount(
             if (useSign) {
                 append(if (sign) "+" else "−")
             }
-            append(formatMoney(amount, currency))
+            append(formatMoneyAbsolute(amount, currency))
         }
     } else {
-        append(formatMoney(amount, currency))
+        append(formatMoneyAbsolute(amount, currency))
     }
 }
 
-fun formatMoney(amount: Double, currency: Currency) =
-    "${amount.absoluteValue.format(0)} ${currency.symbol}"
+fun formatMoneyAbsolute(amount: Double, currency: Currency) =
+    formatMoney(amount.absoluteValue, currency)
 
-fun formatMoney(amount: String, currency: Currency) =
-    formatMoney((amount.toDoubleOrNull() ?: 0.0), currency)
+
+fun formatMoney(amount: Double, currency: Currency) =
+    "${amount.format(0)} ${currency.symbol}"
+
+fun formatMoneyAbsolute(amount: String, currency: Currency) =
+    formatMoneyAbsolute((amount.toDoubleOrNull() ?: 0.0), currency)

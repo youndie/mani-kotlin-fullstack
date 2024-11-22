@@ -21,7 +21,7 @@ jobs:
       - name: Build
         run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
       - name: Deploy to Portainer
-        uses: BramKelchtermans/portainer-deploy-action@beta-0.2
+        uses: ./
         with:
           portainer_url: ${{ secrets.PORTAINER_URL }}
           portainer_api_key: ${{ secrets.PORTAINER_API_KEY }}

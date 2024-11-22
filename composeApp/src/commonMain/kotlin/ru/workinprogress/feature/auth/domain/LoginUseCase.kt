@@ -4,6 +4,8 @@ import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
+import io.ktor.http.*
+import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.auth.AuthResource
@@ -21,17 +23,27 @@ class LoginUseCase(
 
     override suspend operator fun invoke(params: LoginParams): Result<Boolean> {
         try {
-            val result = withContext(Dispatchers.Default) {
-                httpClient.post(AuthResource()) {
+            return withContext(Dispatchers.Default) {
+                val response = httpClient.post(AuthResource()) {
                     setBody(params)
-                }.body<TokensResponse>()
+                }
+
+                if (response.status == HttpStatusCode.NotFound) {
+                    Result.Error(UserNotFoundException())
+                } else {
+                    val result = response.body<TokensResponse>()
+                    tokenRepository.set(result.accessToken, result.refreshToken)
+                    Result.Success(true)
+                }
             }
 
-            tokenRepository.set(result.accessToken, result.refreshToken)
-
-            return Result.Success(true)
         } catch (e: Exception) {
             return Result.Error(e)
         }
     }
 }
+
+open class ServerException(override val message: String) : IOException(message)
+
+class UserNotFoundException : ServerException("User not found or invalid password")
+class AlreadyRegisteredException : ServerException("User already exist")
