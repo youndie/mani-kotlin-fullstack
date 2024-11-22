@@ -27,4 +27,5 @@ jobs:
           token: ${{ secrets.PORTAINER_API_KEY }}
           url: ${{ secrets.PORTAINER_URL }}
           name: stack-name
+          standalone: true
           file: /mani-staging/mani-staging/docker-compose.yaml
