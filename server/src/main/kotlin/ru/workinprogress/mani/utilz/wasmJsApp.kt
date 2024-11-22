@@ -1,13 +1,22 @@
 package ru.workinprogress.mani.utilz
 
+import io.ktor.http.*
 import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
 
 fun Routing.wasmJsApp() {
-    singlePageApplication {
-        useResources = true
-        filesPath = "static"
-        defaultPage = "index.html"
-        ignoreFiles { it.endsWith(".txt") }
+    staticResources("/", "static", index = "index.html") {
+        default("index.html")
+        cacheControl { file ->
+            if (file.file.contains(".wasm")) {
+                listOf(Immutable, CacheControl.MaxAge(10000))
+            } else {
+                emptyList<CacheControl>()
+            }
+        }
     }
+}
+
+object Immutable : CacheControl(null) {
+    override fun toString(): String = "immutable"
 }
