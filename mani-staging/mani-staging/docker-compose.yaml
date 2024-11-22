@@ -9,7 +9,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
   mani:
-    image: https://registry.putmyhexon.ru/mani-backend:latest
+
+    image: https://registry.putmyhexon.ru/mani-backend:0.0.1-60
     ports:
       - '8080:8080'
     environment:
