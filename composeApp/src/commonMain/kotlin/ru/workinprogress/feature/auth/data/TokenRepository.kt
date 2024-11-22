@@ -1,6 +1,6 @@
 package ru.workinprogress.feature.auth.data
 
-import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.*
 import kotlinx.coroutines.flow.StateFlow
 
 interface TokenRepository {
@@ -12,3 +12,4 @@ interface TokenRepository {
 
     fun observeToken(): StateFlow<BearerTokens>
 }
+

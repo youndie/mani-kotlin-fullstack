@@ -103,6 +103,9 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation(libs.compose.shimmer)
+
+
             implementation(libs.navigation.compose)
             implementation(libs.compose.charts)
             implementation(libs.androidx.lifecycle.viewmodel)

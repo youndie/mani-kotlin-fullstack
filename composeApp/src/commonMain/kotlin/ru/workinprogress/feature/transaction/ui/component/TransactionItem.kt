@@ -2,6 +2,7 @@ package ru.workinprogress.feature.transaction.ui.component
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ListItem
@@ -13,7 +14,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 import org.jetbrains.compose.resources.stringResource
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.feature.transaction.ui.model.stringResource
@@ -25,6 +29,7 @@ fun TransactionItem(
     transaction: TransactionUiItem,
     selected: Boolean,
     selectionMode: Boolean,
+    loadingMode: Boolean,
     onItemSelected: (TransactionUiItem) -> Unit,
     onItemClicked: (TransactionUiItem) -> Unit,
 ) {
@@ -36,6 +41,17 @@ fun TransactionItem(
             ListItemDefaults.containerColor
         }
     )
+
+    val shimmerInstance = rememberShimmer(shimmerBounds = ShimmerBounds.Window)
+    val loadingModifier = if (loadingMode) {
+        Modifier.shimmer(shimmerInstance)
+            .background(
+                MaterialTheme.colorScheme.surfaceContainerHigh,
+                shape = MaterialTheme.shapes.small
+            )
+    } else {
+        Modifier
+    }
 
     ListItem(
         modifier = modifier
@@ -55,8 +71,24 @@ fun TransactionItem(
                 onLongClickLabel = "Long Click Label",
             ),
         colors = ListItemDefaults.colors(containerColor = containerColor),
-        supportingContent = { Text(stringResource(transaction.period.stringResource)) },
-        trailingContent = { Text(transaction.amountText) },
-        headlineContent = { Text(transaction.comment) })
+        supportingContent = {
+            Text(
+                stringResource(transaction.period.stringResource).takeIf { loadingMode.not() }.orEmpty(),
+                loadingModifier
+            )
+        },
+        trailingContent = {
+            Text(
+                transaction.amountText.takeIf { !loadingMode } ?: AnnotatedString("     "),
+                loadingModifier
+            )
+        },
+        headlineContent = {
+            Text(
+                transaction.comment.takeIf { !loadingMode } ?: "                  ",
+                loadingModifier
+            )
+        })
 }
+
 

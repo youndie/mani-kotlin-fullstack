@@ -6,14 +6,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
+import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.simulate
@@ -31,7 +28,24 @@ class TransactionsViewModel(
     private val deleteTransactionsUseCase: DeleteTransactionsUseCase,
 ) : ViewModel() {
 
-    private val state = MutableStateFlow(TransactionListUiState())
+    private val loadingItems by lazy {
+        mapOf(
+            today() to (0..5).map {
+                TransactionUiItem(
+                    it.toString(),
+                    0.0,
+                    false,
+                    date = today(),
+                    until = null,
+                    period = Transaction.Period.OneTime,
+                    comment = "Loading",
+                    currency = Currency.Usd
+                )
+            }.toImmutableList()
+        ).toImmutableMap()
+    }
+
+    private val state = MutableStateFlow(TransactionListUiState(loading = true, data = loadingItems))
     val observe = state.asStateFlow()
 
     init {

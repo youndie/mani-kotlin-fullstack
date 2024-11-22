@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.chart.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
@@ -26,6 +27,7 @@ import kotlin.math.absoluteValue
 fun ChartImpl(
     values: ImmutableList<Double>,
     labels: ImmutableList<String>,
+    loading: Boolean,
     currency: Currency
 ) {
     val color = MaterialTheme.colorScheme.primary
@@ -60,54 +62,60 @@ fun ChartImpl(
         Box(
             modifier = Modifier.fillMaxSize().padding(vertical = 12.dp, horizontal = 12.dp)
         ) {
-            LineChart(
-                modifier = Modifier.fillMaxSize(),
-                data = data,
-                animationMode = AnimationMode.Together(delayBuilder = {
-                    it * 300L
-                }),
-                zeroLineProperties = ZeroLineProperties(
-                    enabled = true,
-                    color = SolidColor(secondary),
-                ),
-                dividerProperties = DividerProperties(enabled = false),
-                gridProperties = GridProperties(
-                    xAxisProperties = GridProperties.AxisProperties(
-                        thickness = .2.dp,
-                        color = SolidColor(color.copy(alpha = .3f)),
-                        style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
-                    ),
-                    yAxisProperties = GridProperties.AxisProperties(
-                        thickness = .2.dp,
-                        color = SolidColor(color.copy(alpha = .2f)),
-                        style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
-                    ),
-                ),
-                labelProperties = LabelProperties(
-                    enabled = true,
-                    labels = labels,
-                    textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
-                ),
-                popupProperties = PopupProperties(
-                    textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
-                    contentBuilder = {
-                        formatMoney(it, currency)
-                    },
-                    containerColor = MaterialTheme.colorScheme.inverseSurface
-                ),
-                indicatorProperties = HorizontalIndicatorProperties(
-                    enabled = true,
-                    contentBuilder = {
-                        it.format(0).compactFormat().orEmpty()
-                    },
-                    padding = 16.dp,
-                    count = IndicatorCount.CountBased(3),
-                    textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
-                ),
+            Crossfade(loading) {
+                if (it) {
 
-                labelHelperProperties = LabelHelperProperties(enabled = false),
-                curvedEdges = false
-            )
+                } else {
+                    LineChart(
+                        modifier = Modifier.fillMaxSize(),
+                        data = data,
+                        animationMode = AnimationMode.Together(delayBuilder = {
+                            it * 300L
+                        }),
+                        zeroLineProperties = ZeroLineProperties(
+                            enabled = true,
+                            color = SolidColor(secondary),
+                        ),
+                        dividerProperties = DividerProperties(enabled = false),
+                        gridProperties = GridProperties(
+                            xAxisProperties = GridProperties.AxisProperties(
+                                thickness = .2.dp,
+                                color = SolidColor(color.copy(alpha = .3f)),
+                                style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
+                            ),
+                            yAxisProperties = GridProperties.AxisProperties(
+                                thickness = .2.dp,
+                                color = SolidColor(color.copy(alpha = .2f)),
+                                style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
+                            ),
+                        ),
+                        labelProperties = LabelProperties(
+                            enabled = true,
+                            labels = labels,
+                            textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
+                        ),
+                        popupProperties = PopupProperties(
+                            textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
+                            contentBuilder = {
+                                formatMoney(it, currency)
+                            },
+                            containerColor = MaterialTheme.colorScheme.inverseSurface
+                        ),
+                        indicatorProperties = HorizontalIndicatorProperties(
+                            enabled = true,
+                            contentBuilder = {
+                                it.format(0).compactFormat().orEmpty()
+                            },
+                            padding = 16.dp,
+                            count = IndicatorCount.CountBased(3),
+                            textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
+                        ),
+
+                        labelHelperProperties = LabelHelperProperties(enabled = false),
+                        curvedEdges = false
+                    )
+                }
+            }
         }
     }
 }

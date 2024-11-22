@@ -16,5 +16,6 @@ data class MainUiState(
     val showDeleteDialog: Boolean = false,
     val showProfile: Boolean = false,
     val futureInformation: AnnotatedString = AnnotatedString(""),
+    val loading: Boolean = false
 )
 

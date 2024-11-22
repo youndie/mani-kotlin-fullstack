@@ -2,15 +2,9 @@ package ru.workinprogress.feature.transaction.ui.component
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -23,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.valentinilk.shimmer.shimmer
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
@@ -82,6 +77,7 @@ fun TransactionsListComponent(
                 list = list,
                 selectedTransactions = state.selectedTransactions,
                 contextMode = appBarState.contextMode,
+                loadingMode = state.loading,
                 onSelected = viewModel::onTransactionSelected,
                 onClick = { onTransactionClicked(it.id) }
             )
@@ -95,12 +91,19 @@ fun LazyListScope.TransactionsDay(
     list: ImmutableList<TransactionUiItem>,
     selectedTransactions: ImmutableList<TransactionUiItem>,
     contextMode: Boolean,
+    loadingMode: Boolean,
     onSelected: (TransactionUiItem) -> Unit,
     onClick: (TransactionUiItem) -> Unit
 ) {
     stickyHeader(date.toString()) {
+        val loadingModifier = if (loadingMode) {
+            Modifier.shimmer()
+        } else {
+            Modifier
+        }
+
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).then(loadingModifier),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(
@@ -112,35 +115,37 @@ fun LazyListScope.TransactionsDay(
                     .padding(vertical = 4.dp, horizontal = 6.dp)
             ) {
                 Text(
-                    date.format(localDateFormat),
+                    date.format(localDateFormat).takeIf { !loadingMode } ?: "           ",
                     style = MaterialTheme.typography.labelSmall
                 )
             }
         }
     }
-    TransactionsListItems(
+    transactionsListItems(
         list,
         selectedTransactions,
         contextMode,
+        loadingMode,
         onSelected,
         onClick
     )
 }
 
-private fun LazyListScope.TransactionsListItems(
+private fun LazyListScope.transactionsListItems(
     list: ImmutableList<TransactionUiItem>,
     selectedTransactions: ImmutableList<TransactionUiItem>,
     contextMode: Boolean,
+    loadingMode: Boolean,
     onSelected: (TransactionUiItem) -> Unit,
     onClick: (TransactionUiItem) -> Unit
 ) {
-
     itemsIndexed(list) { index, transaction ->
         TransactionItem(
             Modifier.testTag(if (index == 0) "transaction" else ""),
             transaction,
             transaction in selectedTransactions,
             contextMode,
+            loadingMode,
             onSelected,
             onClick,
         )

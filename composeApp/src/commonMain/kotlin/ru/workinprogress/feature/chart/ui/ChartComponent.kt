@@ -1,6 +1,8 @@
 package ru.workinprogress.feature.chart.ui
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -11,7 +13,6 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.MonthNames
-import kotlinx.datetime.format.char
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -32,22 +33,21 @@ fun ChartComponent(modifier: Modifier = Modifier) {
         })
     }
     val viewModel = koinViewModel<ChartViewModel>()
-    val state: ChartUi? by viewModel.observe.collectAsStateWithLifecycle(null)
+    val state: ChartUi by viewModel.observe.collectAsStateWithLifecycle(ChartUi.Loading)
 
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxWidth().padding(16.dp),
     ) {
-        state?.let { chart ->
-            ChartImpl(
-                chart.days.values.toImmutableList(),
-                chart.days.keys
-                    .groupBy { "${it.year}-${it.monthNumber}" }
-                    .map { it.value.first().format(format) }
-                    .toImmutableList(),
-                currency = chart.currency
-            )
-        }
+        ChartImpl(
+            state.days.values.toImmutableList(),
+            state.days.keys
+                .groupBy { "${it.year}-${it.monthNumber}" }
+                .map { it.value.first().format(format) }
+                .toImmutableList(),
+            currency = state.currency,
+            loading = state.loading
+        )
     }
 }
 

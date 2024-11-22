@@ -1,16 +1,10 @@
 package ru.workinprogress.feature.transaction.data
 
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.plugins.resources.delete
-import io.ktor.client.plugins.resources.get
-import io.ktor.client.plugins.resources.patch
-import io.ktor.client.plugins.resources.post
-import io.ktor.client.plugins.resources.put
-import io.ktor.client.request.patch
-import io.ktor.client.request.put
-import io.ktor.client.request.setBody
-import io.ktor.http.HttpStatusCode
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.plugins.resources.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,13 +20,12 @@ interface TransactionRepository {
     suspend fun create(params: Transaction): Boolean
     suspend fun update(params: Transaction): Boolean
     suspend fun delete(transactionId: String): Boolean
+    fun reset()
 }
 
-interface TransactionDataSource {
-
-}
-
-class TransactionRepositoryImpl(private val httpClient: HttpClient) : TransactionRepository {
+class TransactionRepositoryImpl(
+    private val httpClient: HttpClient,
+) : TransactionRepository {
 
     private val data = MutableStateFlow(emptyList<Transaction>())
     private val dispatcher = Dispatchers.Default
@@ -105,6 +98,10 @@ class TransactionRepositoryImpl(private val httpClient: HttpClient) : Transactio
         }
 
         return false
+    }
+
+    override fun reset() {
+        this.data.value = emptyList()
     }
 
 }

@@ -41,10 +41,27 @@ class MainViewModel(
     private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
-    private lateinit var currency: Currency
+    private val loadingItems by lazy {
+        mapOf(
+            today() to (0..2).map {
+                TransactionUiItem(
+                    it.toString(),
+                    0.0,
+                    false,
+                    date = today(),
+                    until = null,
+                    period = Transaction.Period.OneTime,
+                    comment = "Loading",
+                    currency = Currency.Usd
+                )
+            }.toImmutableList()
+        ).toImmutableMap()
+    }
 
-    private val state = MutableStateFlow(MainUiState())
+    private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
     val observe = state.asStateFlow()
+
+    private lateinit var currency: Currency
 
     init {
         viewModelScope.launch { load() }
@@ -57,7 +74,7 @@ class MainViewModel(
         when (val result = transactionsUseCase()) {
             is UseCase.Result.Error -> {
                 state.update { state ->
-                    state.copy(errorMessage = result.throwable.message)
+                    state.copy(loading = false, errorMessage = result.throwable.message)
                 }
             }
 
@@ -124,6 +141,7 @@ class MainViewModel(
 
         state.update { state ->
             state.copy(
+                loading = false,
                 transactions = simulationResult
                     .filterValues { transactions -> transactions.isNotEmpty() }
                     .filterKeys { today() <= it }
@@ -200,27 +218,29 @@ class MainViewModel(
 
             val (positiveDate, negativeDate) = simulationResult.findZeroEvents()
 
-            if (positiveDate == null && negativeDate == null) {
-                append("no zero events")
-            } else {
-                append("balance will become ")
+            when {
+                (todayAmount > 0 && negativeDate != null) -> {
+                    append("balance will become ")
 
-                when {
-                    (todayAmount > 0 && negativeDate != null) -> {
-                        withStyle(style = SpanStyle(color = NegativeColor)) {
-                            append("negative: ")
-                        }
-
-                        append(negativeDate.format(localDateFormat))
+                    withStyle(style = SpanStyle(color = NegativeColor)) {
+                        append("negative: ")
                     }
 
-                    (todayAmount < 0 && positiveDate != null) -> {
-                        withStyle(style = SpanStyle(color = PositiveColor)) {
-                            append("positive: ")
-                        }
+                    append(negativeDate.format(localDateFormat))
+                }
 
-                        append(positiveDate.format(localDateFormat))
+                (todayAmount < 0 && positiveDate != null) -> {
+                    append("balance will become ")
+
+                    withStyle(style = SpanStyle(color = PositiveColor)) {
+                        append("positive: ")
                     }
+
+                    append(positiveDate.format(localDateFormat))
+                }
+
+                else -> {
+                    append("no zero events")
                 }
             }
         }

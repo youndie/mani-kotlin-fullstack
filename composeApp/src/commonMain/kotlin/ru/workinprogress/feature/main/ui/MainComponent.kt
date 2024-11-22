@@ -2,6 +2,7 @@ package ru.workinprogress.feature.main.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.valentinilk.shimmer.ShimmerBounds
+import com.valentinilk.shimmer.rememberShimmer
+import com.valentinilk.shimmer.shimmer
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.launch
@@ -39,6 +43,21 @@ import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.Action
 import ru.workinprogress.mani.components.MainAppBarState
 
+
+@Composable
+private fun ColumnScope.FutureInfoShimmer() {
+    val shimmer = rememberShimmer(ShimmerBounds.Window)
+    val modifier = Modifier.shimmer(shimmer)
+        .background(
+            MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.extraSmall
+        )
+
+    Text("    ", modifier, style = MaterialTheme.typography.labelMedium)
+    Text("               ", modifier, style = MaterialTheme.typography.labelMedium)
+    Text("                      ", modifier, style = MaterialTheme.typography.labelMedium)
+    Text("            ", modifier, style = MaterialTheme.typography.labelMedium)
+}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -67,16 +86,11 @@ fun MainComponent(
     )
 
     LaunchedEffect(state.value.errorMessage) {
-        state.value
-            .errorMessage
-            ?.let { string ->
-                snackbarHostState.showSnackbar(
-                    string,
-                    null,
-                    false,
-                    SnackbarDuration.Short
-                )
-            }
+        state.value.errorMessage?.let { string ->
+            snackbarHostState.showSnackbar(
+                string, null, false, SnackbarDuration.Short
+            )
+        }
     }
 
     DisposableEffect(Unit) {
@@ -124,23 +138,18 @@ fun MainComponent(
         ) {
             Card(
                 modifier = Modifier.padding(16.dp),
-                colors = CardDefaults
-                    .cardColors()
+                colors = CardDefaults.cardColors()
                     .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 Column(Modifier.width(IntrinsicSize.Min)) {
                     ListItem(
-                        { Text("Logout") },
-                        trailingContent = {
+                        { Text("Logout") }, trailingContent = {
                             Icon(
-                                Icons.Default.KeyboardArrowRight,
-                                "Logout"
+                                Icons.Default.KeyboardArrowRight, "Logout"
                             )
-                        },
-                        colors = ListItemDefaults.colors(
+                        }, colors = ListItemDefaults.colors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ),
-                        modifier = Modifier.testTag("logout").clickable {
+                        ), modifier = Modifier.testTag("logout").clickable {
                             viewModel.onLogoutClicked()
                         })
                 }
@@ -150,9 +159,7 @@ fun MainComponent(
     }
 
     TransactionDeleteDialog(
-        state.value.showDeleteDialog,
-        viewModel::onDeleteClicked,
-        viewModel::onDismissDeleteDialog
+        state.value.showDeleteDialog, viewModel::onDeleteClicked, viewModel::onDismissDeleteDialog
     )
 
     LazyColumn(modifier = Modifier.fillMaxHeight().testTag("transactions")) {
@@ -162,17 +169,20 @@ fun MainComponent(
         }
 
         item {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
-                Text(
-                    state.value.futureInformation,
-                    modifier = Modifier.padding(
-                        start = 24.dp,
-                        top = 12.dp,
-                        bottom = 16.dp,
-                        end = 24.dp
-                    ),
-                    style = MaterialTheme.typography.labelMedium
-                )
+            Column(
+                Modifier.padding(
+                    start = 24.dp, top = 12.dp, bottom = 16.dp, end = 24.dp
+                ), verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                if (state.value.loading) {
+                    FutureInfoShimmer()
+                } else {
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                        Text(
+                            state.value.futureInformation, style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                }
             }
         }
 
@@ -183,9 +193,9 @@ fun MainComponent(
                 list = list,
                 selectedTransactions = state.value.selectedTransactions,
                 contextMode = appBarState.contextMode,
+                loadingMode = state.value.loading,
                 onSelected = viewModel::onTransactionSelected,
-                onClick = { onTransactionClicked(it.id) }
-            )
+                onClick = { onTransactionClicked(it.id) })
         }
 
         item {
@@ -196,9 +206,7 @@ fun MainComponent(
 
 @Composable
 fun TransactionDeleteDialog(
-    showDeleteDialog: Boolean,
-    onDelete: () -> Unit,
-    onDismiss: () -> Unit
+    showDeleteDialog: Boolean, onDelete: () -> Unit, onDismiss: () -> Unit
 ) {
     if (showDeleteDialog) {
         AlertDialog(
@@ -233,8 +241,7 @@ fun connectToAppBarState(
         if (selected.isEmpty()) {
             appBarState.closeContextMenu()
         } else {
-            appBarState.contextTitle.value =
-                getPluralString(Res.plurals.transactions, selected.size, selected.size)
+            appBarState.contextTitle.value = getPluralString(Res.plurals.transactions, selected.size, selected.size)
             appBarState.showContextMenu(actions)
         }
     }
