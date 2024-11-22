@@ -17,9 +17,6 @@ import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.ui.model.TransactionListUiState
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.today
-import ru.workinprogress.uiState.showData
-import ru.workinprogress.uiState.showError
-import ru.workinprogress.uiState.showLoading
 import ru.workinprogress.useCase.UseCase
 
 class TransactionsViewModel(
@@ -55,12 +52,12 @@ class TransactionsViewModel(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun load() {
         viewModelScope.launch {
-            state.showLoading()
+            state.value = TransactionListUiState(loading = true, data = loadingItems)
 
             val currency = getCurrentCurrencyUseCase.get()
             when (val result = getTransactionsUseCase()) {
                 is UseCase.Result.Error -> {
-                    state.showError(result.throwable.message.orEmpty())
+                    state.value = TransactionListUiState(errorMessage = result.throwable.message.orEmpty())
                 }
 
                 is UseCase.Result.Success -> {
@@ -81,7 +78,7 @@ class TransactionsViewModel(
                                 it.key to it.value
                             }.toImmutableMap()
                     }.flowOn(Dispatchers.Default).collectLatest {
-                        state.showData(it)
+                        state.value = TransactionListUiState(data = it)
                     }
                 }
             }

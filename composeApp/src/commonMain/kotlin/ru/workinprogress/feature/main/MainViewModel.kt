@@ -71,11 +71,11 @@ class MainViewModel(
     }
 
     private suspend fun load() {
+        state.value = MainUiState(loading = true, transactions = loadingItems)
+
         when (val result = transactionsUseCase()) {
             is UseCase.Result.Error -> {
-                state.update { state ->
-                    state.copy(loading = false, errorMessage = result.throwable.message)
-                }
+                state.value = MainUiState(errorMessage = result.throwable.message)
             }
 
             is UseCase.Result.Success -> {
@@ -139,20 +139,18 @@ class MainViewModel(
     private fun dispatch(transactions: List<Transaction>) {
         val simulationResult = transactions.run { simulate() }
 
-        state.update { state ->
-            state.copy(
-                loading = false,
-                transactions = simulationResult
-                    .filterValues { transactions -> transactions.isNotEmpty() }
-                    .filterKeys { today() <= it }
-                    .mapValues { entry ->
-                        entry.value.map { transaction ->
-                            TransactionUiItem(transaction, currency)
-                        }.toImmutableList()
-                    }.toImmutableMap(),
-                futureInformation = buildFutureInformation(simulationResult)
-            )
-        }
+        state.value = MainUiState(
+            loading = false,
+            transactions = simulationResult
+                .filterValues { transactions -> transactions.isNotEmpty() }
+                .filterKeys { today() <= it }
+                .mapValues { entry ->
+                    entry.value.map { transaction ->
+                        TransactionUiItem(transaction, currency)
+                    }.toImmutableList()
+                }.toImmutableMap(),
+            futureInformation = buildFutureInformation(simulationResult)
+        )
     }
 
     private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =
