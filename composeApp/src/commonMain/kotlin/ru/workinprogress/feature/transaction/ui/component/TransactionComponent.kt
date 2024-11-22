@@ -34,6 +34,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import ru.workinprogress.feature.auth.ui.LoadingButton
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
 import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
@@ -278,13 +279,13 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
             Spacer(Modifier.height(24.dp))
         }
 
-        Button(
-            onClick = viewModel::onSubmitClicked,
+        LoadingButton(
+            Modifier.align(Alignment.CenterHorizontally),
+            loading = stateValue.loading,
             enabled = stateValue.valid,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        ) {
-            Text(if (stateValue.edit) "Save" else "Create")
-        }
+            if (stateValue.edit) "Save" else "Create",
+            viewModel::onSubmitClicked
+        )
     }
 }
 

@@ -13,9 +13,12 @@ class CurrencyVisualTransformation(val currency: Currency) : VisualTransformatio
     override fun filter(text: AnnotatedString) =
         TransformedText(text + AnnotatedString(currencyString), this)
 
-    override fun originalToTransformed(offset: Int) = offset
+    override fun originalToTransformed(offset: Int): Int {
+        return offset
+    }
 
-    override fun transformedToOriginal(offset: Int) =
-        if (offset - currencyString.length > 0) offset - currencyString.length else 0
+    override fun transformedToOriginal(offset: Int): Int {
+        return if (offset - currencyString.length > 0) offset - currencyString.length else 0
+    }
 
 }

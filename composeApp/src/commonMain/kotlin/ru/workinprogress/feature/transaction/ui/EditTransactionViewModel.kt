@@ -1,7 +1,6 @@
 package ru.workinprogress.feature.transaction.ui
 
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -33,9 +32,20 @@ class EditTransactionViewModel(
 
     override fun onSubmitClicked() {
         viewModelScope.launch {
-            val updated = updateTransactionUseCase(state.value.tempTransaction)
-            if (updated is UseCase.Result.Success) {
-                state.update { TransactionUiState(success = true) }
+            state.update { it.copy(loading = true) }
+
+            val result = updateTransactionUseCase(state.value.tempTransaction)
+
+            when (result) {
+                is UseCase.Result.Success -> {
+                    state.update { TransactionUiState(success = true) }
+                }
+
+                is UseCase.Result.Error -> {
+                    state.update {
+                        it.copy(errorMessage = result.throwable.message, loading = false)
+                    }
+                }
             }
         }
     }

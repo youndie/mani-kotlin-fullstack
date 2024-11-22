@@ -1,6 +1,5 @@
 package ru.workinprogress.feature.auth.ui
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.text.KeyboardActions
@@ -48,8 +47,7 @@ fun AuthComponentImpl(
     Box(modifier, contentAlignment = Alignment.Center) {
         Card(Modifier) {
             Column(
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(24.dp)
+                verticalArrangement = Arrangement.Center, modifier = Modifier.padding(24.dp)
             ) {
                 Text(
                     text = state.title,
@@ -84,34 +82,47 @@ fun AuthComponentImpl(
 
                 state.errorMessage?.let {
                     Text(
-                        it,
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        style = MaterialTheme.typography.labelMedium
+                        it, modifier = Modifier.padding(horizontal = 8.dp), style = MaterialTheme.typography.labelMedium
                     )
                     Spacer(Modifier.height(24.dp))
                 }
 
-                Button(
-                    {
-                        onButtonClicked()
-                    },
-                    enabled = !state.loading,
+                LoadingButton(
                     modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login"),
-                ) {
-                    Row(
-                        modifier = Modifier.widthIn(min = 64.dp),
-                        horizontalArrangement = spacedBy(4.dp, Alignment.CenterHorizontally)
-                    ) {
-                        if (state.loading) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(24.dp),
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        } else {
-                            Text(state.buttonText)
-                        }
-                    }
-                }
+                    loading = state.loading,
+                    buttonText = state.buttonText,
+                    onButtonClicked = onButtonClicked
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LoadingButton(
+    modifier: Modifier = Modifier,
+    loading: Boolean,
+    enabled: Boolean = true,
+    buttonText: String,
+    onButtonClicked: () -> Unit
+) {
+    Button(
+        {
+            onButtonClicked()
+        },
+        enabled = !loading && enabled,
+        modifier = modifier,
+    ) {
+        Row(
+            modifier = Modifier.widthIn(min = 64.dp),
+            horizontalArrangement = spacedBy(4.dp, Alignment.CenterHorizontally)
+        ) {
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Text(buttonText)
             }
         }
     }
@@ -174,24 +185,19 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
         verticalArrangement = Arrangement.Center,
     ) {
         IconButton(
-            onNavigateBack,
-            modifier = Modifier.padding(horizontal = 48.dp, vertical = 16.dp)
+            onNavigateBack, modifier = Modifier.padding(horizontal = 48.dp, vertical = 16.dp)
         ) {
             Icon(Icons.Default.Close, "Close")
         }
         AuthComponentImpl(
-            Modifier.align(Alignment.CenterHorizontally),
-            AuthComponentUiState(
+            Modifier.align(Alignment.CenterHorizontally), AuthComponentUiState(
                 "Sign up",
                 state.value.username,
                 state.value.password,
                 "Create",
                 state.value.errorMessage,
                 state.value.loading
-            ),
-            viewModel::onUsernameChanged,
-            viewModel::onPasswordChanged,
-            viewModel::onLoginClicked
+            ), viewModel::onUsernameChanged, viewModel::onPasswordChanged, viewModel::onLoginClicked
         )
         Spacer(Modifier.height(128.dp))
     }
@@ -199,9 +205,7 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
 
 @Composable
 fun LoginComponent(
-    appBarState: MainAppBarState,
-    onSignupClicked: () -> Unit,
-    onSuccess: () -> Unit
+    appBarState: MainAppBarState, onSignupClicked: () -> Unit, onSuccess: () -> Unit
 ) {
     rememberKoinModules {
         listOf(module {
@@ -244,21 +248,17 @@ fun LoginComponent(
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(top = 32.dp, bottom = 24.dp)
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(top = 32.dp, bottom = 24.dp)
     ) {
         AuthComponentImpl(
-            Modifier.weight(1f, true),
-            AuthComponentUiState(
-                "Mani", state.value.username,
+            Modifier.weight(1f, true), AuthComponentUiState(
+                "Mani",
+                state.value.username,
                 state.value.password,
                 "Login",
                 state.value.errorMessage,
                 state.value.loading
-            ),
-            viewModel::onUsernameChanged,
-            viewModel::onPasswordChanged,
-            viewModel::onLoginClicked
+            ), viewModel::onUsernameChanged, viewModel::onPasswordChanged, viewModel::onLoginClicked
         )
         TextButton(onSignupClicked) {
             Text("Sign up")
