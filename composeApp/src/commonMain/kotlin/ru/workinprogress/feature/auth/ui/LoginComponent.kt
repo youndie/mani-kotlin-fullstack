@@ -1,6 +1,8 @@
 package ru.workinprogress.feature.auth.ui
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -38,15 +40,16 @@ import ru.workinprogress.mani.components.MainAppBarState
 @Preview
 fun AuthComponentImpl(
     modifier: Modifier = Modifier,
-    state: AuthComponentUiState = remember { AuthComponentUiState("Auth", "", "", "OK") },
+    state: AuthComponentUiState = remember { AuthComponentUiState("Auth", "", "", "OK", null, false) },
     onUsernameChanged: (String) -> Unit = {},
     onPasswordChanged: (String) -> Unit = {},
     onButtonClicked: () -> Unit = {},
 ) {
     Box(modifier, contentAlignment = Alignment.Center) {
-        Card {
+        Card(Modifier) {
             Column(
-                verticalArrangement = Arrangement.Center, modifier = Modifier.padding(24.dp)
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.padding(24.dp)
             ) {
                 Text(
                     text = state.title,
@@ -58,6 +61,7 @@ fun AuthComponentImpl(
                     state.username,
                     onUsernameChanged,
                     Modifier.testTag("username"),
+                    enabled = !state.loading,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
                     ),
@@ -67,6 +71,7 @@ fun AuthComponentImpl(
                     state.password,
                     onPasswordChanged,
                     Modifier.testTag("password"),
+                    enabled = !state.loading,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password, imeAction = ImeAction.Done
                     ),
@@ -76,12 +81,36 @@ fun AuthComponentImpl(
                     visualTransformation = PasswordVisualTransformation(),
                     label = { Text("Password") })
                 Spacer(Modifier.height(24.dp))
+
+                state.errorMessage?.let {
+                    Text(
+                        it,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Spacer(Modifier.height(24.dp))
+                }
+
                 Button(
                     {
                         onButtonClicked()
-                    }, modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login")
+                    },
+                    enabled = !state.loading,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login"),
                 ) {
-                    Text(state.buttonText)
+                    Row(
+                        modifier = Modifier.widthIn(min = 64.dp),
+                        horizontalArrangement = spacedBy(4.dp, Alignment.CenterHorizontally)
+                    ) {
+                        if (state.loading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        } else {
+                            Text(state.buttonText)
+                        }
+                    }
                 }
             }
         }
@@ -93,8 +122,9 @@ data class AuthComponentUiState(
     val username: String,
     val password: String,
     val buttonText: String,
+    val errorMessage: String? = null,
+    val loading: Boolean,
 )
-
 
 @Composable
 fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
@@ -139,7 +169,6 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
         }
     }
 
-
     Column(
         modifier = Modifier.padding(top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.Center,
@@ -152,7 +181,14 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
         }
         AuthComponentImpl(
             Modifier.align(Alignment.CenterHorizontally),
-            AuthComponentUiState("Sign up", state.value.username, state.value.password, "Create"),
+            AuthComponentUiState(
+                "Sign up",
+                state.value.username,
+                state.value.password,
+                "Create",
+                state.value.errorMessage,
+                state.value.loading
+            ),
             viewModel::onUsernameChanged,
             viewModel::onPasswordChanged,
             viewModel::onLoginClicked
@@ -177,7 +213,6 @@ fun LoginComponent(
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(Unit) {
-
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
@@ -214,7 +249,13 @@ fun LoginComponent(
     ) {
         AuthComponentImpl(
             Modifier.weight(1f, true),
-            AuthComponentUiState("Mani", state.value.username, state.value.password, "Login"),
+            AuthComponentUiState(
+                "Mani", state.value.username,
+                state.value.password,
+                "Login",
+                state.value.errorMessage,
+                state.value.loading
+            ),
             viewModel::onUsernameChanged,
             viewModel::onPasswordChanged,
             viewModel::onLoginClicked

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "ru.workinprogress.mani"
-version = "0.0.1-${providers.gradleProperty("BUILD_NUMBER").get()}"
+version = "0.0.1-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}"
 
 application {
     mainClass.set("ru.workinprogress.mani.ApplicationKt")
@@ -58,7 +58,7 @@ ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_21)
         localImageName.set("mani-backend")
-        imageTag.set("0.0.1-${providers.gradleProperty("BUILD_NUMBER").get()}")
+        imageTag.set("0.0.1-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
         customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
         externalRegistry.set(
             DockerImageRegistry.externalRegistry(
