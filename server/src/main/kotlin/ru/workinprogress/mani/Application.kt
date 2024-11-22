@@ -57,21 +57,17 @@ fun Application.module() {
             }
         }
     }
-    install(CORS) {
-        allowMethod(HttpMethod.Options)
-        allowMethod(HttpMethod.Post)
-        allowMethod(HttpMethod.Get)
-        allowHeader(HttpHeaders.AccessControlAllowOrigin)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeadersPrefixed("sec-")
-        allowHeader("X-Real-IP")
-        allowHeader("X-Forwarded-For")
-        allowHeader("X-Forwarded-Proto")
-        allowHeader("Authorization")
-        exposeHeader("Authorization")
-        anyHost()
+//    install(CORS) {
+//        allowMethod(HttpMethod.Options)
+//        allowMethod(HttpMethod.Post)
+//        allowMethod(HttpMethod.Get)
+//        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+//        allowHeader(HttpHeaders.ContentType)
+//        allowHeadersPrefixed("sec-")
+//        allowHeader("Authorization")
+//        exposeHeader("Authorization")
 //        hosts.add(BASE_URL)
-    }
+//    }
     install(Resources)
     install(ContentNegotiation) {
         json(Json {

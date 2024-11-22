@@ -15,18 +15,23 @@ data class TransactionUiState(
     val amount: String = "",
     val income: Boolean = true,
     val period: Transaction.Period = Transaction.Period.OneTime,
-    val periods: ImmutableList<Transaction.Period> = defaultPeriods,
     val comment: String = "",
     val date: DateDataUiState = DateDataUiState(),
     val until: DateDataUiState = DateDataUiState(),
-    val success: Boolean = false,
-    val futureInformation: AnnotatedString = AnnotatedString(""),
-    val currency: Currency = Currency("", "", ""),
-    val edit: Boolean = false
-) {
 
-    val expanded
-        get() = periods != defaultPeriods
+    val periods: ImmutableList<Transaction.Period> = defaultPeriods,
+
+    val success: Boolean = false,
+    val loading: Boolean = false,
+    val edit: Boolean = false,
+
+    val errorMessage: String? = null,
+
+    val futureInformation: AnnotatedString = AnnotatedString(""),
+
+    val currency: Currency = Currency("", "", ""),
+) {
+    val expanded get() = periods != defaultPeriods
 
     val valid get() = amount.toDoubleOrNull() != null
 
@@ -48,10 +53,10 @@ data class TransactionUiState(
                 transaction.amount.format(0),
                 transaction.income,
                 transaction.period,
-                defaultPeriods,
-                transaction.comment,
-                DateDataUiState(transaction.date),
-                DateDataUiState(transaction.until),
+                periods = defaultPeriods,
+                comment = transaction.comment,
+                date = DateDataUiState(transaction.date),
+                until = DateDataUiState(transaction.until),
                 currency = currency
             )
         } ?: TransactionUiState()

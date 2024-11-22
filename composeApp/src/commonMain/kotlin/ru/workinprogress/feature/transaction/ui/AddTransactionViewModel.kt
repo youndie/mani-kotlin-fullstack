@@ -28,6 +28,10 @@ class AddTransactionViewModel(
         val stateValue = state.value
 
         viewModelScope.launch {
+            state.update {
+                it.copy(loading = true)
+            }
+
             val result = addTransactionUseCase.invoke(
                 Transaction(
                     id = "",
@@ -41,7 +45,9 @@ class AddTransactionViewModel(
             )
             when (result) {
                 is UseCase.Result.Error -> {
-                    println(result.throwable.message)
+                    state.update {
+                        it.copy(loading = false, errorMessage = result.throwable.message)
+                    }
                 }
 
                 is UseCase.Result.Success -> {

@@ -5,7 +5,6 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import io.ktor.utils.io.errors.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.auth.AuthResource
@@ -46,7 +45,7 @@ class LoginUseCase(
 open class ServerException(
     override val message: String,
     override val cause: Exception? = null
-) : IOException(message, cause)
+) : Exception(message, cause)
 
 class UserNotFoundException : ServerException("User not found or invalid password")
 class AlreadyRegisteredException : ServerException("User already exist")
