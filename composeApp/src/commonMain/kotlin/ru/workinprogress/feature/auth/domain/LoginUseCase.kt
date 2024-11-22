@@ -38,12 +38,15 @@ class LoginUseCase(
             }
 
         } catch (e: Exception) {
-            return Result.Error(e)
+            return Result.Error(ServerException(message = "Network Error", cause = e))
         }
     }
 }
 
-open class ServerException(override val message: String) : IOException(message)
+open class ServerException(
+    override val message: String,
+    override val cause: Exception? = null
+) : IOException(message, cause)
 
 class UserNotFoundException : ServerException("User not found or invalid password")
 class AlreadyRegisteredException : ServerException("User already exist")
