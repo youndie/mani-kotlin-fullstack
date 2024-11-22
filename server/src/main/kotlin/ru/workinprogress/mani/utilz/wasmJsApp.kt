@@ -8,7 +8,7 @@ fun Routing.wasmJsApp() {
     staticResources("/", "static", index = "index.html") {
         default("index.html")
         cacheControl { file ->
-            if (file.file.contains(".wasm")) {
+            if (file.file.contains("composeApp") || file.file.contains("index")) {
                 listOf(Immutable, CacheControl.MaxAge(10000))
             } else {
                 emptyList<CacheControl>()

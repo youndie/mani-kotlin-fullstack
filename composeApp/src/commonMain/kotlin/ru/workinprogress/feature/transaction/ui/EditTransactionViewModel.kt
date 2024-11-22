@@ -2,6 +2,7 @@ package ru.workinprogress.feature.transaction.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
@@ -17,6 +18,8 @@ class EditTransactionViewModel(
     private val updateTransactionUseCase: UpdateTransactionUseCase,
     getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase
 ) : BaseTransactionViewModel() {
+
+    override val state: MutableStateFlow<TransactionUiState> = MutableStateFlow(TransactionUiState(edit = true))
 
     init {
         viewModelScope.launch(Dispatchers.Default) {

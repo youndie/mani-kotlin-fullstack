@@ -105,13 +105,14 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
         val observer = LifecycleEventObserver { lifecycleOwner, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    coroutineScope.launch {
-                        focusRequester.requestFocus()
+                    if (!stateValue.edit) {
+                        coroutineScope.launch {
+                            focusRequester.requestFocus()
+                        }
                     }
                 }
 
                 Lifecycle.Event.ON_STOP -> {
-
                 }
 
                 else -> {}

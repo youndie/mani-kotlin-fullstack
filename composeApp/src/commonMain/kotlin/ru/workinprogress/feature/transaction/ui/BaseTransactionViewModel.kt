@@ -3,20 +3,12 @@ package ru.workinprogress.feature.transaction.ui
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.datetime.LocalDate
-import ru.workinprogress.feature.transaction.DEFAULT_PERIOD_UNIT
-import ru.workinprogress.feature.transaction.DEFAULT_PERIOD_VALUE
-import ru.workinprogress.feature.transaction.Transaction
-import ru.workinprogress.feature.transaction.amountSigned
-import ru.workinprogress.feature.transaction.defaultPeriodAppend
-import ru.workinprogress.feature.transaction.simulate
+import ru.workinprogress.feature.transaction.*
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
@@ -24,18 +16,15 @@ import ru.workinprogress.mani.today
 
 abstract class BaseTransactionViewModel : ViewModel() {
 
-    private val initialState: TransactionUiState = TransactionUiState()
-    protected val state = MutableStateFlow(initialState)
-
-    val observe = state.map { it.addFutureInformation() }
-        .stateIn(viewModelScope, SharingStarted.Lazily, initialState)
+    protected open val state = MutableStateFlow(TransactionUiState())
+    val observe get() = state.asStateFlow()
 
     abstract fun onSubmitClicked()
 
     fun onAmountChanged(amount: String) {
         if (amount.toDoubleOrNull() != null || amount.isEmpty()) {
             state.update { state ->
-                state.copy(amount = amount)
+                state.copy(amount = amount).addFutureInformation()
             }
         }
     }
@@ -45,11 +34,11 @@ abstract class BaseTransactionViewModel : ViewModel() {
     }
 
     fun onIncomeChanged(income: Boolean) = state.update { state ->
-        state.copy(income = income)
+        state.copy(income = income).addFutureInformation()
     }
 
     fun onPeriodChanged(period: Transaction.Period) = state.update { state ->
-        state.copy(period = period)
+        state.copy(period = period).addFutureInformation()
     }
 
     fun onExpandPeriodClicked() = state.update { state ->
@@ -65,15 +54,14 @@ abstract class BaseTransactionViewModel : ViewModel() {
     }
 
     fun onDateSelected(date: LocalDate) = state.update { state ->
-        state.copy(date = state.date.copy(value = date, showDatePicker = false))
+        state.copy(date = state.date.copy(value = date, showDatePicker = false)).addFutureInformation()
     }
 
     fun onDateUntilSelected(date: LocalDate) = state.update { state ->
-        state.copy(until = state.until.copy(value = date, showDatePicker = false))
+        state.copy(until = state.until.copy(value = date, showDatePicker = false)).addFutureInformation()
     }
 
-    private fun TransactionUiState.addFutureInformation() =
-        this.copy(futureInformation = buildFutureInformation(this))
+    private fun TransactionUiState.addFutureInformation() = copy(futureInformation = buildFutureInformation(this))
 
     private fun buildFutureInformation(
         state: TransactionUiState,
@@ -131,5 +119,4 @@ abstract class BaseTransactionViewModel : ViewModel() {
             }
         }
     }
-
 }
