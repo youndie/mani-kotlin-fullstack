@@ -20,10 +20,11 @@ jobs:
 #        uses: gradle/actions/setup-gradle@v4
 #      - name: Build
 #        run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
-      - name: Deploy to Portainer
-        uses: ./
-        with:
-          portainer_url: ${{ secrets.PORTAINER_URL }}
-          portainer_api_key: ${{ secrets.PORTAINER_API_KEY }}
-          changed_files_path: /mani-staging/mani-staging/docker-compose.yaml
 
+      - name: 'Portainer Deploy'
+        uses: cssnr/portainer-stack-deploy-action@v1
+        with:
+          token: ${{ secrets.PORTAINER_API_KEY }}
+          url: ${{ secrets.PORTAINER_URL }}
+          name: stack-name
+          file: /mani-staging/mani-staging/docker-compose.yaml
