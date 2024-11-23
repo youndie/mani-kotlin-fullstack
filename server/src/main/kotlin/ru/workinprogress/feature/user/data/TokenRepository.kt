@@ -11,10 +11,6 @@ import ru.workinprogress.feature.user.data.UserDb.Companion.fromDb
 class TokenRepository(private val mongoDatabase: MongoDatabase) {
     private val db get() = mongoDatabase.getCollection<UserDb>(UserRepository.Companion.USER_COLLECTION)
 
-    init {
-        db.updateOne()
-    }
-
     suspend fun addToken(token: String, userId: String) {
         db.updateOne(
             Filters.eq("_id", ObjectId(userId)),
