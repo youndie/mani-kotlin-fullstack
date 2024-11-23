@@ -31,13 +31,6 @@ class AuthService(
         .withIssuer(config.issuer)
         .build()
 
-    init {
-        CoroutineScope(Dispatchers.IO).launch {
-            val id = userRepository.findByUsername("tester")?.id!!
-            userRepository.fixPassword(id, "qwerty123")
-        }
-    }
-
     suspend fun authenticate(loginRequest: LoginParams): TokensResponse? {
         val foundUser: User? = userRepository.findUserByCredentials(loginRequest)
         return if (foundUser != null) {

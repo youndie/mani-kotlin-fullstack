@@ -62,17 +62,6 @@ class UserRepository(private val mongoDatabase: MongoDatabase, private val hashi
         }
     }
 
-    suspend fun fixPassword(id: String, password: String) {
-        val saltedHash = hashingService.generateSaltedHash(password)
-        db.updateOne(
-            Filters.eq("_id", ObjectId(id)),
-            Updates.combine(
-                Updates.set<String>(UserDb::password.name, saltedHash.hash),
-                Updates.set<String>(UserDb::salt.name, saltedHash.salt)
-            )
-        )
-    }
-
     companion object {
         const val USER_COLLECTION = "users"
     }
