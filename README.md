@@ -1,8 +1,9 @@
-This is a Kotlin Multiplatform budget planner targeting Android, iOS, Web, Server.
+kotlin multiplatform budget planner 
 
-* specify server's url in Constants.kt
-  `const val BASE_URL = "..."`
-* build and dockerize server
+desktop, android, ios, wasmjs + ktor server
+
+
+* build server
 `gradle publishImageToLocalRegistry`
-* start server with mongodb
+* start 
 `docker-compose up -d`
