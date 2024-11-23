@@ -8,9 +8,10 @@ data class UserDb(
     @BsonId val id: ObjectId,
     val username: String,
     val password: String,
+    val salt: String,
     val tokens: List<String>
 ) {
     companion object {
-        fun UserDb.toUser() = User(this.id.toHexString(), this.username)
+        fun UserDb.fromDb() = User(this.id.toHexString(), this.username)
     }
 }

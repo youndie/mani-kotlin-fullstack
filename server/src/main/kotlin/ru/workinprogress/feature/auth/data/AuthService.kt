@@ -4,21 +4,20 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTDecodeException
 import com.auth0.jwt.interfaces.DecodedJWT
-import io.ktor.server.auth.jwt.JWTCredential
-import io.ktor.server.util.toGMTDate
-import io.ktor.util.date.toJvmDate
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toJavaInstant
+import io.ktor.server.auth.jwt.*
+import io.ktor.server.util.*
+import io.ktor.util.date.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.datetime.*
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.TokensResponse
 import ru.workinprogress.feature.user.User
 import ru.workinprogress.feature.user.data.TokenRepository
 import ru.workinprogress.feature.user.data.UserRepository
 import ru.workinprogress.mani.model.JWTConfig
-import java.util.Date
+import java.util.*
 
 class AuthService(
     val userRepository: UserRepository,
@@ -31,6 +30,13 @@ class AuthService(
         .withAudience(config.audience)
         .withIssuer(config.issuer)
         .build()
+
+    init {
+        CoroutineScope(Dispatchers.IO).launch {
+            val id = userRepository.findByUsername("tester")?.id!!
+            userRepository.fixPassword(id, "qwerty123")
+        }
+    }
 
     suspend fun authenticate(loginRequest: LoginParams): TokensResponse? {
         val foundUser: User? = userRepository.findUserByCredentials(loginRequest)

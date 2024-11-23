@@ -6,10 +6,14 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import org.bson.types.ObjectId
 import ru.workinprogress.feature.user.User
-import ru.workinprogress.feature.user.data.UserDb.Companion.toUser
+import ru.workinprogress.feature.user.data.UserDb.Companion.fromDb
 
 class TokenRepository(private val mongoDatabase: MongoDatabase) {
     private val db get() = mongoDatabase.getCollection<UserDb>(UserRepository.Companion.USER_COLLECTION)
+
+    init {
+        db.updateOne()
+    }
 
     suspend fun addToken(token: String, userId: String) {
         db.updateOne(
@@ -23,7 +27,7 @@ class TokenRepository(private val mongoDatabase: MongoDatabase) {
             Filters.eq(UserDb::tokens.name, refreshToken)
         ).firstOrNull()
 
-        return entity?.toUser()
+        return entity?.fromDb()
     }
 
     suspend fun removeToken(token: String, userId: String) {

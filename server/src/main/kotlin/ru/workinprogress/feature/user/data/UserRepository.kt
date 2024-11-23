@@ -2,24 +2,27 @@ package ru.workinprogress.feature.user.data
 
 import com.mongodb.MongoException
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import org.bson.types.ObjectId
 import ru.workinprogress.feature.auth.LoginParams
-import ru.workinprogress.mani.model.stringValue
 import ru.workinprogress.feature.user.User
-import ru.workinprogress.feature.user.data.UserDb.Companion.toUser
-import ru.workinprogress.mani.utilz.sha256
+import ru.workinprogress.feature.user.data.UserDb.Companion.fromDb
+import ru.workinprogress.mani.model.stringValue
+import ru.workinprogress.feature.auth.data.hashing.HashingService
+import ru.workinprogress.feature.auth.data.hashing.SaltedHash
 
-class UserRepository(private val mongoDatabase: MongoDatabase) {
+class UserRepository(private val mongoDatabase: MongoDatabase, private val hashingService: HashingService) {
 
     private val db get() = mongoDatabase.getCollection<UserDb>(USER_COLLECTION)
 
     suspend fun save(user: LoginParams): String? {
         try {
+            val saltedHash = hashingService.generateSaltedHash(user.password)
             val result = db.insertOne(
                 UserDb(
-                    ObjectId(), user.name, user.password.sha256(), emptyList()
+                    ObjectId(), user.name, saltedHash.hash, saltedHash.salt, emptyList()
                 )
             )
             return result.insertedId.stringValue
@@ -30,11 +33,15 @@ class UserRepository(private val mongoDatabase: MongoDatabase) {
     }
 
     suspend fun findUserByCredentials(credentials: LoginParams): User? {
-        val entity = db.find<UserDb>(
-            Filters.eq("username", credentials.name)
-        ).firstOrNull()
-
-        return if (entity?.password == credentials.password.sha256()) entity.toUser() else null
+        return db.find<UserDb>(Filters.eq("username", credentials.name))
+            .firstOrNull()
+            ?.let { user ->
+                if (hashingService.verify(
+                        credentials.password,
+                        SaltedHash(user.password, user.salt)
+                    )
+                ) user.fromDb() else null
+            }
     }
 
     suspend fun findUserById(id: String): User? {
@@ -42,7 +49,7 @@ class UserRepository(private val mongoDatabase: MongoDatabase) {
             Filters.eq("_id", ObjectId(id))
         ).firstOrNull()
 
-        return entity?.toUser()
+        return entity?.fromDb()
     }
 
     suspend fun findByUsername(userName: String): User? {
@@ -53,6 +60,17 @@ class UserRepository(private val mongoDatabase: MongoDatabase) {
         return entity?.let {
             User(it.id.toHexString(), it.username)
         }
+    }
+
+    suspend fun fixPassword(id: String, password: String) {
+        val saltedHash = hashingService.generateSaltedHash(password)
+        db.updateOne(
+            Filters.eq("_id", ObjectId(id)),
+            Updates.combine(
+                Updates.set<String>(UserDb::password.name, saltedHash.hash),
+                Updates.set<String>(UserDb::salt.name, saltedHash.salt)
+            )
+        )
     }
 
     companion object {
