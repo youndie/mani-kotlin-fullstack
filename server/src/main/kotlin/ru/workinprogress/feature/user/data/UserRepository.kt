@@ -2,15 +2,16 @@ package ru.workinprogress.feature.user.data
 
 import com.mongodb.MongoException
 import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import org.bson.types.ObjectId
 import ru.workinprogress.feature.auth.LoginParams
-import ru.workinprogress.feature.auth.data.hashing.HashingService
-import ru.workinprogress.feature.auth.data.hashing.SaltedHash
 import ru.workinprogress.feature.user.User
 import ru.workinprogress.feature.user.data.UserDb.Companion.fromDb
 import ru.workinprogress.mani.model.stringValue
+import ru.workinprogress.feature.auth.data.hashing.HashingService
+import ru.workinprogress.feature.auth.data.hashing.SaltedHash
 
 class UserRepository(private val mongoDatabase: MongoDatabase, private val hashingService: HashingService) {
 
@@ -59,6 +60,17 @@ class UserRepository(private val mongoDatabase: MongoDatabase, private val hashi
         return entity?.let {
             User(it.id.toHexString(), it.username)
         }
+    }
+
+    suspend fun fixPassword(id: String, password: String) {
+        val saltedHash = hashingService.generateSaltedHash(password)
+        db.updateOne(
+            Filters.eq("_id", ObjectId(id)),
+            Updates.combine(
+                Updates.set<String>(UserDb::password.name, saltedHash.hash),
+                Updates.set<String>(UserDb::salt.name, saltedHash.salt)
+            )
+        )
     }
 
     companion object {
