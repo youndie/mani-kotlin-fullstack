@@ -64,25 +64,27 @@ fun TransactionsListComponent(
         viewModel::onShowDeleteDialogClicked,
         viewModel::onContextMenuClosed
     )
+    BoxWithConstraints(contentAlignment = Alignment.TopCenter) {
+        LazyColumn(
+            modifier = modifier.widthIn(max = 640.dp),
+            contentPadding = PaddingValues(vertical = 16.dp),
+        ) {
+            state.data.forEach { day ->
+                val (date, list) = day
 
-    LazyColumn(
-        modifier = modifier.fillMaxHeight(),
-        contentPadding = PaddingValues(vertical = 16.dp),
-    ) {
-        state.data.forEach { day ->
-            val (date, list) = day
-
-            TransactionsDay(
-                date = date,
-                list = list,
-                selectedTransactions = state.selectedTransactions,
-                contextMode = appBarState.contextMode,
-                loadingMode = state.loading,
-                onSelected = viewModel::onTransactionSelected,
-                onClick = { onTransactionClicked(it.id) }
-            )
+                TransactionsDay(
+                    date = date,
+                    list = list,
+                    selectedTransactions = state.selectedTransactions,
+                    contextMode = appBarState.contextMode,
+                    loadingMode = state.loading,
+                    onSelected = viewModel::onTransactionSelected,
+                    onClick = { onTransactionClicked(it.id) }
+                )
+            }
         }
     }
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)

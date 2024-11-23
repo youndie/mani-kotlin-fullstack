@@ -144,7 +144,6 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(bottom = 24.dp),
     ) {
-
         Card(
             colors = CardDefaults.cardColors()
                 .copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),

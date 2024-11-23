@@ -23,6 +23,9 @@ import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.transaction.ui.model.formatMoney
 import kotlin.math.absoluteValue
 
+private const val CHART_MAX_HEIGHT = 320
+private const val CHART_MAX_WIDTH = 496
+
 @Composable
 fun ChartImpl(
     values: ImmutableList<Double>,
@@ -53,8 +56,8 @@ fun ChartImpl(
         colors = CardDefaults.cardColors()
             .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         modifier = Modifier
-            .heightIn(max = 270.dp)
-            .widthIn(max = 480.dp)
+            .heightIn(max = CHART_MAX_HEIGHT.dp)
+            .widthIn(max = CHART_MAX_WIDTH.dp)
             .aspectRatio(3 / 2f)
             .border(2.dp, Color.Transparent, RoundedCornerShape(12.dp)),
         elevation = CardDefaults.elevatedCardElevation(2.dp),
@@ -63,9 +66,7 @@ fun ChartImpl(
             modifier = Modifier.fillMaxSize().padding(vertical = 12.dp, horizontal = 12.dp)
         ) {
             Crossfade(loading) {
-                if (it) {
-
-                } else {
+                if (!it) {
                     LineChart(
                         modifier = Modifier.fillMaxSize(),
                         data = data,

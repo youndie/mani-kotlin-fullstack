@@ -37,7 +37,7 @@ fun ChartComponent(modifier: Modifier = Modifier) {
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.fillMaxWidth().padding(16.dp),
+        modifier = modifier.padding(16.dp),
     ) {
         ChartImpl(
             state.days.values.toImmutableList(),
