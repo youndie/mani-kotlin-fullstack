@@ -7,8 +7,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.Until
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,10 +52,12 @@ class BaselineProfileGenerator {
             startActivityAndWait()
 
             device.findObject(By.res("login")).clickAndWait(Until.newWindow(), 3000)
-            device.findObject(By.scrollable(true)).fling(Direction.DOWN)
+            device.findObject(By.scrollable(true)).scroll(Direction.DOWN, 10000f)
+            device.findObject(By.scrollable(true)).scroll(Direction.DOWN, 10000f)
             device.waitForIdle()
             device.findObject(By.res("profile")).click()
-            device.findObject(By.res("logout")).clickAndWait(Until.newWindow(), 3000)
+            device.findObject(By.text("Logout")).clickAndWait(Until.newWindow(), 3000)
+            device.waitForIdle()
         }
     }
 }

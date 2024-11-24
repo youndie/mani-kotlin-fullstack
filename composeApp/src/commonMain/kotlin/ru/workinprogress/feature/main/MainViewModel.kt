@@ -183,7 +183,7 @@ class MainViewModel(
                     else acc + entry.value.sumOf { it.amountSigned }
                 }.last()
 
-            val firstOfTheFirst = filteredTransactions.entries.first().value.first()
+            val firstOfTheFirst = filteredTransactions.entries.firstOrNull()?.value?.firstOrNull()
 
             append("balance: ")
             append(buildColoredAmount(todayAmount, currency))
@@ -194,9 +194,12 @@ class MainViewModel(
             append(buildColoredAmount(filteredTransactions.filter { it.key == today() }.entries.flatMap { it.value }
                 .sumOf { it.amountSigned }, currency))
             append("\n")
-            append("next transaction ${firstOfTheFirst.date.format(localDateFormat)}: ")
-            append(buildColoredAmount(firstOfTheFirst.amountSigned, currency))
-            append("\n")
+
+            firstOfTheFirst?.let{
+                append("next transaction ${firstOfTheFirst.date.format(localDateFormat)}: ")
+                append(buildColoredAmount(firstOfTheFirst.amountSigned, currency))
+                append("\n")
+            }
 
             append(
                 "in month: "

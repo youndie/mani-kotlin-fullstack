@@ -124,7 +124,8 @@ fun ManiAppBar(
                                 IconButton(
                                     onClick = {
                                         action.onClick()
-                                    }, modifier = Modifier.testTag(action.name)
+                                    },
+                                    modifier = Modifier.testTag(action.name.lowercase())
                                 ) {
                                     Icon(
                                         imageVector = action.icon,
