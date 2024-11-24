@@ -1,13 +1,8 @@
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -22,8 +17,6 @@ import ru.workinprogress.feature.transaction.data.TransactionRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
-import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
-import ru.workinprogress.mani.today
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -175,5 +168,9 @@ private class FakeTransactionsRepository(private val shouldCrash: Boolean = fals
     override suspend fun delete(transactionId: String): Boolean {
         data.value -= getById(transactionId)
         return true
+    }
+
+    override fun reset() {
+        data.value = emptyList()
     }
 }
