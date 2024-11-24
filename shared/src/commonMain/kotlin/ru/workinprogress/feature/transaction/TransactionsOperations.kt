@@ -21,7 +21,7 @@ fun createDates(from: LocalDate, to: LocalDate): List<LocalDate> {
 }
 
 fun List<Transaction>.defaultPeriod(): Pair<LocalDate, LocalDate> {
-    val from = this.minOf { transaction -> transaction.date }
+    val from = this.minOfOrNull { transaction -> transaction.date } ?: today()
     val to = defaultPeriodAppend(today())
     return from to to
 }
