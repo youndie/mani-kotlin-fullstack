@@ -7,14 +7,6 @@ on:
 jobs:
   test:
     runs-on: [ ubuntu-latest ]
-    cache:
-      key:
-        files:
-          - gradle/wrapper/gradle-wrapper.properties
-      paths:
-        - cache/caches/
-        - cache/notifications/
-        - cache/wrapper/
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
