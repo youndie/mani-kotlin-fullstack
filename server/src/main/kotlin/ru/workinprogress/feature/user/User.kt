@@ -8,7 +8,7 @@ import io.ktor.server.response.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-class User(
+data class User(
     val id: String = "",
     val username: String = "unknown",
 )

@@ -6,9 +6,7 @@ on:
 
 jobs:
   test:
-    runs-on: [ self-hosted ]
-    env:
-      ANDROID_HOME: /Users/youndie/Library/Android/sdk
+    runs-on: [ ubuntu-latest ]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -16,10 +14,8 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
-          java-version: 20
+          java-version: 21
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Test
-        run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
-      - name: Build
-        run: ./gradlew :server:jar :composeApp:assembleDebug :composeApp:wasmJsBrowserDevelopmentWebpack :composeApp:desktopJar --no-daemon
+        run: ./gradlew --build-cache --gradle-user-home cache/ :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon

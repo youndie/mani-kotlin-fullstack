@@ -1,13 +1,8 @@
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runCurrent
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import kotlinx.datetime.LocalDate
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -22,8 +17,6 @@ import ru.workinprogress.feature.transaction.data.TransactionRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
-import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
-import ru.workinprogress.mani.today
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -60,7 +53,7 @@ class TransactionsViewModelTest : KoinTest {
     //
     @Test
     fun testLoadTransactions() = runTest {
-        while (viewModel.observe.value.loading) {
+        while (viewModel.observe.value.data.isEmpty()) {
             runCurrent()
         }
 
@@ -70,32 +63,6 @@ class TransactionsViewModelTest : KoinTest {
             "Expected transactions to be fetched but got an empty list."
         )
     }
-//
-//    @Test
-//    fun testDeleteSelectedTransactions() = runTest {
-//        while (viewModel.observe.value.loading) {
-//            runCurrent()
-//        }
-//
-//        viewModel.onTransactionSelected(TransactionUiItem(toDelete, currencyRepository.currency))
-//        assertTrue(
-//            TransactionUiItem(
-//                toDelete,
-//                currencyRepository.currency
-//            ) in viewModel.observe.value.selectedTransactions
-//        )
-//
-//        viewModel.onDeleteClicked()
-//        runCurrent()
-////        assertTrue(viewModel.observe.value.selectedTransactions.isEmpty())
-//        while (viewModel.observe.value.selectedTransactions.isEmpty().not()) {
-//            runCurrent()
-//        }
-//        runCurrent()
-//
-//        assertTrue(viewModel.observe.value.data.flatMap { it.value }.none { it.id == toDelete.id })
-//    }
-
 
     @AfterTest
     fun tearDown() {
@@ -125,7 +92,7 @@ class TransactionsViewModelErrorTest : KoinTest {
             runCurrent()
         }
 
-        assertTrue(viewModel.observe.value.errorMessage == "fake")
+        assertTrue(viewModel.observe.value.errorMessage == "Network Error")
         assertTrue(
             viewModel.observe.value.data.isEmpty(),
             "Expected an empty list due to API failure but got ${viewModel.observe.value.data.size} items."
@@ -175,5 +142,9 @@ private class FakeTransactionsRepository(private val shouldCrash: Boolean = fals
     override suspend fun delete(transactionId: String): Boolean {
         data.value -= getById(transactionId)
         return true
+    }
+
+    override fun reset() {
+        data.value = emptyList()
     }
 }
