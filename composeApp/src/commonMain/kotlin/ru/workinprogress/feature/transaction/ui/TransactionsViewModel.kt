@@ -137,5 +137,4 @@ class TransactionsViewModel(
             deleteTransactionsUseCase(selected)
         }
     }
-
 }

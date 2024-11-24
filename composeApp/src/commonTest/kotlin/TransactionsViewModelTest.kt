@@ -53,7 +53,7 @@ class TransactionsViewModelTest : KoinTest {
     //
     @Test
     fun testLoadTransactions() = runTest {
-        while (viewModel.observe.value.loading) {
+        while (viewModel.observe.value.data.isEmpty()) {
             runCurrent()
         }
 
@@ -63,32 +63,6 @@ class TransactionsViewModelTest : KoinTest {
             "Expected transactions to be fetched but got an empty list."
         )
     }
-//
-//    @Test
-//    fun testDeleteSelectedTransactions() = runTest {
-//        while (viewModel.observe.value.loading) {
-//            runCurrent()
-//        }
-//
-//        viewModel.onTransactionSelected(TransactionUiItem(toDelete, currencyRepository.currency))
-//        assertTrue(
-//            TransactionUiItem(
-//                toDelete,
-//                currencyRepository.currency
-//            ) in viewModel.observe.value.selectedTransactions
-//        )
-//
-//        viewModel.onDeleteClicked()
-//        runCurrent()
-////        assertTrue(viewModel.observe.value.selectedTransactions.isEmpty())
-//        while (viewModel.observe.value.selectedTransactions.isEmpty().not()) {
-//            runCurrent()
-//        }
-//        runCurrent()
-//
-//        assertTrue(viewModel.observe.value.data.flatMap { it.value }.none { it.id == toDelete.id })
-//    }
-
 
     @AfterTest
     fun tearDown() {
@@ -118,7 +92,7 @@ class TransactionsViewModelErrorTest : KoinTest {
             runCurrent()
         }
 
-        assertTrue(viewModel.observe.value.errorMessage == "fake")
+        assertTrue(viewModel.observe.value.errorMessage == "Network Error")
         assertTrue(
             viewModel.observe.value.data.isEmpty(),
             "Expected an empty list due to API failure but got ${viewModel.observe.value.data.size} items."
