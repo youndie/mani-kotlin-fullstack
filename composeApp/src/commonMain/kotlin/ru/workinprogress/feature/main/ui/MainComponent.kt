@@ -162,34 +162,35 @@ fun MainComponent(
         state.value.showDeleteDialog, viewModel::onDeleteClicked, viewModel::onDismissDeleteDialog
     )
 
-    val chart = movableContentOf {
-        ChartComponent()
-    }
-
-    val futureInfo = movableContentOf {
-        Column(
-            Modifier.padding(
-                start = 24.dp, top = 12.dp, bottom = 16.dp, end = 24.dp
-            ), verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            if (state.value.loading) {
-                FutureInfoShimmer()
-            } else {
-                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
-                    Text(
-                        state.value.futureInformation, style = MaterialTheme.typography.labelMedium
-                    )
+    val chart = remember { movableContentOf { ChartComponent() } }
+    val futureInfo = remember {
+        movableContentOf {
+            Column(
+                Modifier.padding(
+                    start = 24.dp, top = 12.dp, bottom = 16.dp, end = 24.dp
+                ), verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                if (state.value.loading) {
+                    FutureInfoShimmer()
+                } else {
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                        Text(
+                            state.value.futureInformation,
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                 }
             }
         }
     }
+    val lazyColumnModifier = Modifier.fillMaxSize().testTag("transactions")
 
     BoxWithConstraints {
         if (maxWidth < 640.dp) {
-            LazyColumn(modifier = Modifier.fillMaxSize().testTag("transactions")) {
+            LazyColumn(modifier = lazyColumnModifier) {
                 item {
                     val handle = LocalPinnableContainer.current?.pin()
-                    Box(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+                    Box(Modifier.fillMaxWidth()) {
                         chart()
                     }
                 }
@@ -215,14 +216,14 @@ fun MainComponent(
                 }
             }
         } else {
-            Row(modifier = Modifier.fillMaxHeight()) {
-                Column {
+            Row(modifier = Modifier.fillMaxHeight().padding(start = 24.dp)) {
+                Column(modifier = Modifier.padding(top = 48.dp)) {
                     chart()
                     futureInfo()
                 }
                 LazyColumn(
-                    modifier = Modifier.fillMaxHeight().weight(0.5f).testTag("transactions"),
-                    contentPadding = PaddingValues(vertical = 16.dp)
+                    modifier = lazyColumnModifier,
+                    contentPadding = PaddingValues(16.dp)
                 ) {
                     state.value.transactions.forEach { day ->
                         val (date, list) = day
@@ -241,11 +242,8 @@ fun MainComponent(
                     }
                 }
             }
-
         }
     }
-
-
 }
 
 @Composable
@@ -285,7 +283,8 @@ fun connectToAppBarState(
         if (selected.isEmpty()) {
             appBarState.closeContextMenu()
         } else {
-            appBarState.contextTitle.value = getPluralString(Res.plurals.transactions, selected.size, selected.size)
+            appBarState.contextTitle.value =
+                getPluralString(Res.plurals.transactions, selected.size, selected.size)
             appBarState.showContextMenu(actions)
         }
     }
