@@ -8,6 +8,14 @@ on:
 jobs:
   build:
     runs-on: [ ubuntu-latest ]
+    cache:
+      key:
+        files:
+          - gradle/wrapper/gradle-wrapper.properties
+      paths:
+        - cache/caches/
+        - cache/notifications/
+        - cache/wrapper/
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -19,4 +27,4 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build
-        run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
+        run: ./gradlew --build-cache --gradle-user-home cache/ :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
