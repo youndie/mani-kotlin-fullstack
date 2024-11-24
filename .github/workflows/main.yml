@@ -15,7 +15,8 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: 21
+          cache: gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Test
-        run: ./gradlew --build-cache --gradle-user-home cache/ :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
+        run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon

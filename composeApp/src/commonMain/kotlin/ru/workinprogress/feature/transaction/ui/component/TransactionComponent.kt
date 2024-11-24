@@ -145,6 +145,7 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
             .padding(bottom = 24.dp),
     ) {
         Card(
+            modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors()
                 .copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             shape = MaterialTheme.shapes.medium.copy(
@@ -153,7 +154,9 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
             )
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .widthIn(max = 640.dp)
+                    .align(Alignment.CenterHorizontally)
                     .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 32.dp),
                 verticalArrangement = spacedBy(8.dp)
             ) {
@@ -238,54 +241,56 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
             }
         }
 
-        AnimatedVisibility(stateValue.amount.isNotBlank() && stateValue.date.value != null) {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+        Column(modifier = Modifier.widthIn(max = 640.dp).align(Alignment.CenterHorizontally)) {
+            AnimatedVisibility(stateValue.amount.isNotBlank() && stateValue.date.value != null) {
+                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                    Text(
+                        stateValue.futureInformation,
+                        modifier = Modifier.padding(
+                            start = 32.dp,
+                            top = 12.dp,
+                            bottom = 4.dp,
+                            end = 32.dp
+                        ),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            val keyboardController = LocalSoftwareKeyboardController.current
+
+            OutlinedTextField(
+                stateValue.comment,
+                viewModel::onCommentChanged,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = { keyboardController?.hide() }),
+                minLines = 2,
+                label = { Text("Comment") }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            state.value.errorMessage?.let {
                 Text(
-                    stateValue.futureInformation,
-                    modifier = Modifier.padding(
-                        start = 32.dp,
-                        top = 12.dp,
-                        bottom = 4.dp,
-                        end = 32.dp
-                    ),
+                    it,
+                    modifier = Modifier.padding(horizontal = 48.dp),
                     style = MaterialTheme.typography.labelMedium
                 )
+                Spacer(Modifier.height(24.dp))
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        val keyboardController = LocalSoftwareKeyboardController.current
-
-        OutlinedTextField(
-            stateValue.comment,
-            viewModel::onCommentChanged,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = { keyboardController?.hide() }),
-            minLines = 2,
-            label = { Text("Comment") }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        state.value.errorMessage?.let {
-            Text(
-                it,
-                modifier = Modifier.padding(horizontal = 48.dp),
-                style = MaterialTheme.typography.labelMedium
+            LoadingButton(
+                Modifier.align(Alignment.CenterHorizontally),
+                loading = stateValue.loading,
+                enabled = stateValue.valid,
+                if (stateValue.edit) "Save" else "Create",
+                viewModel::onSubmitClicked
             )
-            Spacer(Modifier.height(24.dp))
         }
-
-        LoadingButton(
-            Modifier.align(Alignment.CenterHorizontally),
-            loading = stateValue.loading,
-            enabled = stateValue.valid,
-            if (stateValue.edit) "Save" else "Create",
-            viewModel::onSubmitClicked
-        )
     }
 }
 

@@ -16,7 +16,8 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: 21
+          cache: 'gradle'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Build
-        run: ./gradlew --build-cache --gradle-user-home cache/ :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
+        run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
