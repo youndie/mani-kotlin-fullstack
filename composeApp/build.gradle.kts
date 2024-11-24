@@ -78,7 +78,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.preference.ktx)
-            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.okhttp)
             implementation(libs.koin.android)
             implementation(libs.androidx.core.splashscreen)
             implementation(libs.androidx.profileinstaller)
