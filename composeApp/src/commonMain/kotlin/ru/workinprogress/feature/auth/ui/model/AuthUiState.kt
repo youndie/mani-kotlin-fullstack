@@ -1,4 +1,4 @@
-package ru.workinprogress.feature.auth.ui
+package ru.workinprogress.feature.auth.ui.model
 
 data class AuthUiState(
     val username: String = "tester",

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.domain.AuthUseCase
+import ru.workinprogress.feature.auth.ui.model.AuthUiState
 import ru.workinprogress.useCase.UseCase
 
 

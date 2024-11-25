@@ -1,16 +1,3 @@
-import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performClick
-import org.junit.Rule
-import org.junit.Test
-import org.koin.compose.KoinApplication
-import org.koin.core.KoinApplication
-import ru.workinprogress.feature.auth.ui.LoginComponent
-import ru.workinprogress.mani.ManiApp
-import ru.workinprogress.mani.appModules
-import ru.workinprogress.mani.theme.AppTheme
-
 //class ExampleTest {
 //    @get:Rule
 //    val rule = createComposeRule()
