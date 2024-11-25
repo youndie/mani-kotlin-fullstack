@@ -2,11 +2,10 @@ package ru.workinprogress.mani.model
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.ktor.server.config.ApplicationConfig
+import io.ktor.server.config.*
 import ru.workinprogress.mani.BASE_URL
-import ru.workinprogress.mani.REALM
 import java.time.Clock
-import java.util.Date
+import java.util.*
 
 data class JWTConfig(
     val name: String = "",
