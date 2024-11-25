@@ -1,15 +1,18 @@
 package ru.workinprogress.mani.model
 
-import io.ktor.server.config.ApplicationConfig
+import io.ktor.server.config.*
 import org.bson.BsonValue
+import java.io.File
 
 data class MongoConfig(val userName: String = "", val password: String = "", val host: String = "") {
     companion object {
         fun ApplicationConfig.mongoConfig(): MongoConfig {
+
             return MongoConfig(
                 property("username").getString(),
-                property("password").getString(),
-                property("host").getString()
+                property("password").getString().let { password ->
+                    File(password).takeIf { it.exists() }?.readText() ?: password
+                }, property("host").getString()
             )
         }
     }
