@@ -34,7 +34,6 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
-import ru.workinprogress.feature.auth.ui.LoadingButton
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
 import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
@@ -44,6 +43,7 @@ import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.stringResource
 import ru.workinprogress.feature.transaction.ui.utils.CurrencyVisualTransformation
+import ru.workinprogress.mani.components.LoadingButton
 import ru.workinprogress.mani.navigation.TransactionRoute
 
 

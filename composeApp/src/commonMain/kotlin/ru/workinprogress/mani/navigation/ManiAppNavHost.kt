@@ -22,8 +22,8 @@ import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import org.koin.compose.koinInject
 import ru.workinprogress.feature.auth.data.TokenRepository
-import ru.workinprogress.feature.auth.ui.LoginComponent
-import ru.workinprogress.feature.auth.ui.SignupComponent
+import ru.workinprogress.feature.auth.ui.component.LoginComponent
+import ru.workinprogress.feature.auth.ui.component.SignupComponent
 import ru.workinprogress.feature.main.ui.MainComponent
 import ru.workinprogress.feature.transaction.ui.component.AddTransactionComponent
 import ru.workinprogress.feature.transaction.ui.component.EditTransactionComponent
