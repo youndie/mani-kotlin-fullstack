@@ -7,12 +7,12 @@ import java.io.File
 data class MongoConfig(val userName: String = "", val password: String = "", val host: String = "") {
     companion object {
         fun ApplicationConfig.mongoConfig(): MongoConfig {
-
             return MongoConfig(
                 property("username").getString(),
                 property("password").getString().let { password ->
-                    File(password).takeIf { it.exists() }?.readText() ?: password
-                }, property("host").getString()
+                    File("/run/secrets/${password}").takeIf { it.exists() }?.readText() ?: password
+                },
+                property("host").getString()
             )
         }
     }
