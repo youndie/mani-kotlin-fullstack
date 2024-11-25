@@ -4,7 +4,7 @@ desktop, android, ios, wasmjs + ktor server
 
 ![screenshot](/Screenshot.png?raw=true "Optional Title")
 
-demo: https://mani-staging.putmyhexon.ru/
+demo: https://mani.kotlin.website/
 
 
 run:
