@@ -12,4 +12,11 @@ run:
 `gradle publishImageToLocalRegistry`
 * start 
 `docker-compose up -d`
+* web: open http://localhost:8080/
 
+
+* android
+`gradle installDebug`
+* desktop 
+`gradle desktopRun`
+* ios: open iosApp/iosApp.xcodeproj via xcode and run
