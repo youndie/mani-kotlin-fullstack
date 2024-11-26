@@ -29,4 +29,3 @@ jobs:
           key: ${{ secrets.HOST_KEY }}
           port: ${{ secrets.HOST_PORT }}
           script: sh deploy.sh
-

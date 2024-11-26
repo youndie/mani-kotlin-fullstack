@@ -25,7 +25,7 @@ fun Routing.userRouting() {
         val params = call.receive<LoginParams>()
         val alreadyExist = userRepository.findByUsername(params.name) != null
         if (alreadyExist) {
-            call.respond(HttpStatusCode.BadRequest, "Already exist")
+            call.respond(HttpStatusCode.BadRequest, "User already exist")
         } else {
             userRepository.save(params)?.let { id ->
                 call.respond(HttpStatusCode.Created)

@@ -237,7 +237,6 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                         )
                     }
                 }
-
             }
         }
 
