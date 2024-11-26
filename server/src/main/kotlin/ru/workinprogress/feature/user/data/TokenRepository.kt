@@ -8,8 +8,8 @@ import org.bson.types.ObjectId
 import ru.workinprogress.feature.user.User
 import ru.workinprogress.feature.user.data.UserDb.Companion.fromDb
 
-class TokenRepository(private val mongoDatabase: MongoDatabase) {
-    private val db get() = mongoDatabase.getCollection<UserDb>(UserRepository.Companion.USER_COLLECTION)
+class TokenRepository(mongoDatabase: MongoDatabase) {
+    private val db = mongoDatabase.getCollection<UserDb>(UserRepository.Companion.USER_COLLECTION)
 
     suspend fun addToken(token: String, userId: String) {
         db.updateOne(
