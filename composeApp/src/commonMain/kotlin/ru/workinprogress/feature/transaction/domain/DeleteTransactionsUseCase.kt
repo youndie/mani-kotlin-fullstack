@@ -5,7 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import ru.workinprogress.feature.transaction.data.TransactionRepository
+import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.useCase.UseCase
 
 class DeleteTransactionsUseCase(

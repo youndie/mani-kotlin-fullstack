@@ -1,7 +1,7 @@
 package ru.workinprogress.feature.transaction.domain
 
 import ru.workinprogress.feature.transaction.Transaction
-import ru.workinprogress.feature.transaction.data.TransactionRepository
+import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.useCase.UseCase
 
 class GetTransactionUseCase(private val transactionRepository: TransactionRepository) :

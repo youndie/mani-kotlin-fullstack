@@ -7,6 +7,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 import ru.workinprogress.feature.currency.Currency
+import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.mani.today
 
@@ -18,6 +19,7 @@ data class TransactionUiState(
     val comment: String = "",
     val date: DateDataUiState = DateDataUiState(),
     val until: DateDataUiState = DateDataUiState(),
+    val category: Category = Category.default,
 
     val periods: ImmutableList<Transaction.Period> = defaultPeriods,
 
@@ -36,15 +38,20 @@ data class TransactionUiState(
     val valid get() = amount.toDoubleOrNull() != null
 
     val tempTransaction
-        get() = Transaction(
-            id = id,
-            amount = amount.toDoubleOrNull() ?: 0.0,
-            income = income,
-            period = period,
-            date = date.value ?: today(),
-            until = until.value,
-            comment = comment
+        get() = buildTransaction(this)
+
+    private fun buildTransaction(stateValue: TransactionUiState): Transaction {
+        return Transaction(
+            id = stateValue.id,
+            amount = stateValue.amount.toDouble(),
+            income = stateValue.income,
+            period = stateValue.period,
+            date = stateValue.date.value ?: today(),
+            until = stateValue.until.value,
+            comment = stateValue.comment,
+            category = stateValue.category
         )
+    }
 
     companion object {
         operator fun invoke(transaction: Transaction?, currency: Currency) = transaction?.let {

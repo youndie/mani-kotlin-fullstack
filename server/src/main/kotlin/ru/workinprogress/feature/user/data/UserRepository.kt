@@ -2,27 +2,31 @@ package ru.workinprogress.feature.user.data
 
 import com.mongodb.MongoException
 import com.mongodb.client.model.Filters
-import com.mongodb.client.model.Updates
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import org.bson.types.ObjectId
 import ru.workinprogress.feature.auth.LoginParams
+import ru.workinprogress.feature.auth.data.hashing.HashingService
+import ru.workinprogress.feature.auth.data.hashing.SaltedHash
 import ru.workinprogress.feature.user.User
 import ru.workinprogress.feature.user.data.UserDb.Companion.fromDb
 import ru.workinprogress.mani.model.stringValue
-import ru.workinprogress.feature.auth.data.hashing.HashingService
-import ru.workinprogress.feature.auth.data.hashing.SaltedHash
 
-class UserRepository(private val mongoDatabase: MongoDatabase, private val hashingService: HashingService) {
+class UserRepository(mongoDatabase: MongoDatabase, private val hashingService: HashingService) {
 
-    private val db get() = mongoDatabase.getCollection<UserDb>(USER_COLLECTION)
+    private val db = mongoDatabase.getCollection<UserDb>(USER_COLLECTION)
 
     suspend fun save(user: LoginParams): String? {
         try {
             val saltedHash = hashingService.generateSaltedHash(user.password)
             val result = db.insertOne(
                 UserDb(
-                    ObjectId(), user.name, saltedHash.hash, saltedHash.salt, emptyList()
+                    id = ObjectId(),
+                    username = user.name,
+                    password = saltedHash.hash,
+                    salt = saltedHash.salt,
+                    tokens = emptyList(),
+                    categories = emptyList()
                 )
             )
             return result.insertedId.stringValue
