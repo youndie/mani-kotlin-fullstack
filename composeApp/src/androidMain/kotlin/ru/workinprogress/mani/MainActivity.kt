@@ -12,6 +12,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
+import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.profileinstaller.ProfileVerifier
 import androidx.profileinstaller.ProfileVerifier.CompilationStatus.*
@@ -24,11 +25,7 @@ import org.koin.dsl.module
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.light(Color.TRANSPARENT, Color.TRANSPARENT)
-        )
+        enableEdgeToEdge()
 
         setContent {
             App(
