@@ -2,6 +2,7 @@ package ru.workinprogress.mani
 
 import org.koin.dsl.module
 import ru.workinprogress.feature.auth.authModule
+import ru.workinprogress.feature.category.categoryModule
 import ru.workinprogress.feature.transaction.transactionModule
 import ru.workinprogress.feature.user.userModule
 import ru.workinprogress.mani.db.mongoModule
@@ -21,6 +22,7 @@ private fun configModule(jwtConfig: JWTConfig) = module {
 private fun featureModules() = listOf(
     authModule,
     userModule,
-    transactionModule
+    transactionModule,
+    categoryModule
 )
 

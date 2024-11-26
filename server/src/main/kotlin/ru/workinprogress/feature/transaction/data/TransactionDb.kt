@@ -12,4 +12,10 @@ data class TransactionDb(
     val period: String,
     val comment: String,
     val userId: String,
+    val categoryId: String?
+)
+
+data class CategoryDb(
+    @BsonId val id: ObjectId,
+    val name: String
 )

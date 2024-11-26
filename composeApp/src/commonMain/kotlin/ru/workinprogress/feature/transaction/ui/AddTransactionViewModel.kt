@@ -5,10 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
-import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
-import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
 
 class AddTransactionViewModel(
@@ -25,24 +23,11 @@ class AddTransactionViewModel(
     }
 
     override fun onSubmitClicked() {
-        val stateValue = state.value
-
         viewModelScope.launch {
             state.update {
                 it.copy(loading = true)
             }
-
-            val result = addTransactionUseCase.invoke(
-                Transaction(
-                    id = "",
-                    amount = stateValue.amount.toDouble(),
-                    income = stateValue.income,
-                    period = stateValue.period,
-                    date = stateValue.date.value ?: today(),
-                    until = stateValue.until.value,
-                    comment = stateValue.comment
-                )
-            )
+            val result = addTransactionUseCase(state.value.tempTransaction)
             when (result) {
                 is UseCase.Result.Error -> {
                     state.update {

@@ -1,7 +1,7 @@
 package ru.workinprogress.feature.auth.domain
 
 import ru.workinprogress.feature.auth.data.TokenRepository
-import ru.workinprogress.feature.transaction.data.TransactionRepository
+import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.useCase.EmptyParams
 import ru.workinprogress.useCase.NonParameterizedUseCase
 

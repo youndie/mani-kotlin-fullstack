@@ -12,16 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.TransactionResource
-
-interface TransactionRepository {
-    val dataStateFlow: StateFlow<List<Transaction>>
-    suspend fun load()
-    fun getById(transactionId: String): Transaction
-    suspend fun create(params: Transaction): Boolean
-    suspend fun update(params: Transaction): Boolean
-    suspend fun delete(transactionId: String): Boolean
-    fun reset()
-}
+import ru.workinprogress.feature.transaction.domain.TransactionRepository
 
 class TransactionRepositoryImpl(
     private val httpClient: HttpClient,
@@ -61,12 +52,12 @@ class TransactionRepositoryImpl(
         data.value -= old
 
         try {
-            val patchResponse = httpClient.patch(TransactionResource.ById(id = params.id)) {
+            val response = httpClient.patch(TransactionResource.ById(id = params.id)) {
                 setBody(params)
             }
 
-            if (patchResponse.status == HttpStatusCode.OK) {
-                val updated = patchResponse.body<Transaction>()
+            if (response.status == HttpStatusCode.OK) {
+                val updated = response.body<Transaction>()
                 data.value += updated
 
                 return true

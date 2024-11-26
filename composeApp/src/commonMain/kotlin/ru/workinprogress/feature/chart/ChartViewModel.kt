@@ -9,7 +9,7 @@ import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.chart.ui.model.ChartUi
 import ru.workinprogress.feature.currency.data.CurrentCurrencyRepository
 import ru.workinprogress.feature.transaction.Transaction
-import ru.workinprogress.feature.transaction.data.TransactionRepository
+import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.feature.transaction.toChartInternal
 import ru.workinprogress.mani.defaultMinDate
 

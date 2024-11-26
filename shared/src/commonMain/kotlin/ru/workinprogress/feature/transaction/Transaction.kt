@@ -11,11 +11,22 @@ data class Transaction(
     val date: LocalDate,
     val until: LocalDate?,
     val period: Period,
-    val comment: String
+    val comment: String,
+    val category: Category = Category.default
 ) {
 
     enum class Period {
         OneTime, Week, TwoWeek, Month, ThreeMonth, HalfYear, Year
+    }
+}
+
+@Serializable
+data class Category(
+    val id: String,
+    val name: String
+) {
+    companion object {
+        val default = Category("", "Default")
     }
 }
 
