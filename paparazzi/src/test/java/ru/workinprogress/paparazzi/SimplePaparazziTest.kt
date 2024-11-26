@@ -41,7 +41,20 @@ class SimplePaparazziTest {
     }
 
     @Test
-    fun TransactionItemSnapshotDark() {
+    fun TransactionItemLoadingSnapshot() {
+        paparazzi.snapshot {
+            AppTheme(darkTheme = false) {
+                TransactionItem(
+                    transaction = transaction,
+                    loadingMode = true,
+                    periodText = "     "
+                )
+            }
+        }
+    }
+
+    @Test
+    fun TransactionItemDarkSnapshot() {
         paparazzi.snapshot {
             AppTheme(darkTheme = true) {
                 TransactionItem(
@@ -51,4 +64,7 @@ class SimplePaparazziTest {
             }
         }
     }
+
+
+
 }
