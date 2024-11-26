@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LocalPinnableContainer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
@@ -42,22 +43,6 @@ import ru.workinprogress.feature.transaction.ui.component.TransactionsDay
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.Action
 import ru.workinprogress.mani.components.MainAppBarState
-
-
-@Composable
-private fun ColumnScope.FutureInfoShimmer() {
-    val shimmer = rememberShimmer(ShimmerBounds.Window)
-    val modifier = Modifier.shimmer(shimmer)
-        .background(
-            MaterialTheme.colorScheme.surfaceContainerHigh,
-            shape = MaterialTheme.shapes.extraSmall
-        )
-
-    Text("    ", modifier, style = MaterialTheme.typography.labelMedium)
-    Text("               ", modifier, style = MaterialTheme.typography.labelMedium)
-    Text("                      ", modifier, style = MaterialTheme.typography.labelMedium)
-    Text("            ", modifier, style = MaterialTheme.typography.labelMedium)
-}
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -187,7 +172,14 @@ fun MainComponent(
 
     BoxWithConstraints {
         if (maxWidth < 640.dp) {
-            LazyColumn(modifier = lazyColumnModifier) {
+            LazyColumn(
+                modifier = lazyColumnModifier,
+                contentPadding = PaddingValues(
+                    bottom = with(LocalDensity.current) {
+                        WindowInsets.navigationBars.getBottom(this).toDp()
+                    } + DefaultFabButtonPadding + DefaultFabButtonPadding + DefaultFabButtonSize
+                )
+            ) {
                 item {
                     val handle = LocalPinnableContainer.current?.pin()
                     Box(Modifier.fillMaxWidth()) {
@@ -209,10 +201,6 @@ fun MainComponent(
                         loadingMode = state.value.loading,
                         onSelected = viewModel::onTransactionSelected,
                         onClick = { onTransactionClicked(it.id) })
-                }
-
-                item {
-                    Spacer(Modifier.height(76.dp))
                 }
             }
         } else {
@@ -295,3 +283,21 @@ fun connectToAppBarState(
         }
     }
 }
+
+@Composable
+private fun ColumnScope.FutureInfoShimmer() {
+    val shimmer = rememberShimmer(ShimmerBounds.Window)
+    val modifier = Modifier.shimmer(shimmer)
+        .background(
+            MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.extraSmall
+        )
+
+    Text("    ", modifier, style = MaterialTheme.typography.labelMedium)
+    Text("               ", modifier, style = MaterialTheme.typography.labelMedium)
+    Text("                      ", modifier, style = MaterialTheme.typography.labelMedium)
+    Text("            ", modifier, style = MaterialTheme.typography.labelMedium)
+}
+
+private val DefaultFabButtonPadding = 16.dp
+private val DefaultFabButtonSize = 56.dp

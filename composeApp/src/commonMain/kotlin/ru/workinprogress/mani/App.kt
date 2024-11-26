@@ -1,8 +1,11 @@
 package ru.workinprogress.mani
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -35,7 +38,7 @@ fun App(
     KoinApplication(application = {
         modules(appModules + platformModules)
     }) {
-        AppTheme(darkTheme = true) {
+        AppTheme {
             ManiApp(modifier)
         }
     }
@@ -65,53 +68,53 @@ fun ManiApp(
         appBarState.title.value = currentScreen.title()
     }
 
-    Box(
-        modifier = modifier.fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-    ) {
-        Scaffold(
-            topBar = {
-                Column(modifier = Modifier.animateContentSize()) {
-                    ManiAppBar(appBarState) {
-                        navController.popBackStack()
-                    }
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            Column(modifier = Modifier.animateContentSize()) {
+                ManiAppBar(appBarState) {
+                    navController.popBackStack()
                 }
-            },
-            snackbarHost = { SnackbarHost(snackBarHostState) },
-            floatingActionButton = {
-                AnimatedVisibility(
-                    currentScreen == ManiScreen.Main,
-                    exit = fadeOut() + slideOut(
-                        targetOffset = {
-                            IntOffset(
-                                0, (it.height / 2f).roundToInt()
-                            )
-                        }),
-                    enter = fadeIn() + slideIn(
-                        initialOffset = {
-                            IntOffset(
-                                0, (it.height / 2f).roundToInt()
-                            )
-                        })
-                ) {
-                    FloatingActionButton(onClick = {
-                        navController.navigate(ManiScreen.Add.name)
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Add,
-                            contentDescription = "Add",
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.surface,
+        snackbarHost = { SnackbarHost(snackBarHostState) },
+        floatingActionButton = {
+            AnimatedVisibility(
+                currentScreen == ManiScreen.Main,
+                exit = fadeOut() + slideOut(
+                    targetOffset = {
+                        IntOffset(
+                            0, (it.height / 2f).roundToInt()
                         )
-                    }
+                    }),
+                enter = fadeIn() + slideIn(
+                    initialOffset = {
+                        IntOffset(
+                            0, (it.height / 2f).roundToInt()
+                        )
+                    })
+            ) {
+                FloatingActionButton(
+                    onClick = {
+                        navController.navigate(ManiScreen.Add.name)
+                    },
+                    modifier = Modifier.navigationBarsPadding()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = "Add",
+                    )
                 }
-            }) { padding ->
-            ManiAppNavHost(
-                modifier = Modifier.padding(padding),
-                navController = navController,
-                appBarState = appBarState,
-                snackbarHostState = snackBarHostState
-            )
-        }
+            }
+        }) { padding ->
+        ManiAppNavHost(
+            modifier = Modifier.consumeWindowInsets(padding).padding(top = padding.calculateTopPadding()),
+            navController = navController,
+            appBarState = appBarState,
+            snackbarHostState = snackBarHostState
+        )
     }
 }
 
