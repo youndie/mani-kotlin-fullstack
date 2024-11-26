@@ -26,6 +26,17 @@ data class TransactionUiItem(
     val amountSigned get() = this.amount * (if (this.income) 1 else -1).toDouble()
 
     companion object {
+        val Empty = TransactionUiItem(
+            id = "",
+            amount = 0.0,
+            income = false,
+            date = LocalDate(2000, 1, 1),
+            until = LocalDate(2000, 1, 1),
+            period = Transaction.Period.OneTime,
+            comment = "",
+            currency = Currency.Unknown
+        )
+
         operator fun invoke(transaction: Transaction, currency: Currency): TransactionUiItem {
             return TransactionUiItem(
                 id = transaction.id,

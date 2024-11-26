@@ -148,8 +148,8 @@ private fun LazyListScope.transactionsListItems(
             transaction in selectedTransactions,
             contextMode,
             loadingMode,
-            onSelected,
-            onClick,
+            onItemSelected = onSelected,
+            onItemClicked = onClick,
         )
     }
 }

@@ -26,12 +26,13 @@ import ru.workinprogress.feature.transaction.ui.model.stringResource
 @Composable
 fun TransactionItem(
     modifier: Modifier = Modifier,
-    transaction: TransactionUiItem,
-    selected: Boolean,
-    selectionMode: Boolean,
-    loadingMode: Boolean,
-    onItemSelected: (TransactionUiItem) -> Unit,
-    onItemClicked: (TransactionUiItem) -> Unit,
+    transaction: TransactionUiItem = TransactionUiItem.Empty,
+    selected: Boolean = false,
+    selectionMode: Boolean = false,
+    loadingMode: Boolean = false,
+    periodText: String = stringResource(transaction.period.stringResource).takeIf { loadingMode.not() }.orEmpty(),
+    onItemSelected: (TransactionUiItem) -> Unit = {},
+    onItemClicked: (TransactionUiItem) -> Unit = {},
 ) {
     val haptics = LocalHapticFeedback.current
     val containerColor by animateColorAsState(
@@ -73,7 +74,7 @@ fun TransactionItem(
         colors = ListItemDefaults.colors(containerColor = containerColor),
         supportingContent = {
             Text(
-                stringResource(transaction.period.stringResource).takeIf { loadingMode.not() }.orEmpty(),
+                periodText,
                 loadingModifier
             )
         },

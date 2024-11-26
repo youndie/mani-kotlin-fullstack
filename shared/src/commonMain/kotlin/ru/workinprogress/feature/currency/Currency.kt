@@ -11,5 +11,6 @@ data class Currency(
     companion object {
         val Rub = Currency("RUB", "Рубль", "Р")
         val Usd = Currency("USD", "United States Dollar", "$")
+        val Unknown = Currency("", "", "ç")
     }
 }
