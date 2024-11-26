@@ -32,5 +32,4 @@ class TokenRepository(private val mongoDatabase: MongoDatabase) {
             Updates.pull<String>(UserDb::tokens.name, token),
         )
     }
-
 }
