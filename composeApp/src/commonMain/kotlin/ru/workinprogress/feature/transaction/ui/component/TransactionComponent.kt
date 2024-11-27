@@ -46,11 +46,11 @@ import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
 import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.AddTransactionViewModel
-import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.stringResource
 import ru.workinprogress.feature.transaction.ui.utils.CurrencyVisualTransformation
+import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.mani.components.LoadingButton
 import ru.workinprogress.mani.navigation.TransactionRoute
 
@@ -75,7 +75,7 @@ internal fun <T> ChipsSelector(
     expanded: Boolean,
     onExpanded: () -> Unit,
     onSelected: (T) -> Unit,
-    deleteEnabled: Boolean = false,
+    deleteEnabled: (T) -> Boolean = { false },
     showCreateNew: Boolean = false,
     onCreateNew: () -> Unit = {},
     onDelete: (T) -> Unit = {},
@@ -122,7 +122,7 @@ internal fun <T> ChipsSelector(
                             .matchParentSize()
                             .combinedClickable(
                                 onLongClick = {
-                                    if (deleteEnabled) {
+                                    if (deleteEnabled(item)) {
                                         onSelected(item)
                                         markToDelete.value = item
                                     }
@@ -388,7 +388,9 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                         viewModel::onExpandCategoryClicked,
                         viewModel::onCategoryChanged,
                         showCreateNew = true,
-                        deleteEnabled = true,
+                        deleteEnabled = {
+                            it != Category.default
+                        },
                         onCreateNew = {
                             showCreateCategoryDialog.value = true
                         },

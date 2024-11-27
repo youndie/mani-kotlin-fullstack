@@ -10,6 +10,7 @@ class AddTransactionUseCase(
 
     override suspend operator fun invoke(params: Transaction): Result<Boolean> = withTry {
         transactionsRepository.create(params)
+        true
     }.let { result ->
         return when (result) {
             is Result.Error<*> -> {

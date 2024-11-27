@@ -6,14 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
+import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
+import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.transaction.*
-import ru.workinprogress.feature.transaction.domain.AddCategoryUseCase
-import ru.workinprogress.feature.transaction.domain.DeleteCategoryUseCase
-import ru.workinprogress.feature.transaction.domain.GetCategoriesUseCase
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
@@ -22,7 +24,7 @@ import ru.workinprogress.useCase.UseCase
 
 abstract class BaseTransactionViewModel(
     private val addCategoryUseCase: AddCategoryUseCase,
-    private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val observeCategoriesUseCase: ObserveCategoriesUseCase,
     private val deleteCategoryUseCase: DeleteCategoryUseCase,
 ) : ViewModel() {
 
@@ -31,17 +33,12 @@ abstract class BaseTransactionViewModel(
 
     abstract fun onSubmitClicked()
 
-    init {
+    protected fun observeCategories() {
         viewModelScope.launch {
-            val result = getCategoriesUseCase()
-            if (result is UseCase.Result.Success) {
-                result.data
-                    .flowOn(Dispatchers.Default)
-                    .collectLatest({ categories ->
-                        state.update { state ->
-                            state.copy(categories = (categories + Category.default).toImmutableSet())
-                        }
-                    })
+            observeCategoriesUseCase.observe.collectLatest { value ->
+                state.update { state ->
+                    state.copy(categories = (value + Category.default).toImmutableSet())
+                }
             }
         }
     }
@@ -108,9 +105,7 @@ abstract class BaseTransactionViewModel(
         return buildAnnotatedString {
             append(
                 buildColoredAmount(
-                    amount = state.amount,
-                    currency = state.currency,
-                    sign = state.income
+                    amount = state.amount, currency = state.currency, sign = state.income
                 )
             )
 
@@ -160,26 +155,38 @@ abstract class BaseTransactionViewModel(
 
     fun onCategoryCreate(name: String) {
         viewModelScope.launch {
-            val result = addCategoryUseCase(Category("", name = name))
+            val new = Category("", name = name)
+            state.update {
+                it.copy(category = new)
+            }
+
+            val result = addCategoryUseCase(new)
 
             when (result) {
                 is UseCase.Result.Error -> {
                     state.update {
-                        it.copy(errorMessage = result.throwable.message)
+                        it.copy(category = Category.default, errorMessage = result.throwable.message)
                     }
                 }
 
-                is UseCase.Result.Success -> {}
+                is UseCase.Result.Success -> {
+                    state.update {
+                        it.copy(category = result.data)
+                    }
+                }
             }
 
         }
     }
 
     fun onCategoryDelete(category: Category?) {
+        (state.value.categories - category).firstOrNull()?.let {
+            onCategoryChanged(it)
+        }
         category?.let {
             viewModelScope.launch {
-                if (deleteCategoryUseCase(category) is UseCase.Result.Success) {
-                    onCategoryChanged(state.value.categories.firstOrNull()!!)
+                if (deleteCategoryUseCase(category) !is UseCase.Result.Success) {
+                    onCategoryChanged(category)
                 }
             }
         }

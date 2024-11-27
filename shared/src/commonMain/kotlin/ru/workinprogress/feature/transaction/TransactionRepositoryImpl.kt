@@ -14,7 +14,7 @@ interface StateFlowRepository<T : WithId> {
     val dataStateFlow: StateFlow<List<T>>
     suspend fun load()
     fun getById(id: String): T
-    suspend fun create(params: T): Boolean
+    suspend fun create(params: T): T
     suspend fun update(params: T): Boolean
     suspend fun delete(id: String): Boolean
     fun reset()
@@ -32,14 +32,14 @@ abstract class BaseFlowRepository<T : WithId>(private val dataSource: DataSource
     private val dispatcher = Dispatchers.Default
     override val dataStateFlow: StateFlow<List<T>> = data.asStateFlow()
 
-    override suspend fun create(params: T): Boolean {
+    override suspend fun create(params: T): T {
         data.value += params
 
         try {
             val created = dataSource.create(params)
 
             data.value = data.value - params + created
-            return true
+            return created
         } catch (e: Exception) {
             data.value -= params
             throw e

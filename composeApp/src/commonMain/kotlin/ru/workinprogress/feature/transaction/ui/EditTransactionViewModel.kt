@@ -5,6 +5,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
+import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
+import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
 import ru.workinprogress.feature.transaction.domain.*
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
@@ -16,10 +19,10 @@ class EditTransactionViewModel(
     private val getTransactionUseCase: GetTransactionUseCase,
     private val updateTransactionUseCase: UpdateTransactionUseCase,
     addCategoryUseCase: AddCategoryUseCase,
-    getCategoriesUseCase: GetCategoriesUseCase,
+    observeCategoriesUseCase: ObserveCategoriesUseCase,
     getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
     deleteCategoryUseCase: DeleteCategoryUseCase,
-) : BaseTransactionViewModel(addCategoryUseCase, getCategoriesUseCase, deleteCategoryUseCase) {
+) : BaseTransactionViewModel(addCategoryUseCase, observeCategoriesUseCase, deleteCategoryUseCase) {
 
     override val state: MutableStateFlow<TransactionUiState> = MutableStateFlow(TransactionUiState(edit = true))
 
@@ -32,6 +35,8 @@ class EditTransactionViewModel(
                     currency = getCurrentCurrencyUseCase.get(),
                 ).copy(edit = true)
             }
+
+            observeCategories()
         }
     }
 

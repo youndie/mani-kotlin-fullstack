@@ -1,17 +1,11 @@
-package ru.workinprogress.feature.transaction.domain
+package ru.workinprogress.feature.categories.domain
 
 import kotlinx.coroutines.flow.Flow
 import ru.workinprogress.feature.auth.domain.ServerException
 import ru.workinprogress.feature.transaction.Category
+import ru.workinprogress.feature.categories.data.CategoriesRepository
 import ru.workinprogress.useCase.EmptyParams
 import ru.workinprogress.useCase.NonParameterizedUseCase
-import ru.workinprogress.useCase.UseCase
-
-class AddCategoryUseCase(private val repository: CategoriesRepository) : UseCase<Category, Boolean>() {
-    override suspend operator fun invoke(params: Category): Result<Boolean> {
-        return withTry { repository.create(params) }
-    }
-}
 
 class GetCategoriesUseCase(
     private val repository: CategoriesRepository,
@@ -25,13 +19,5 @@ class GetCategoriesUseCase(
         }
 
         return Result.Success(repository.dataStateFlow)
-    }
-}
-
-class DeleteCategoryUseCase(private val repository: CategoriesRepository) : UseCase<Category, Boolean>() {
-    override suspend fun invoke(params: Category): Result<Boolean> {
-        return withTry {
-            repository.delete(params.id)
-        }
     }
 }

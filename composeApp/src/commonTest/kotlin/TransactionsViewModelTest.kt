@@ -129,9 +129,9 @@ private class FakeTransactionsRepository(private val shouldCrash: Boolean = fals
         return data.value.first { it.id == transactionId }
     }
 
-    override suspend fun create(params: Transaction): Boolean {
+    override suspend fun create(params: Transaction): Transaction {
         data.value += params
-        return true
+        return params
     }
 
     override suspend fun update(params: Transaction): Boolean {
