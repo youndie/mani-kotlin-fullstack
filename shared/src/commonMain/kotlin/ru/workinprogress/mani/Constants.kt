@@ -22,4 +22,4 @@ val local = ServerConfig(
     port = "8080"
 )
 
-val currentServerConfig: ServerConfig = staging
+val currentServerConfig: ServerConfig = local

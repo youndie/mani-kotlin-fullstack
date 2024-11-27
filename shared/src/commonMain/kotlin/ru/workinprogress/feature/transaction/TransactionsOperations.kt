@@ -67,6 +67,7 @@ fun List<Transaction>.simulate(from: LocalDate, to: LocalDate): Map<LocalDate, L
             scheduled.scheduleTransaction(
                 transaction, to,
                 when (transaction.period) {
+                    Transaction.Period.Day -> currentDate.plus(1, DateTimeUnit.DAY)
                     Transaction.Period.OneTime -> currentDate
                     Transaction.Period.Week -> currentDate.plus(1, DateTimeUnit.WEEK)
                     Transaction.Period.TwoWeek -> currentDate.plus(2, DateTimeUnit.WEEK)

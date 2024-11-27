@@ -3,6 +3,9 @@ package ru.workinprogress.feature.transaction.ui.model
 import androidx.compose.ui.text.AnnotatedString
 import ir.ehsannarmani.compose_charts.extensions.format
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
@@ -22,6 +25,7 @@ data class TransactionUiState(
     val category: Category = Category.default,
 
     val periods: ImmutableList<Transaction.Period> = defaultPeriods,
+    val categories: ImmutableSet<Category> = defaultCategories,
 
     val success: Boolean = false,
     val loading: Boolean = false,
@@ -33,12 +37,11 @@ data class TransactionUiState(
 
     val currency: Currency = Currency("", "", ""),
 ) {
-    val expanded get() = periods != defaultPeriods
+    val periodsExpanded get() = periods != defaultPeriods
+    val categoriesExpanded get() = true
 
     val valid get() = amount.toDoubleOrNull() != null
-
-    val tempTransaction
-        get() = buildTransaction(this)
+    val tempTransaction get() = buildTransaction(this)
 
     private fun buildTransaction(stateValue: TransactionUiState): Transaction {
         return Transaction(
@@ -60,6 +63,7 @@ data class TransactionUiState(
                 transaction.amount.format(0),
                 transaction.income,
                 transaction.period,
+                category = transaction.category,
                 periods = defaultPeriods,
                 comment = transaction.comment,
                 date = DateDataUiState(transaction.date),
@@ -71,6 +75,8 @@ data class TransactionUiState(
         private val defaultPeriods = listOf(
             Transaction.Period.OneTime, Transaction.Period.TwoWeek, Transaction.Period.Month
         ).toImmutableList()
+
+        private val defaultCategories = persistentSetOf<Category>(Category.default)
     }
 }
 

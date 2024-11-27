@@ -1,6 +1,7 @@
 package ru.workinprogress.feature.transaction.ui.model
 
 import mani.composeapp.generated.resources.Res
+import mani.composeapp.generated.resources.repeat_day
 import mani.composeapp.generated.resources.repeat_half_year
 import mani.composeapp.generated.resources.repeat_month
 import mani.composeapp.generated.resources.repeat_one_time
@@ -13,6 +14,7 @@ import ru.workinprogress.feature.transaction.Transaction.Period
 internal val Period.stringResource
     get() = when (this) {
         Period.OneTime -> Res.string.repeat_one_time
+        Period.Day -> Res.string.repeat_day
         Period.Week -> Res.string.repeat_week
         Period.TwoWeek -> Res.string.repeat_two_week
         Period.Month -> Res.string.repeat_month

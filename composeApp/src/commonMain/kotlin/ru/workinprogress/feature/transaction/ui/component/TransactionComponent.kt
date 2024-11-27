@@ -2,6 +2,9 @@ package ru.workinprogress.feature.transaction.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.rememberScrollState
@@ -9,6 +12,9 @@ import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,6 +30,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import kotlinx.datetime.format.char
@@ -34,6 +41,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
+import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
 import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
@@ -59,6 +67,103 @@ fun AddTransactionComponent(onNavigateBack: () -> Unit) {
     TransactionComponentImpl(onNavigateBack)
 }
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
+@Composable
+internal fun <T> ChipsSelector(
+    items: ImmutableCollection<T>,
+    selected: T,
+    expanded: Boolean,
+    onExpanded: () -> Unit,
+    onSelected: (T) -> Unit,
+    deleteEnabled: Boolean = false,
+    showCreateNew: Boolean = false,
+    onCreateNew: () -> Unit = {},
+    onDelete: (T) -> Unit = {},
+    labelValue: @Composable (T) -> String = { it.toString() }
+) {
+    val markToDelete = remember { mutableStateOf<T?>(null) }
+
+    FlowRow(
+        horizontalArrangement = spacedBy(8.dp),
+        modifier = Modifier.animateContentSize()
+    ) {
+        items.forEach { item ->
+            key(item) {
+                val inputChipInteractionSource = remember { MutableInteractionSource() }
+                Box {
+                    InputChip(
+                        onClick = { },
+                        selected = selected == item,
+                        label = {
+                            Text(labelValue(item))
+                        },
+                        elevation = InputChipDefaults.inputChipElevation(elevation = if (item == markToDelete.value) 8.dp else 0.dp),
+                        trailingIcon = {
+                            if (item == markToDelete.value) {
+                                IconButton(
+                                    {
+                                        markToDelete.value = null
+                                    },
+                                    Modifier.size(AssistChipDefaults.IconSize),
+                                    interactionSource = inputChipInteractionSource,
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Close,
+                                        contentDescription = "delete",
+                                    )
+                                }
+
+                            }
+                        },
+                        interactionSource = inputChipInteractionSource,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .matchParentSize()
+                            .combinedClickable(
+                                onLongClick = {
+                                    if (deleteEnabled) {
+                                        onSelected(item)
+                                        markToDelete.value = item
+                                    }
+                                },
+                                onClick = {
+                                    if (markToDelete.value == null || item != markToDelete.value) {
+                                        markToDelete.value = null
+                                        onSelected(item)
+                                    } else {
+                                        onDelete(item)
+                                    }
+                                },
+                                interactionSource = inputChipInteractionSource,
+                                indication = null,
+                            )
+                    )
+                }
+            }
+        }
+
+        if (showCreateNew) {
+            AssistChip(
+                onClick = onCreateNew,
+                label = { Text("Add") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "add",
+                        Modifier.size(AssistChipDefaults.IconSize)
+                    )
+                }
+            )
+        }
+
+        if (!expanded) {
+            TextButton(onExpanded) {
+                Text("More")
+            }
+        }
+    }
+}
 
 @Composable
 fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
@@ -73,12 +178,82 @@ fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack:
     TransactionComponentImpl(onNavigateBack)
 }
 
+
+@Composable
+private fun NewCategoryDialog(
+    showCreateCategoryDialog: MutableState<Boolean> = remember { mutableStateOf(false) },
+    onCreate: (String) -> Unit
+) {
+    var newCategoryName by remember { mutableStateOf("") }
+
+    if (showCreateCategoryDialog.value) {
+        AlertDialog(
+            title = { Text("New category") },
+            text = {
+                OutlinedTextField(
+                    newCategoryName, {
+                        newCategoryName = it
+                    },
+                    modifier = Modifier.padding(vertical = 16.dp),
+                    label = { Text("Category name") })
+            },
+            onDismissRequest = {
+                newCategoryName = ""
+                showCreateCategoryDialog.value = false
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    onCreate(newCategoryName)
+                    newCategoryName = ""
+                    showCreateCategoryDialog.value = false
+                }) {
+                    Text("Create")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    newCategoryName = ""
+                    showCreateCategoryDialog.value = false
+                }) {
+                    Text("Cancel")
+                }
+            })
+    }
+}
+
+@Composable
+fun CategoryDeleteDialog(
+    showDeleteDialog: Boolean,
+    onDelete: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (showDeleteDialog) {
+        AlertDialog(
+            title = { Text("Delete selected category?") },
+            text = { Text("This action cannot be undone later") },
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = onDelete) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            })
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
     val viewModel = koinViewModel<BaseTransactionViewModel>()
     val state: State<TransactionUiState> = viewModel.observe.collectAsStateWithLifecycle()
     val stateValue = state.value
+
+    var showCreateCategoryDialog = remember { mutableStateOf(false) }
+    var categoryToRemove = remember { mutableStateOf<Category?>(null) }
 
     val datePickerState = rememberDatePickerState(
         selectableDates = object : SelectableDates {
@@ -138,6 +313,21 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
         }
     }
 
+    NewCategoryDialog(showCreateCategoryDialog) {
+        viewModel.onCategoryCreate(it)
+    }
+
+    CategoryDeleteDialog(
+        showDeleteDialog = categoryToRemove.value != null,
+        onDelete = {
+            viewModel.onCategoryDelete(categoryToRemove.value)
+            categoryToRemove.value = null
+        },
+        onDismiss = {
+            categoryToRemove.value = null
+        }
+    )
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -179,6 +369,39 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                     Text("Income")
                 }
 
+                Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp)) {
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                        Text(
+                            "Category",
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(
+                                start = 16.dp,
+                                bottom = 4.dp
+                            )
+                        )
+                    }
+
+                    ChipsSelector(
+                        stateValue.categories,
+                        stateValue.category,
+                        stateValue.categoriesExpanded,
+                        viewModel::onExpandCategoryClicked,
+                        viewModel::onCategoryChanged,
+                        showCreateNew = true,
+                        deleteEnabled = true,
+                        onCreateNew = {
+                            showCreateCategoryDialog.value = true
+                        },
+                        onDelete = {
+                            categoryToRemove.value = it
+                        }
+                    ) { it.name }
+                }
+
+                HorizontalDivider(thickness = 1.dp)
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 TransactionDatePicker(
                     label = "Date",
                     value = stateValue.date.value?.formatted,
@@ -202,28 +425,15 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                             )
                         }
 
-                        FlowRow(
-                            horizontalArrangement = spacedBy(8.dp),
-                            modifier = Modifier.animateContentSize()
-                        ) {
-                            stateValue.periods.forEach { period ->
-                                key(period) {
-                                    FilterChip(
-                                        onClick = { viewModel.onPeriodChanged(period) },
-                                        selected = stateValue.period == period,
-                                        label = {
-                                            Text(stringResource(period.stringResource))
-                                        })
-                                }
-                            }
-
-                            if (!stateValue.expanded) {
-                                TextButton(viewModel::onExpandPeriodClicked) {
-                                    Text("More")
-                                }
-                            }
+                        ChipsSelector(
+                            stateValue.periods,
+                            stateValue.period,
+                            stateValue.periodsExpanded,
+                            viewModel::onExpandPeriodClicked,
+                            viewModel::onPeriodChanged
+                        ) { item ->
+                            stringResource(item.stringResource)
                         }
-
                     }
 
                     AnimatedVisibility(stateValue.period != Transaction.Period.OneTime) {
@@ -255,6 +465,7 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                     )
                 }
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 

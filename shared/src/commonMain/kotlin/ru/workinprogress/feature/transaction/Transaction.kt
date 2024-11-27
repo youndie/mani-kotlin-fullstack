@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Transaction(
-    val id: String,
+    override val id: String,
     val amount: Double,
     val income: Boolean,
     val date: LocalDate,
@@ -13,18 +13,18 @@ data class Transaction(
     val period: Period,
     val comment: String,
     val category: Category = Category.default
-) {
+) : WithId {
 
     enum class Period {
-        OneTime, Week, TwoWeek, Month, ThreeMonth, HalfYear, Year
+        OneTime, Day, Week, TwoWeek, Month, ThreeMonth, HalfYear, Year
     }
 }
 
 @Serializable
 data class Category(
-    val id: String,
+    override val id: String,
     val name: String
-) {
+) : WithId {
     companion object {
         val default = Category("", "Default")
     }

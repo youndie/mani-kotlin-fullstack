@@ -80,7 +80,7 @@ val networkModule = module {
             defaultRequest {
                 contentType(Json)
                 url {
-                    protocol = if (currentServerConfig.host == "http") URLProtocol.HTTP else URLProtocol.HTTPS
+                    protocol = if (currentServerConfig.scheme == "http") URLProtocol.HTTP else URLProtocol.HTTPS
                     host = currentServerConfig.host
                     currentServerConfig.port?.toIntOrNull()?.let {
                         port = it

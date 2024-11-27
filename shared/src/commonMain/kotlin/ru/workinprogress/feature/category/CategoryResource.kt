@@ -6,5 +6,5 @@ import io.ktor.resources.*
 class CategoryResource {
 
     @Resource("/{id}")
-    class ById(val parent: CategoryResource, val id: String)
+    class ById(val parent: CategoryResource = CategoryResource(), val id: String)
 }
