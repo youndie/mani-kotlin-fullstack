@@ -64,14 +64,18 @@ internal fun AuthComponentImpl(
                     }),
                     visualTransformation = PasswordVisualTransformation(),
                     label = { Text("Password") })
+
                 Spacer(Modifier.height(24.dp))
 
                 state.errorMessage?.let {
                     Text(
-                        it, modifier = Modifier.padding(horizontal = 8.dp), style = MaterialTheme.typography.labelMedium
+                        it,
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        style = MaterialTheme.typography.labelMedium
                     )
                     Spacer(Modifier.height(24.dp))
                 }
+                Spacer(Modifier.height(8.dp))
 
                 LoadingButton(
                     modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login"),
@@ -79,6 +83,8 @@ internal fun AuthComponentImpl(
                     buttonText = state.buttonText,
                     onButtonClicked = onButtonClicked
                 )
+
+                Spacer(Modifier.height(8.dp))
             }
         }
     }

@@ -6,8 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
-import ru.workinprogress.feature.transaction.domain.GetTransactionUseCase
-import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
+import ru.workinprogress.feature.transaction.domain.*
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.mani.navigation.TransactionRoute
 import ru.workinprogress.useCase.UseCase
@@ -16,8 +15,11 @@ class EditTransactionViewModel(
     private val route: TransactionRoute,
     private val getTransactionUseCase: GetTransactionUseCase,
     private val updateTransactionUseCase: UpdateTransactionUseCase,
-    getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase
-) : BaseTransactionViewModel() {
+    addCategoryUseCase: AddCategoryUseCase,
+    getCategoriesUseCase: GetCategoriesUseCase,
+    getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
+    deleteCategoryUseCase: DeleteCategoryUseCase,
+) : BaseTransactionViewModel(addCategoryUseCase, getCategoriesUseCase, deleteCategoryUseCase) {
 
     override val state: MutableStateFlow<TransactionUiState> = MutableStateFlow(TransactionUiState(edit = true))
 

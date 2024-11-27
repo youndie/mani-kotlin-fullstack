@@ -1,5 +1,6 @@
 <resources>
     <string name="repeat_one_time">One time</string>
+    <string name="repeat_day">Every day</string>
     <string name="repeat_week">Every week</string>
     <string name="repeat_two_week">Every two weeks</string>
     <string name="repeat_month">Every month</string>

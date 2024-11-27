@@ -5,14 +5,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
+import ru.workinprogress.feature.transaction.domain.AddCategoryUseCase
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
+import ru.workinprogress.feature.transaction.domain.DeleteCategoryUseCase
+import ru.workinprogress.feature.transaction.domain.GetCategoriesUseCase
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.useCase.UseCase
 
 class AddTransactionViewModel(
     private val addTransactionUseCase: AddTransactionUseCase,
+    addCategoryUseCase: AddCategoryUseCase,
+    getCategoriesUseCase: GetCategoriesUseCase,
+    deleteCategoryUseCase: DeleteCategoryUseCase,
     getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase
-) : BaseTransactionViewModel() {
+) : BaseTransactionViewModel(addCategoryUseCase, getCategoriesUseCase, deleteCategoryUseCase) {
 
     init {
         viewModelScope.launch(Dispatchers.Default) {

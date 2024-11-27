@@ -3,23 +3,48 @@ package ru.workinprogress.feature.transaction.ui
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.transaction.*
+import ru.workinprogress.feature.transaction.domain.AddCategoryUseCase
+import ru.workinprogress.feature.transaction.domain.DeleteCategoryUseCase
+import ru.workinprogress.feature.transaction.domain.GetCategoriesUseCase
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
 import ru.workinprogress.mani.today
+import ru.workinprogress.useCase.UseCase
 
-abstract class BaseTransactionViewModel : ViewModel() {
+abstract class BaseTransactionViewModel(
+    private val addCategoryUseCase: AddCategoryUseCase,
+    private val getCategoriesUseCase: GetCategoriesUseCase,
+    private val deleteCategoryUseCase: DeleteCategoryUseCase,
+) : ViewModel() {
 
     protected open val state = MutableStateFlow(TransactionUiState())
     val observe get() = state.asStateFlow()
 
     abstract fun onSubmitClicked()
+
+    init {
+        viewModelScope.launch {
+            val result = getCategoriesUseCase()
+            if (result is UseCase.Result.Success) {
+                result.data
+                    .flowOn(Dispatchers.Default)
+                    .collectLatest({ categories ->
+                        state.update { state ->
+                            state.copy(categories = (categories + Category.default).toImmutableSet())
+                        }
+                    })
+            }
+        }
+    }
 
     fun onAmountChanged(amount: String) {
         if (amount.toDoubleOrNull() != null || amount.isEmpty()) {
@@ -45,6 +70,11 @@ abstract class BaseTransactionViewModel : ViewModel() {
         state.copy(periods = Transaction.Period.entries.toImmutableList())
     }
 
+    fun onExpandCategoryClicked() = state.update { state ->
+        state
+//        state.copy(categories = persistentListOf(Category.default, Category.default.copy(name = "Otlojenia")))
+    }
+
     fun onToggleDatePicker() = state.update { state ->
         state.copy(date = state.date.copy(showDatePicker = state.date.showDatePicker.not()))
     }
@@ -59,6 +89,14 @@ abstract class BaseTransactionViewModel : ViewModel() {
 
     fun onDateUntilSelected(date: LocalDate) = state.update { state ->
         state.copy(until = state.until.copy(value = date, showDatePicker = false)).addFutureInformation()
+    }
+
+    fun onCategoryChanged(category: Category) = state.update { state ->
+        state.copy(category = category)
+    }
+
+    fun onNewCategoryClicked() {
+
     }
 
     private fun TransactionUiState.addFutureInformation() = copy(futureInformation = buildFutureInformation(this))
@@ -116,6 +154,32 @@ abstract class BaseTransactionViewModel : ViewModel() {
                         state.date.value.orToday, defaultPeriodAppend(state.date.value.orToday)
                     )
                 })
+            }
+        }
+    }
+
+    fun onCategoryCreate(name: String) {
+        viewModelScope.launch {
+            val result = addCategoryUseCase(Category("", name = name))
+
+            when (result) {
+                is UseCase.Result.Error -> {
+                    state.update {
+                        it.copy(errorMessage = result.throwable.message)
+                    }
+                }
+
+                is UseCase.Result.Success -> {}
+            }
+
+        }
+    }
+
+    fun onCategoryDelete(category: Category?) {
+        category?.let {
+            viewModelScope.launch {
+                deleteCategoryUseCase(category)
+                onCategoryChanged(state.value.categories.firstOrNull()!!)
             }
         }
     }

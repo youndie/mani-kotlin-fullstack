@@ -35,11 +35,7 @@ fun Routing.categoryRouting() {
             }
             response { HttpStatusCode.Created to { body<Category>() } }
         }) {
-            categoryRepository.create(call.receive<Category>(), call.currentUserId()).let {
-                categoryRepository.getById(it)
-            }?.let { category ->
-                call.respond(category)
-            } ?: call.respond(HttpStatusCode.NotFound)
+            call.respond(categoryRepository.create(call.receive<Category>(), call.currentUserId()))
         }
 
         get<CategoryResource.ById>({
@@ -70,11 +66,7 @@ fun Routing.categoryRouting() {
                 return@patch
             }
 
-            categoryRepository.update(call.receive<Category>())
-
-            categoryRepository.getById(path.id)?.let { category ->
-                call.respond(category)
-            } ?: call.respond(HttpStatusCode.NotFound)
+            call.respond(categoryRepository.update(call.receive<Category>()))
         }
 
         delete<CategoryResource.ById>({
@@ -88,7 +80,8 @@ fun Routing.categoryRouting() {
                 return@delete
             }
 
-            categoryRepository.delete(call.currentUserId(), path.id)
+            categoryRepository.delete(path.id)
+            call.respond(HttpStatusCode.OK)
         }
     }
 }
