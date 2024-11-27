@@ -20,6 +20,7 @@ import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
 import ru.workinprogress.mani.model.MongoConfig.Companion.mongoConfig
 import ru.workinprogress.mani.model.jwtConfig
+import ru.workinprogress.mani.utilz.swaggerUrl
 import java.io.File
 
 fun main(args: Array<String>) {
@@ -37,8 +38,8 @@ fun Application.module() {
             description = "Mani API for testing and demonstration purposes."
         }
         server {
-            url = "${if (SECURE) "https" else "http"}://${BASE_URL}/"
-            description = "Development Server"
+            url = swaggerUrl(currentServerConfig.scheme, currentServerConfig.host, currentServerConfig.port)
+            description = "${currentServerConfig.name} Server"
         }
         schemas {
             overwrite<File>(io.swagger.v3.oas.models.media.Schema<Any>().also {
@@ -57,17 +58,21 @@ fun Application.module() {
             }
         }
     }
-//    install(CORS) {
-//        allowMethod(HttpMethod.Options)
-//        allowMethod(HttpMethod.Post)
-//        allowMethod(HttpMethod.Get)
-//        allowHeader(HttpHeaders.AccessControlAllowOrigin)
-//        allowHeader(HttpHeaders.ContentType)
-//        allowHeadersPrefixed("sec-")
-//        allowHeader("Authorization")
-//        exposeHeader("Authorization")
-//        hosts.add(BASE_URL)
-//    }
+
+    if (currentServerConfig.development) {
+        install(CORS) {
+            allowMethod(HttpMethod.Options)
+            allowMethod(HttpMethod.Post)
+            allowMethod(HttpMethod.Get)
+            allowHeader(HttpHeaders.AccessControlAllowOrigin)
+            allowHeader(HttpHeaders.ContentType)
+            allowHeadersPrefixed("sec-")
+            allowHeader("Authorization")
+            exposeHeader("Authorization")
+            hosts.add(currentServerConfig.host)
+        }
+    }
+
     install(Resources)
     install(ContentNegotiation) {
         json(Json {
