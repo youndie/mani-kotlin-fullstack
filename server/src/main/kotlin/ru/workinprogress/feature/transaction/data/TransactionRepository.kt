@@ -26,7 +26,6 @@ class TransactionRepository(mongoDatabase: MongoDatabase) {
     }
 
     suspend fun getByUser(userId: String): List<TransactionDb> {
-
         return db.find<TransactionDb>(Filters.eq(TransactionDb::userId.name, userId)).toList()
     }
 

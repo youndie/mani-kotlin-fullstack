@@ -178,8 +178,9 @@ abstract class BaseTransactionViewModel(
     fun onCategoryDelete(category: Category?) {
         category?.let {
             viewModelScope.launch {
-                deleteCategoryUseCase(category)
-                onCategoryChanged(state.value.categories.firstOrNull()!!)
+                if (deleteCategoryUseCase(category) is UseCase.Result.Success) {
+                    onCategoryChanged(state.value.categories.firstOrNull()!!)
+                }
             }
         }
     }

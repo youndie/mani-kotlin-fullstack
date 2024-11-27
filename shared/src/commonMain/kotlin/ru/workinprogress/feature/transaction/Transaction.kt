@@ -26,7 +26,7 @@ data class Category(
     val name: String
 ) : WithId {
     companion object {
-        val default = Category("", "Default")
+        val default = Category("0", "Default")
     }
 }
 
