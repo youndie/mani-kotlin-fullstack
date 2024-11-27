@@ -1,7 +1,20 @@
+:root {
+  color-scheme: light dark;
+  --md-sys-color-primary: light-dark(#8F4C34,#FFB59C);
+
+}
 html, body {
     width: 100%;
     height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden;
+}
+.preloader {
+    width: 100vw; height: 100vh;
+    background-color: light-dark(#FFF8F6,#1A110F);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }

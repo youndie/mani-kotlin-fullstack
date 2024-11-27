@@ -6,7 +6,20 @@
     <title>Mani</title>
     <link type="text/css" rel="stylesheet" href="styles.css">
     <script type="application/javascript" src="composeApp.js"></script>
+    <script type="importmap">
+        {
+          "imports": {
+            "@material/web/": "https://esm.run/@material/web/"
+          }
+        }
+    </script>
+    <script type="module">
+        import '@material/web/all.js';
+    </script>
 </head>
 <body>
+<div id="preloader" class="preloader">
+    <md-circular-progress indeterminate></md-circular-progress>
+</div>
 </body>
 </html>
