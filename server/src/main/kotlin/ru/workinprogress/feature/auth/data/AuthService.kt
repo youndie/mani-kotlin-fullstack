@@ -7,12 +7,9 @@ import com.auth0.jwt.interfaces.DecodedJWT
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.util.*
 import io.ktor.util.date.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.datetime.*
 import ru.workinprogress.feature.auth.LoginParams
-import ru.workinprogress.feature.auth.TokensResponse
+import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.user.User
 import ru.workinprogress.feature.user.data.TokenRepository
 import ru.workinprogress.feature.user.data.UserRepository
@@ -31,7 +28,7 @@ class AuthService(
         .withIssuer(config.issuer)
         .build()
 
-    suspend fun authenticate(loginRequest: LoginParams): TokensResponse? {
+    suspend fun authenticate(loginRequest: LoginParams): Tokens? {
         val foundUser: User? = userRepository.findUserByCredentials(loginRequest)
         return if (foundUser != null) {
             newTokens(foundUser).also { tokensResponse ->
@@ -40,7 +37,7 @@ class AuthService(
         } else null
     }
 
-    suspend fun refreshToken(refreshToken: String): TokensResponse? {
+    suspend fun refreshToken(refreshToken: String): Tokens? {
         val decodedRefreshToken = try {
             verifyRefreshToken(refreshToken)
         } catch (e: JWTDecodeException) {
@@ -71,7 +68,7 @@ class AuthService(
         }
     }
 
-    private fun newTokens(foundUser: User): TokensResponse {
+    private fun newTokens(foundUser: User): Tokens {
         val refreshToken = config.createToken(
             foundUser.id,
             foundUser.username,
@@ -85,7 +82,7 @@ class AuthService(
             foundUser.username,
         )
 
-        return TokensResponse(
+        return Tokens(
             accessToken = accessToken,
             refreshToken = refreshToken,
         )

@@ -9,7 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.auth.AuthResource
 import ru.workinprogress.feature.auth.LoginParams
-import ru.workinprogress.feature.auth.TokensResponse
+import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.useCase.UseCase
 
@@ -30,7 +30,7 @@ class LoginUseCase(
                 if (response.status == HttpStatusCode.NotFound) {
                     Result.Error(UserNotFoundException())
                 } else {
-                    val result = response.body<TokensResponse>()
+                    val result = response.body<Tokens>()
                     tokenRepository.set(result.accessToken, result.refreshToken)
                     Result.Success(true)
                 }

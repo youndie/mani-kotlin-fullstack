@@ -19,7 +19,7 @@ fun Routing.authRouting() {
             body<LoginParams>()
         }
         response {
-            HttpStatusCode.OK to { body<TokensResponse>() }
+            HttpStatusCode.OK to { body<Tokens>() }
         }
     }) {
         val credentials = call.receive<LoginParams>()
@@ -33,13 +33,13 @@ fun Routing.authRouting() {
     post<AuthResource.Refresh>({
         description = "Refresh tokens"
         request {
-            body<RefreshTokenRequest>()
+            body<RefreshParams>()
         }
         response {
-            HttpStatusCode.OK to { body<TokensResponse>() }
+            HttpStatusCode.OK to { body<Tokens>() }
         }
     }, {
-        val request = call.receive<RefreshTokenRequest>()
+        val request = call.receive<RefreshParams>()
         val newAccessToken = authService.refreshToken(refreshToken = request.refreshToken)
         newAccessToken?.let {
             call.respond(it)

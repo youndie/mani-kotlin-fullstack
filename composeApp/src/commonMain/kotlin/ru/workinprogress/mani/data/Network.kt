@@ -15,8 +15,8 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 import ru.workinprogress.feature.auth.AuthResource
-import ru.workinprogress.feature.auth.RefreshTokenRequest
-import ru.workinprogress.feature.auth.TokensResponse
+import ru.workinprogress.feature.auth.RefreshParams
+import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.mani.currentServerConfig
 
@@ -60,14 +60,14 @@ val networkModule = module {
 
                         val response = httpClient.post(AuthResource.Refresh()) {
                             markAsRefreshTokenRequest()
-                            setBody(RefreshTokenRequest(refreshToken.orEmpty()))
+                            setBody(RefreshParams(refreshToken.orEmpty()))
                         }
 
                         if (response.status == HttpStatusCode.Unauthorized) {
                             tokenRepository.set("", "")
                         }
 
-                        val data = response.body<TokensResponse>()
+                        val data = response.body<Tokens>()
 
                         tokenRepository.set(
                             accessToken = data.accessToken,

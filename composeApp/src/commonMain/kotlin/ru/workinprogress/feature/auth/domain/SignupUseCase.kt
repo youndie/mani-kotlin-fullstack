@@ -5,12 +5,12 @@ import io.ktor.client.plugins.resources.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import ru.workinprogress.feature.auth.LoginParams
-import ru.workinprogress.feature.auth.TokensResponse
+import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.user.UserResource
 
 interface UserService {
     suspend fun signup(params: LoginParams): Boolean
-    suspend fun signin(params: LoginParams): TokensResponse
+    suspend fun signin(params: LoginParams): Tokens
 }
 
 class SignupUseCase(

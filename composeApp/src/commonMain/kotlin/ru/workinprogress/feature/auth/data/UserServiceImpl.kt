@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.auth.AuthResource
 import ru.workinprogress.feature.auth.LoginParams
-import ru.workinprogress.feature.auth.TokensResponse
+import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.auth.domain.UserService
 import ru.workinprogress.feature.user.UserResource
 
@@ -27,11 +27,11 @@ class UserServiceImpl(
         }
     }
 
-    override suspend fun signin(params: LoginParams): TokensResponse {
+    override suspend fun signin(params: LoginParams): Tokens {
         return withContext(dispatcher) {
             httpClient.post(AuthResource()) {
                 setBody(params)
-            }.body<TokensResponse>()
+            }.body<Tokens>()
         }
     }
 }

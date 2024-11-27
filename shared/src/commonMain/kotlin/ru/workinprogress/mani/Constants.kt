@@ -14,4 +14,12 @@ val staging = ServerConfig(
     "mani.kotlin.website"
 )
 
+val local = ServerConfig(
+    "Local",
+    scheme = "http",
+    host = "192.168.1.230",
+    development = true,
+    port = "8080"
+)
+
 val currentServerConfig: ServerConfig = staging
