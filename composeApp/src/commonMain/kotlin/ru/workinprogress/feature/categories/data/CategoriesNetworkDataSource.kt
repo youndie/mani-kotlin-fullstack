@@ -1,12 +1,14 @@
-package ru.workinprogress.feature.transaction.domain
+package ru.workinprogress.feature.categories.data
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.resources.*
-import io.ktor.client.request.*
-import io.ktor.http.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.resources.delete
+import io.ktor.client.plugins.resources.get
+import io.ktor.client.plugins.resources.patch
+import io.ktor.client.plugins.resources.post
+import io.ktor.client.request.setBody
+import io.ktor.http.HttpStatusCode
 import ru.workinprogress.feature.category.CategoryResource
-import ru.workinprogress.feature.transaction.BaseFlowRepository
 import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.DataSource
 
@@ -24,12 +26,10 @@ class CategoriesNetworkDataSource(private val httpClient: HttpClient) : DataSour
     override suspend fun update(params: Category): Category? {
         return httpClient.patch(CategoryResource.ById(id = params.id)) {
             setBody(params)
-        }.takeIf { it.status == HttpStatusCode.OK }?.body()
+        }.takeIf { it.status == HttpStatusCode.Companion.OK }?.body()
     }
 
     override suspend fun delete(id: String): Boolean {
-        return httpClient.delete(CategoryResource.ById(id = id)).status == HttpStatusCode.OK
+        return httpClient.delete(CategoryResource.ById(id = id)).status == HttpStatusCode.Companion.OK
     }
 }
-
-class CategoriesRepository(dataSource: CategoriesNetworkDataSource) : BaseFlowRepository<Category>(dataSource)
