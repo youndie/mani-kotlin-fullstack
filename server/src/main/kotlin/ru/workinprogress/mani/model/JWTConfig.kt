@@ -3,7 +3,7 @@ package ru.workinprogress.mani.model
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.server.config.*
-import ru.workinprogress.mani.BASE_URL
+import ru.workinprogress.mani.currentServerConfig
 import java.time.Clock
 import java.util.*
 
@@ -35,7 +35,7 @@ data class JWTConfig(
 fun ApplicationConfig.jwtConfig(): JWTConfig =
     JWTConfig(
         name = property("name").getString(),
-        realm = BASE_URL,
+        realm = currentServerConfig.host,
         secret = property("secret").getString(),
         audience = property("audience").getString(),
         issuer = property("issuer").getString(),

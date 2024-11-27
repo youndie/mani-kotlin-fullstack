@@ -2,5 +2,5 @@ package ru.workinprogress.feature.currency
 
 import io.ktor.resources.*
 
-@Resource("/currency")
+@Resource("/currencies")
 class CurrencyResource
