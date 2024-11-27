@@ -15,7 +15,3 @@ data class TransactionDb(
     val categoryId: String?
 )
 
-data class CategoryDb(
-    @BsonId val id: ObjectId,
-    val name: String
-)
