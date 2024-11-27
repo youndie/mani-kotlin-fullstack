@@ -2,7 +2,7 @@ package ru.workinprogress.feature.transaction
 
 import io.ktor.resources.*
 
-@Resource("/transaction")
+@Resource("/transactions")
 class TransactionResource {
 
     @Resource("/{id}")

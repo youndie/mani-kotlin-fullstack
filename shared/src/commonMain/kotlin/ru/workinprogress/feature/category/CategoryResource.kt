@@ -2,7 +2,7 @@ package ru.workinprogress.feature.category
 
 import io.ktor.resources.*
 
-@Resource("/category")
+@Resource("/categories")
 class CategoryResource {
 
     @Resource("/{id}")
