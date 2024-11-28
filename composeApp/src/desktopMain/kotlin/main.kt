@@ -8,7 +8,7 @@ import ru.workinprogress.mani.App
 fun main() = application {
     Window(
         state = rememberWindowState(
-            size = DpSize(420.dp, (420 / 9.toFloat() * 16).dp)
+            size = DpSize(420.dp, 720.dp)
         ),
         onCloseRequest = ::exitApplication,
         resizable = true,

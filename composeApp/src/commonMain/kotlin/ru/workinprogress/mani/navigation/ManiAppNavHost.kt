@@ -51,8 +51,6 @@ fun ManiAppNavHost(
         composable(ManiScreen.Main.name) {
             MainComponent(appBarState, snackbarHostState, {
                 navController.navigate(TransactionRoute(it))
-            }, {
-                navController.navigate(ManiScreen.History.name)
             })
         }
         composable(ManiScreen.Add.name) {

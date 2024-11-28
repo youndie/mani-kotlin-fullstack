@@ -6,8 +6,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LocalPinnableContainer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.lifecycle.Lifecycle
@@ -27,9 +29,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.valentinilk.shimmer.ShimmerBounds
 import com.valentinilk.shimmer.rememberShimmer
 import com.valentinilk.shimmer.shimmer
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.collections.immutable.*
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import mani.composeapp.generated.resources.Res
 import mani.composeapp.generated.resources.transactions
 import org.jetbrains.compose.resources.getPluralString
@@ -39,7 +41,8 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import ru.workinprogress.feature.chart.ui.ChartComponent
 import ru.workinprogress.feature.main.MainViewModel
-import ru.workinprogress.feature.transaction.ui.component.TransactionsDay
+import ru.workinprogress.feature.transaction.Category
+import ru.workinprogress.feature.transaction.ui.component.transactionsDay
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.Action
 import ru.workinprogress.mani.components.MainAppBarState
@@ -50,7 +53,6 @@ fun MainComponent(
     appBarState: MainAppBarState,
     snackbarHostState: SnackbarHostState,
     onTransactionClicked: (String) -> Unit,
-    onHistoryClicked: () -> Unit,
 ) {
     rememberKoinModules {
         listOf(module {
@@ -83,23 +85,17 @@ fun MainComponent(
             viewModel.onProfileClicked()
         }
 
-        val historyAction = Action("History", Icons.AutoMirrored.Default.List) {
-            onHistoryClicked()
-        }
-
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
                     coroutineScope.launch {
                         appBarState.showAction(profileAction)
-                        appBarState.showAction(historyAction)
                     }
                 }
 
                 Lifecycle.Event.ON_STOP -> {
                     coroutineScope.launch {
                         appBarState.removeAction(profileAction)
-                        appBarState.removeAction(historyAction)
                     }
                 }
 
@@ -144,23 +140,144 @@ fun MainComponent(
     }
 
     TransactionDeleteDialog(
-        state.value.showDeleteDialog, viewModel::onDeleteClicked, viewModel::onDismissDeleteDialog
+        showDeleteDialog = state.value.showDeleteDialog,
+        onDelete = viewModel::onDeleteClicked,
+        onDismiss = viewModel::onDismissDeleteDialog
     )
 
+    MainContent(
+        state.value.transactions,
+        state.value.selectedTransactions,
+        state.value.categories,
+        state.value.futureInformation,
+        state.value.loading,
+        appBarState.contextMode,
+        { onTransactionClicked(it.id) },
+        { viewModel.onTransactionSelected(it) },
+        { viewModel.onUpcomingToggle(it) },
+        { viewModel.onCategorySelected(it) })
+}
+
+@Composable
+private fun <T> DropdownFilterChip(
+    items: ImmutableCollection<T>,
+    isSelected: Boolean,
+    selected: T?,
+    itemTitle: (T) -> String = { it.toString() },
+    defaultText: String = "",
+    showDefault: Boolean = defaultText.isNotEmpty(),
+    onSelected: (T?) -> Unit = {}
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ElevatedFilterChip(
+        isSelected,
+        {
+            expanded = true
+        },
+        {
+            Text(selected?.let { value -> itemTitle(value) } ?: defaultText)
+
+            DropdownMenu(expanded, { expanded = false }) {
+                if (showDefault) {
+                    DropdownMenuItem({
+                        Text(defaultText)
+                    }, {
+                        onSelected(null)
+                        expanded = false
+                    })
+                }
+
+                items.forEach { item ->
+                    DropdownMenuItem({
+                        Text(itemTitle(item))
+                    }, {
+                        onSelected(item)
+                        expanded = false
+                    })
+                }
+            }
+        },
+        trailingIcon = {
+            Icon(
+                Icons.Filled.ArrowDropDown,
+                modifier = Modifier.size(AssistChipDefaults.IconSize),
+                contentDescription = "dropdown",
+            )
+        })
+}
+
+data class FiltersState(
+    val upcoming: Boolean = false,
+    val category: Category? = null,
+    val categories: ImmutableSet<Category> = persistentSetOf(),
+    val periods: ImmutableSet<String> = persistentSetOf("Upcoming", "Past"),
+    val loading: Boolean = true,
+)
+
+@Composable
+private fun FiltersChips(
+    filtersState: FiltersState,
+    onUpcomingToggle: (Boolean) -> Unit,
+    onCategorySelected: (Category?) -> Unit
+) {
+    Row(
+        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (filtersState.loading) {
+            FilterChip(false, {}, label = { Text("   ") }, enabled = false)
+            FilterChip(false, {}, label = { Text("   ") }, enabled = false)
+        } else {
+            DropdownFilterChip(
+                filtersState.periods,
+                !filtersState.upcoming,
+                if (filtersState.upcoming) "Upcoming" else "Past"
+            ) { selected ->
+                selected?.let {
+                    onUpcomingToggle(selected == "Upcoming")
+                }
+            }
+            DropdownFilterChip(
+                filtersState.categories,
+                filtersState.category != null,
+                filtersState.category,
+                defaultText = "All categories",
+                itemTitle = { it.name }
+            ) {
+                onCategorySelected(it)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainContent(
+    transactions: ImmutableMap<LocalDate, ImmutableList<TransactionUiItem>>,
+    selectedTransactions: ImmutableList<TransactionUiItem>,
+    categories: ImmutableSet<Category>,
+    futureInformation: AnnotatedString,
+    loading: Boolean,
+    contextMode: Boolean,
+    onTransactionClicked: (TransactionUiItem) -> Unit,
+    onTransactionSelected: (TransactionUiItem) -> Unit,
+    onUpcomingToggle: (Boolean) -> Unit,
+    onCategorySelected: (Category?) -> Unit
+) {
     val chart = remember { movableContentOf { ChartComponent() } }
-    val futureInfo = remember {
+    val futureInfo = remember(futureInformation) {
         movableContentOf {
             Column(
                 Modifier.padding(
                     start = 24.dp, top = 12.dp, bottom = 16.dp, end = 24.dp
                 ), verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                if (state.value.loading) {
+                if (loading) {
                     FutureInfoShimmer()
                 } else {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                         Text(
-                            state.value.futureInformation,
+                            futureInformation,
                             style = MaterialTheme.typography.labelMedium
                         )
                     }
@@ -168,6 +285,41 @@ fun MainComponent(
             }
         }
     }
+
+    var filtersState by remember {
+        mutableStateOf(
+            FiltersState(
+                true,
+                null,
+                categories,
+                loading = loading
+            )
+        )
+    }
+
+    LaunchedEffect(loading) {
+        filtersState = filtersState.copy(loading = loading)
+    }
+
+    LaunchedEffect(categories) {
+        filtersState = filtersState.copy(categories = categories)
+    }
+
+    val filters = remember {
+        movableContentOf {
+            FiltersChips(
+                filtersState = filtersState,
+                onUpcomingToggle = {
+                    onUpcomingToggle(it)
+                    filtersState = filtersState.copy(upcoming = it)
+                })
+            {
+                onCategorySelected(it)
+                filtersState = filtersState.copy(category = it)
+            }
+        }
+    }
+
     val lazyColumnModifier = Modifier.fillMaxSize().testTag("transactions")
 
     BoxWithConstraints {
@@ -182,7 +334,7 @@ fun MainComponent(
             ) {
                 item {
                     val handle = LocalPinnableContainer.current?.pin()
-                    Box(Modifier.fillMaxWidth()) {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
                         chart()
                     }
                 }
@@ -191,17 +343,29 @@ fun MainComponent(
                     futureInfo()
                 }
 
-                state.value.transactions.forEach { day ->
-                    val (date, list) = day
-                    TransactionsDay(
-                        date = date,
-                        list = list,
-                        selectedTransactions = state.value.selectedTransactions,
-                        contextMode = appBarState.contextMode,
-                        loadingMode = state.value.loading,
-                        onSelected = viewModel::onTransactionSelected,
-                        onClick = { onTransactionClicked(it.id) })
+                item {
+                    Spacer(Modifier.height(8.dp))
+                    HorizontalDivider(thickness = 1.dp)
+                    Spacer(Modifier.height(8.dp))
                 }
+
+                item {
+                    Text(
+                        "Transactions",
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    filters()
+                }
+
+                transactionItems(
+                    transactions,
+                    selectedTransactions,
+                    loading,
+                    contextMode,
+                    onTransactionClicked,
+                    onTransactionSelected
+                )
             }
         } else {
             Row(modifier = Modifier.fillMaxHeight().padding(start = 24.dp)) {
@@ -213,17 +377,19 @@ fun MainComponent(
                     modifier = lazyColumnModifier,
                     contentPadding = PaddingValues(16.dp)
                 ) {
-                    state.value.transactions.forEach { day ->
-                        val (date, list) = day
-                        TransactionsDay(
-                            date = date,
-                            list = list,
-                            selectedTransactions = state.value.selectedTransactions,
-                            contextMode = appBarState.contextMode,
-                            loadingMode = state.value.loading,
-                            onSelected = viewModel::onTransactionSelected,
-                            onClick = { onTransactionClicked(it.id) })
+
+                    item {
+                        filters()
                     }
+
+                    transactionItems(
+                        transactions,
+                        selectedTransactions,
+                        loading,
+                        contextMode,
+                        onTransactionClicked,
+                        onTransactionSelected
+                    )
 
                     item {
                         Spacer(Modifier.height(76.dp))
@@ -231,6 +397,28 @@ fun MainComponent(
                 }
             }
         }
+    }
+}
+
+fun LazyListScope.transactionItems(
+    transactions: ImmutableMap<LocalDate, ImmutableList<TransactionUiItem>>,
+    selectedTransactions: ImmutableList<TransactionUiItem>,
+    loading: Boolean,
+    contextMode: Boolean,
+    onTransactionClicked: (TransactionUiItem) -> Unit,
+    onTransactionSelected: (TransactionUiItem) -> Unit,
+) {
+    transactions.forEach { day ->
+        val (date, list) = day
+        transactionsDay(
+            date = date,
+            list = list,
+            selectedTransactions = selectedTransactions,
+            contextMode = contextMode,
+            loadingMode = loading,
+            onSelected = onTransactionSelected,
+            onClick = onTransactionClicked
+        )
     }
 }
 

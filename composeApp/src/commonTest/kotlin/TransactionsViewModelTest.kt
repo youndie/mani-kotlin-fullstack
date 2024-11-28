@@ -13,9 +13,9 @@ import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
 import ru.workinprogress.feature.currency.data.CurrentCurrencyRepository
 import ru.workinprogress.feature.transaction.Transaction
-import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
+import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
