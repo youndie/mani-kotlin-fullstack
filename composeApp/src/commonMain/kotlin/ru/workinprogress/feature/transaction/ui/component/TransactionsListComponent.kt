@@ -30,6 +30,7 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import ru.workinprogress.feature.main.ui.TransactionDeleteDialog
 import ru.workinprogress.feature.main.ui.connectToAppBarState
+import ru.workinprogress.feature.main.ui.transactionItems
 import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.MainAppBarState
@@ -64,31 +65,25 @@ fun TransactionsListComponent(
         viewModel::onShowDeleteDialogClicked,
         viewModel::onContextMenuClosed
     )
+
     BoxWithConstraints(contentAlignment = Alignment.TopCenter) {
         LazyColumn(
             modifier = modifier.widthIn(max = 640.dp),
             contentPadding = PaddingValues(vertical = 16.dp),
         ) {
-            state.data.forEach { day ->
-                val (date, list) = day
-
-                TransactionsDay(
-                    date = date,
-                    list = list,
-                    selectedTransactions = state.selectedTransactions,
-                    contextMode = appBarState.contextMode,
-                    loadingMode = state.loading,
-                    onSelected = viewModel::onTransactionSelected,
-                    onClick = { onTransactionClicked(it.id) }
-                )
-            }
+            transactionItems(
+                transactions = state.data,
+                selectedTransactions = state.selectedTransactions,
+                loading = state.loading,
+                contextMode = appBarState.contextMode,
+                onTransactionClicked = viewModel::onTransactionSelected,
+            ) { onTransactionClicked(it.id) }
         }
     }
-
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-fun LazyListScope.TransactionsDay(
+fun LazyListScope.transactionsDay(
     date: LocalDate,
     list: ImmutableList<TransactionUiItem>,
     selectedTransactions: ImmutableList<TransactionUiItem>,
