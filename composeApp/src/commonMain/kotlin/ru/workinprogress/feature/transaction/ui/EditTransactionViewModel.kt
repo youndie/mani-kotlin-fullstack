@@ -1,6 +1,7 @@
 package ru.workinprogress.feature.transaction.ui
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -9,7 +10,9 @@ import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
 import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
 import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
-import ru.workinprogress.feature.transaction.domain.*
+import ru.workinprogress.feature.transaction.Transaction
+import ru.workinprogress.feature.transaction.domain.GetTransactionUseCase
+import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.mani.navigation.TransactionRoute
 import ru.workinprogress.useCase.UseCase
@@ -29,12 +32,14 @@ class EditTransactionViewModel(
     init {
         viewModelScope.launch(Dispatchers.Default) {
             val transaction = getTransactionUseCase.get(route.id)
-            state.update {
-                TransactionUiState(
-                    transaction,
-                    currency = getCurrentCurrencyUseCase.get(),
-                ).copy(edit = true)
-            }
+
+            state.value = TransactionUiState(
+                transaction,
+                currency = getCurrentCurrencyUseCase.get(),
+            ).copy(
+                edit = true,
+                periods = Transaction.Period.entries.toImmutableList()
+            )
 
             observeCategories()
         }

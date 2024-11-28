@@ -85,8 +85,7 @@ class MainViewModel(
             }
 
             is UseCase.Result.Success -> {
-
-                state.update { state -> state.copy(loading = false, transactions = emptyImmutableMap()) }
+                state.update { state -> state.copy(loading = true, transactions = emptyImmutableMap()) }
 
                 combine(
                     result.data,

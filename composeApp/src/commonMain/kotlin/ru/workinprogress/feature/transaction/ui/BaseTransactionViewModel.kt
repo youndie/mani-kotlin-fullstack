@@ -16,6 +16,7 @@ import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
 import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
 import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.transaction.*
+import ru.workinprogress.feature.transaction.ui.component.formatted
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
@@ -92,10 +93,6 @@ abstract class BaseTransactionViewModel(
         state.copy(category = category)
     }
 
-    fun onNewCategoryClicked() {
-
-    }
-
     private fun TransactionUiState.addFutureInformation() = copy(futureInformation = buildFutureInformation(this))
 
     private fun buildFutureInformation(
@@ -115,7 +112,7 @@ abstract class BaseTransactionViewModel(
                 append(" from ")
             }
 
-            append("${state.date.value ?: today()}")
+            append("${state.date.value?.formatted ?: today().formatted}")
 
             if (state.period == Transaction.Period.OneTime) {
                 return@buildAnnotatedString
@@ -132,23 +129,42 @@ abstract class BaseTransactionViewModel(
             }
             if (state.until.value != null) {
                 append(" to ")
-                append("${state.until.value}.")
+                append("${state.until.value?.formatted}.")
                 append(" Repeat ")
 
                 proceedSimulate(listOf(state.tempTransaction).run {
                     simulate(state.date.value.orToday, state.until.value)
                 })
             } else {
-                this.append(
-                    ". In $DEFAULT_PERIOD_VALUE ${
-                        DEFAULT_PERIOD_UNIT.toString().lowercase()
-                    }'s repeat "
-                )
-                proceedSimulate(listOf(state.tempTransaction).run {
-                    simulate(
-                        state.date.value.orToday, defaultPeriodAppend(state.date.value.orToday)
-                    )
-                })
+                when (state.period) {
+                    Transaction.Period.Month, Transaction.Period.ThreeMonth, Transaction.Period.HalfYear, Transaction.Period.Year -> {
+                        this.append(
+                            ". In $LARGE_PERIOD_VALUE ${
+                                LARGE_PERIOD_UNIT.toString().lowercase()
+                            }'s repeat "
+                        )
+                        proceedSimulate(listOf(state.tempTransaction).run {
+                            simulate(
+                                state.date.value.orToday, largePeriodAppend(state.date.value.orToday)
+                            )
+                        })
+                    }
+
+                    else -> {
+                        this.append(
+                            ". In $DEFAULT_PERIOD_VALUE ${
+                                DEFAULT_PERIOD_UNIT.toString().lowercase()
+                            }'s repeat "
+                        )
+                        proceedSimulate(listOf(state.tempTransaction).run {
+                            simulate(
+                                state.date.value.orToday, defaultPeriodAppend(state.date.value.orToday)
+                            )
+                        })
+                    }
+                }
+
+
             }
         }
     }
