@@ -8,9 +8,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -128,7 +128,7 @@ fun MainComponent(
                     ListItem(
                         { Text("Logout") }, trailingContent = {
                             Icon(
-                                Icons.Default.KeyboardArrowRight, "Logout"
+                                Icons.AutoMirrored.Filled.KeyboardArrowRight, "Logout"
                             )
                         }, colors = ListItemDefaults.colors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
@@ -327,11 +327,19 @@ private fun MainContent(
                 }
 
                 item {
-                    Text(
-                        "Transactions",
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.titleMedium
-                    )
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
+                        Text(
+                            "Transactions",
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp).then(
+                                if (loading) {
+                                    Modifier.shimmer()
+                                } else {
+                                    Modifier
+                                }
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
                     filters()
                 }
 

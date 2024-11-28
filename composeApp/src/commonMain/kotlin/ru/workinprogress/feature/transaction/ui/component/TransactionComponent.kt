@@ -46,11 +46,11 @@ import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
 import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.AddTransactionViewModel
+import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.stringResource
 import ru.workinprogress.feature.transaction.ui.utils.CurrencyVisualTransformation
-import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.mani.components.LoadingButton
 import ru.workinprogress.mani.navigation.TransactionRoute
 
@@ -265,8 +265,13 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
 
     val dateUntilPickerState = rememberDatePickerState(
         selectableDates = object : SelectableDates {
-            override fun isSelectableYear(year: Int): Boolean {
-                return year > 2022
+            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+                val date = utcTimeMillis.toDate
+                val stateDate = state.value.date.value
+                if (date != null && stateDate != null) {
+                    return date > stateDate
+                }
+                return false
             }
         }
     )
@@ -414,7 +419,7 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                 )
 
                 if (stateValue.date.value != null) {
-                    Column(modifier = Modifier) {
+                    Column() {
                         CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                             Text(
                                 "Repeat",
@@ -440,6 +445,7 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
 
                     AnimatedVisibility(stateValue.period != Transaction.Period.OneTime) {
                         TransactionDatePicker(
+                            modifier = Modifier.padding(top = 8.dp),
                             label = "Repeat until",
                             value = stateValue.until.value?.formatted,
                             datePickerState = dateUntilPickerState,

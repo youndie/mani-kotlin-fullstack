@@ -10,6 +10,10 @@ import kotlin.math.sign
 const val DEFAULT_PERIOD_VALUE = 3
 val DEFAULT_PERIOD_UNIT = DateTimeUnit.MONTH
 
+const val LARGE_PERIOD_VALUE = 1
+val LARGE_PERIOD_UNIT = DateTimeUnit.YEAR
+
+
 fun createDates(from: LocalDate, to: LocalDate): List<LocalDate> {
     return buildList {
         var currentDate = from
@@ -27,6 +31,7 @@ fun List<Transaction>.defaultPeriod(): Pair<LocalDate, LocalDate> {
 }
 
 fun defaultPeriodAppend(date: LocalDate) = date.plus(DEFAULT_PERIOD_VALUE, DEFAULT_PERIOD_UNIT)
+fun largePeriodAppend(date: LocalDate) = date.plus(LARGE_PERIOD_VALUE, LARGE_PERIOD_UNIT)
 
 fun List<Transaction>.toChartInternal(): ChartResponse {
     if (isEmpty()) return ChartResponse.Empty
