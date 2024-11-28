@@ -41,6 +41,8 @@ import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import ru.workinprogress.feature.chart.ui.ChartComponent
 import ru.workinprogress.feature.main.MainViewModel
+import ru.workinprogress.feature.main.ui.FiltersState.Companion.Past
+import ru.workinprogress.feature.main.ui.FiltersState.Companion.Upcoming
 import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.ui.component.transactionsDay
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
@@ -148,7 +150,7 @@ fun MainComponent(
     MainContent(
         state.value.transactions,
         state.value.selectedTransactions,
-        state.value.categories,
+        state.value.filtersState,
         state.value.futureInformation,
         state.value.loading,
         appBarState.contextMode,
@@ -170,50 +172,51 @@ private fun <T> DropdownFilterChip(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    ElevatedFilterChip(
-        isSelected,
-        {
-            expanded = true
-        },
-        {
-            Text(selected?.let { value -> itemTitle(value) } ?: defaultText)
+    ElevatedFilterChip(isSelected, {
+        expanded = true
+    }, {
+        Text(selected?.let { value -> itemTitle(value) } ?: defaultText)
 
-            DropdownMenu(expanded, { expanded = false }) {
-                if (showDefault) {
-                    DropdownMenuItem({
-                        Text(defaultText)
-                    }, {
-                        onSelected(null)
-                        expanded = false
-                    })
-                }
-
-                items.forEach { item ->
-                    DropdownMenuItem({
-                        Text(itemTitle(item))
-                    }, {
-                        onSelected(item)
-                        expanded = false
-                    })
-                }
+        DropdownMenu(expanded, { expanded = false }) {
+            if (showDefault) {
+                DropdownMenuItem({
+                    Text(defaultText)
+                }, {
+                    onSelected(null)
+                    expanded = false
+                })
             }
-        },
-        trailingIcon = {
-            Icon(
-                Icons.Filled.ArrowDropDown,
-                modifier = Modifier.size(AssistChipDefaults.IconSize),
-                contentDescription = "dropdown",
-            )
-        })
+
+            items.forEach { item ->
+                DropdownMenuItem({
+                    Text(itemTitle(item))
+                }, {
+                    onSelected(item)
+                    expanded = false
+                })
+            }
+        }
+    }, trailingIcon = {
+        Icon(
+            Icons.Filled.ArrowDropDown,
+            modifier = Modifier.size(AssistChipDefaults.IconSize),
+            contentDescription = "dropdown",
+        )
+    })
 }
 
 data class FiltersState(
-    val upcoming: Boolean = false,
+    val upcoming: Boolean = true,
     val category: Category? = null,
     val categories: ImmutableSet<Category> = persistentSetOf(),
-    val periods: ImmutableSet<String> = persistentSetOf("Upcoming", "Past"),
+    val periods: ImmutableSet<String> = persistentSetOf(Upcoming, Past),
     val loading: Boolean = true,
-)
+) {
+    companion object {
+        const val Upcoming = "Upcoming"
+        const val Past = "Past"
+    }
+}
 
 @Composable
 private fun FiltersChips(
@@ -232,10 +235,10 @@ private fun FiltersChips(
             DropdownFilterChip(
                 filtersState.periods,
                 !filtersState.upcoming,
-                if (filtersState.upcoming) "Upcoming" else "Past"
+                if (filtersState.upcoming) Upcoming else Past
             ) { selected ->
                 selected?.let {
-                    onUpcomingToggle(selected == "Upcoming")
+                    onUpcomingToggle(selected == Upcoming)
                 }
             }
             DropdownFilterChip(
@@ -243,8 +246,7 @@ private fun FiltersChips(
                 filtersState.category != null,
                 filtersState.category,
                 defaultText = "All categories",
-                itemTitle = { it.name }
-            ) {
+                itemTitle = { it.name }) {
                 onCategorySelected(it)
             }
         }
@@ -255,7 +257,7 @@ private fun FiltersChips(
 private fun MainContent(
     transactions: ImmutableMap<LocalDate, ImmutableList<TransactionUiItem>>,
     selectedTransactions: ImmutableList<TransactionUiItem>,
-    categories: ImmutableSet<Category>,
+    filtersState: FiltersState,
     futureInformation: AnnotatedString,
     loading: Boolean,
     contextMode: Boolean,
@@ -277,8 +279,7 @@ private fun MainContent(
                 } else {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                         Text(
-                            futureInformation,
-                            style = MaterialTheme.typography.labelMedium
+                            futureInformation, style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }
@@ -286,36 +287,15 @@ private fun MainContent(
         }
     }
 
-    var filtersState by remember {
-        mutableStateOf(
-            FiltersState(
-                true,
-                null,
-                categories,
-                loading = loading
-            )
-        )
-    }
 
-    LaunchedEffect(loading) {
-        filtersState = filtersState.copy(loading = loading)
-    }
-
-    LaunchedEffect(categories) {
-        filtersState = filtersState.copy(categories = categories)
-    }
-
-    val filters = remember {
+    val filters = remember(filtersState) {
         movableContentOf {
             FiltersChips(
                 filtersState = filtersState,
                 onUpcomingToggle = {
                     onUpcomingToggle(it)
-                    filtersState = filtersState.copy(upcoming = it)
-                })
-            {
+                }) {
                 onCategorySelected(it)
-                filtersState = filtersState.copy(category = it)
             }
         }
     }
@@ -326,12 +306,9 @@ private fun MainContent(
         if (maxWidth < 640.dp) {
             LazyColumn(
                 modifier = lazyColumnModifier,
-                contentPadding = PaddingValues(
-                    bottom = with(LocalDensity.current) {
-                        WindowInsets.navigationBars.getBottom(this).toDp()
-                    } + DefaultFabButtonPadding + DefaultFabButtonPadding + DefaultFabButtonSize
-                )
-            ) {
+                contentPadding = PaddingValues(bottom = with(LocalDensity.current) {
+                    WindowInsets.navigationBars.getBottom(this).toDp()
+                } + DefaultFabButtonPadding + DefaultFabButtonPadding + DefaultFabButtonSize)) {
                 item {
                     val handle = LocalPinnableContainer.current?.pin()
                     Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
@@ -374,8 +351,7 @@ private fun MainContent(
                     futureInfo()
                 }
                 LazyColumn(
-                    modifier = lazyColumnModifier,
-                    contentPadding = PaddingValues(16.dp)
+                    modifier = lazyColumnModifier, contentPadding = PaddingValues(16.dp)
                 ) {
 
                     item {
@@ -459,8 +435,7 @@ fun connectToAppBarState(
         if (selected.isEmpty()) {
             appBarState.closeContextMenu()
         } else {
-            appBarState.contextTitle.value =
-                getPluralString(Res.plurals.transactions, selected.size, selected.size)
+            appBarState.contextTitle.value = getPluralString(Res.plurals.transactions, selected.size, selected.size)
             appBarState.showContextMenu(actions)
         }
     }
@@ -475,11 +450,9 @@ fun connectToAppBarState(
 @Composable
 private fun ColumnScope.FutureInfoShimmer() {
     val shimmer = rememberShimmer(ShimmerBounds.Window)
-    val modifier = Modifier.shimmer(shimmer)
-        .background(
-            MaterialTheme.colorScheme.surfaceContainerHigh,
-            shape = MaterialTheme.shapes.extraSmall
-        )
+    val modifier = Modifier.shimmer(shimmer).background(
+        MaterialTheme.colorScheme.surfaceContainerHigh, shape = MaterialTheme.shapes.extraSmall
+    )
 
     Text("    ", modifier, style = MaterialTheme.typography.labelMedium)
     Text("               ", modifier, style = MaterialTheme.typography.labelMedium)

@@ -21,6 +21,7 @@ import ru.workinprogress.feature.auth.domain.LogoutUseCase
 import ru.workinprogress.feature.categories.domain.GetCategoriesUseCase
 import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
+import ru.workinprogress.feature.main.ui.FiltersState
 import ru.workinprogress.feature.main.ui.MainUiState
 import ru.workinprogress.feature.transaction.*
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
@@ -61,7 +62,7 @@ class MainViewModel(
 
     private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
 
-    private val filterUpcoming = MutableStateFlow(false)
+    private val filterUpcoming = MutableStateFlow(true)
     private val filterCategory = MutableStateFlow<Category?>(null)
 
     val observe = state.asStateFlow()
@@ -97,7 +98,12 @@ class MainViewModel(
 
                     MainUiState(
                         loading = false,
-                        categories = (categories + Category.default).toImmutableSet(),
+                        filtersState = FiltersState(
+                            categories = (categories + Category.default).toImmutableSet(),
+                            upcoming = upcoming,
+                            category = category,
+                            loading = false,
+                        ),
                         transactions = simulationResult
                             .filterKeys {
                                 if (upcoming) {
@@ -184,9 +190,6 @@ class MainViewModel(
         state.update {
             it.copy(showDeleteDialog = false)
         }
-    }
-
-    private fun dispatch(result: MainUiState) {
     }
 
     private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =

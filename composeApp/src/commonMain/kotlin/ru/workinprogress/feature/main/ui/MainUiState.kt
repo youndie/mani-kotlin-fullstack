@@ -1,9 +1,11 @@
 package ru.workinprogress.feature.main.ui
 
 import androidx.compose.ui.text.AnnotatedString
-import kotlinx.collections.immutable.*
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.datetime.LocalDate
-import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 
 data class MainUiState(
@@ -15,6 +17,6 @@ data class MainUiState(
     val showProfile: Boolean = false,
     val futureInformation: AnnotatedString = AnnotatedString(""),
     val loading: Boolean = false,
-    val categories: ImmutableSet<Category> = persistentSetOf()
+    val filtersState: FiltersState = FiltersState(),
 )
 
