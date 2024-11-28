@@ -8,10 +8,10 @@ import ru.workinprogress.mani.App
 fun main() = application {
     Window(
         state = rememberWindowState(
-            size = DpSize(420.dp, 720.dp)
+            size = DpSize(1024.dp, 720.dp)
         ),
         onCloseRequest = ::exitApplication,
-        resizable = true,
+        resizable = false,
         title = "mani",
     ) {
         App()
