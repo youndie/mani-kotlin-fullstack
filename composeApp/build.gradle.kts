@@ -66,6 +66,13 @@ kotlin {
         binaries.executable()
     }
 
+    js(IR) {
+        browser {
+
+        }
+        binaries.executable()
+    }
+
     sourceSets {
         val desktopMain by getting
         val desktopTest by getting {

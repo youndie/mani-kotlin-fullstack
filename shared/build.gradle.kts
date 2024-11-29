@@ -40,6 +40,10 @@ kotlin {
         }
     }
 
+    js(IR) {
+        browser {}
+    }
+
     sourceSets {
         commonMain.dependencies {
             api(libs.ktor.client.resources)
