@@ -508,6 +508,8 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                 if (stateValue.edit) "Save" else "Create",
                 viewModel::onSubmitClicked
             )
+
+            Spacer(Modifier.height(24.dp))
         }
     }
 }

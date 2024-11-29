@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.singleOf
@@ -43,11 +44,13 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
     }
 
     Column(
-        modifier = Modifier.padding(top = 8.dp, bottom = 32.dp),
+        modifier = Modifier
+            .wrapContentWidth()
+            .padding(top = 8.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.Center,
     ) {
         IconButton(
-            onNavigateBack, modifier = Modifier.padding(horizontal = 48.dp, vertical = 16.dp)
+            onNavigateBack, modifier = Modifier.padding(vertical = 16.dp)
         ) {
             Icon(Icons.Default.Close, "Close")
         }

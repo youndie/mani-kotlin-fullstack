@@ -8,7 +8,10 @@ fun Routing.wasmJsApp() {
     staticResources("/", "static", index = "index.html") {
         default("index.html")
         cacheControl { file ->
-            if (file.file.contains("composeApp") || file.file.contains("ttf") || file.file.contains("wasm") || file.file.contains(
+            if (file.file.contains("composeApp")
+                || file.file.contains("ttf")
+                || file.file.contains("wasm") ||
+                file.file.contains(
                     "index"
                 )
             ) {

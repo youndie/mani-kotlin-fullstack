@@ -12,6 +12,7 @@
           }
         }
     </script>
+
     <script type="module">
         import '@material/web/progress/circular-progress.js';
     </script>
@@ -19,8 +20,19 @@
     <script type="application/javascript" src="composeApp.js"></script>
 </head>
 <body>
-<div id="preloader" class="preloader">
+<div id="preloader" style="width: 100vw; height: 100vh;
+     background-color: light-dark(#FFF8F6,#1A110F);
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;">
     <md-circular-progress indeterminate></md-circular-progress>
+    <div style="
+         margin-top: 12px;
+         color:light-dark(#77574C,#E7BDB0);
+         font-family: 'Source Sans Pro', 'Helvetica Neue', 'Helvetica', sans-serif;">
+        (it may take some time...)
+    </div>
 </div>
 </body>
 </html>
