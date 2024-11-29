@@ -13,7 +13,7 @@ import ru.workinprogress.feature.user.data.UserRepository
 
 class CategoryRepositoryImpl(mongoDatabase: MongoDatabase) : CategoryRepository {
 
-    private val db = mongoDatabase.getCollection<UserDb>(UserRepository.Companion.USER_COLLECTION)
+    private val db = mongoDatabase.getCollection<UserDb>(UserRepository.USER_COLLECTION)
 
     override suspend fun getByUser(userId: String) =
         getUserById(userId)?.categories?.map { db -> mapFromDb(db) }.orEmpty()
@@ -31,9 +31,9 @@ class CategoryRepositoryImpl(mongoDatabase: MongoDatabase) : CategoryRepository 
         return mapFromDb(newCategory)
     }
 
-    override suspend fun getById(id: String): Category? {
-        return getUserById(id)?.categories
-            ?.find { category -> category.id.toHexString() == id }
+    override suspend fun getById(categoryId: String): Category? {
+        return getUserByCategoryId(categoryId)?.categories
+            ?.find { category -> category.id.toHexString() == categoryId }
             ?.let { db ->
                 mapFromDb(db)
             }
@@ -42,13 +42,12 @@ class CategoryRepositoryImpl(mongoDatabase: MongoDatabase) : CategoryRepository 
     override suspend fun update(category: Category): Category {
         return db.findOneAndUpdate(
             Filters.eq("categories._id", ObjectId(category.id)),
-            Updates.set("categories.name", category.name)
+            Updates.set("categories.$.name", category.name)
         )?.categories
             ?.find { categoryDb -> categoryDb.id.toHexString() == category.id }
             ?.let { db ->
                 mapFromDb(db)
             }!!
-
     }
 
     override suspend fun delete(categoryId: String) {

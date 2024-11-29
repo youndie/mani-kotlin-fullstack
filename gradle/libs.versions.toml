@@ -15,6 +15,7 @@ compose-multiplatform = "1.7.1"
 composeCharts = "0.0.17"
 composeShimmer = "1.3.1"
 coreSplashscreen = "1.0.1"
+deFlapdoodleEmbedMongo = "4.18.1"
 junit = "4.13.2"
 kotlin = "2.1.0"
 kotlinxCollectionsImmutable = "0.3.8"
@@ -50,6 +51,8 @@ androidx-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", v
 compose-charts = { module = "io.github.ehsannarmani:compose-charts", version.ref = "composeCharts" }
 
 compose-shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "composeShimmer" }
+de-flapdoodle-embed-mongo = { module = "de.flapdoodle.embed:de.flapdoodle.embed.mongo", version.ref = "deFlapdoodleEmbedMongo" }
+koin-test-junit4 = { module = "io.insert-koin:koin-test-junit4" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -110,6 +113,8 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name ="ui-tooling", version.ref="compose-multiplatform" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name ="ui-tooling-preview", version.ref="compose-multiplatform" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
