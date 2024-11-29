@@ -129,11 +129,7 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
 
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(compose.uiTest)
-            implementation(libs.koin.test)
-        }
+
     }
 }
 
@@ -176,6 +172,12 @@ dependencies {
     baselineProfile(projects.baselineprofile)
     debugImplementation(libs.androidx.ui.test.manifest)
     debugImplementation(compose.uiTooling)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    testImplementation(libs.koin.test.junit4)
+    testImplementation(libs.kotlin.test)
+    testImplementation(compose.uiTest)
+    testImplementation(libs.koin.test)
 }
 
 applyKtorWasmWorkaround("3.0.0-beta-2")

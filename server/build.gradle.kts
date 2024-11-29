@@ -38,10 +38,12 @@ dependencies {
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
 
-//    testImplementation(libs.ktor.server.tests)
+    testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.koin.test)
+    testImplementation(libs.koin.test.junit4)
 
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.18.1")
 }
 
 val copyFrontend = task<Copy>("copyFrontend") {
