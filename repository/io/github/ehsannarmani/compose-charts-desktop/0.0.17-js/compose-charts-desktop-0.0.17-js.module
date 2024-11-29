@@ -1,0 +1,144 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "url": "../../compose-charts/0.0.17-js/compose-charts-0.0.17-js.module",
+    "group": "io.github.ehsannarmani",
+    "module": "compose-charts",
+    "version": "0.0.17-js",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.6"
+    }
+  },
+  "variants": [
+    {
+      "name": "desktopApiElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "compose-charts-desktop.jar",
+          "url": "compose-charts-desktop-0.0.17-js.jar",
+          "size": 328133,
+          "sha512": "140c49e85567816249e2b590d04cd63492ff30950a89948faa854d399553359a2674fc65bb568c48f5c9deff1db81b0726ce11446cced3a6003ad363b842c92c",
+          "sha256": "8dbf02a2184ce956701bfef02c8e39b637a6414eb1907bc94f5ea658713f51da",
+          "sha1": "5d5f7cf22e8050aa2f3f7ef23ea5463c360e626c",
+          "md5": "199dcd32af8598941a92b9ded043f74a"
+        }
+      ]
+    },
+    {
+      "name": "desktopRuntimeElements-published",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "dependencies": [
+        {
+          "group": "org.jetbrains.kotlin",
+          "module": "kotlin-stdlib",
+          "version": {
+            "requires": "2.0.0"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.desktop",
+          "module": "desktop-jvm-macos-arm64",
+          "version": {
+            "requires": "1.6.11"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.runtime",
+          "module": "runtime",
+          "version": {
+            "requires": "1.6.11"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.foundation",
+          "module": "foundation",
+          "version": {
+            "requires": "1.6.11"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.ui",
+          "module": "ui",
+          "version": {
+            "requires": "1.6.11"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.components",
+          "module": "components-resources",
+          "version": {
+            "requires": "1.6.11"
+          }
+        },
+        {
+          "group": "org.jetbrains.compose.components",
+          "module": "components-ui-tooling-preview",
+          "version": {
+            "requires": "1.6.11"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "compose-charts-desktop.jar",
+          "url": "compose-charts-desktop-0.0.17-js.jar",
+          "size": 328133,
+          "sha512": "140c49e85567816249e2b590d04cd63492ff30950a89948faa854d399553359a2674fc65bb568c48f5c9deff1db81b0726ce11446cced3a6003ad363b842c92c",
+          "sha256": "8dbf02a2184ce956701bfef02c8e39b637a6414eb1907bc94f5ea658713f51da",
+          "sha1": "5d5f7cf22e8050aa2f3f7ef23ea5463c360e626c",
+          "md5": "199dcd32af8598941a92b9ded043f74a"
+        }
+      ]
+    },
+    {
+      "name": "desktopSourcesElements-published",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.jvm.environment": "standard-jvm",
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime",
+        "org.jetbrains.kotlin.platform.type": "jvm"
+      },
+      "files": [
+        {
+          "name": "compose-charts-desktop-sources.jar",
+          "url": "compose-charts-desktop-0.0.17-js-sources.jar",
+          "size": 36359,
+          "sha512": "f8e6d08722ee75d2e2c27a11a44711071c130d2fcee0247b5fd3a480004264ab5da7e4dcc48e246c4d23434bff515a45ef26551535a9b43f6a92968aba3493d4",
+          "sha256": "c2a0e643cc8126bd87ea801659a475cc7ec7637c4e1947e548aa84cb8a5b1cd1",
+          "sha1": "a88fcf9d94d650f9f1458fd2c833a5819ca9504e",
+          "md5": "34c42b1da24c2da39d4405740966c724"
+        }
+      ]
+    }
+  ]
+}
