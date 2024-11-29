@@ -8,7 +8,13 @@ fun Routing.wasmJsApp() {
     staticResources("/", "static", index = "index.html") {
         default("index.html")
         cacheControl { file ->
-            emptyList<CacheControl>()
+            if (file.file.contains("ttf")
+                || file.file == "skiko.wasm"
+            ) {
+                listOf(Immutable, CacheControl.MaxAge(1000))
+            } else {
+                emptyList<CacheControl>()
+            }
         }
     }
 }
