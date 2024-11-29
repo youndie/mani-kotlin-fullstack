@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.koin.test)
     testImplementation(libs.koin.test.junit4)
 
-    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.18.1")
+    testImplementation(libs.de.flapdoodle.embed.mongo)
 }
 
 val copyFrontend = task<Copy>("copyFrontend") {

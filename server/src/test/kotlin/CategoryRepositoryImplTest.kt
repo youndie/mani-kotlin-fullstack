@@ -29,16 +29,14 @@ import kotlin.test.*
 class CategoryRepositoryImplTest {
 
     lateinit var running: TransitionWalker.ReachedState<RunningMongodProcess>
-    val url get() = "mongodb://${running.current().serverAddress}"
-    val databaseName = "test"
-    val collectionName = "users"
-    val client by lazy { MongoClient.create(url) }
-    val db by lazy { client.getDatabase(databaseName) }
-
-    val collection get() = db.getCollection<UserDb>(collectionName)
-    val categoryRepository by lazy { CategoryRepositoryImpl(db) }
-
-    val testUser = UserDb(ObjectId(), "test", "", "", emptyList(), emptyList())
+    private val url get() = "mongodb://${running.current().serverAddress}"
+    private val databaseName = "test"
+    private val collectionName = "users"
+    private val client by lazy { MongoClient.create(url) }
+    private val db by lazy { client.getDatabase(databaseName) }
+    private val collection get() = db.getCollection<UserDb>(collectionName)
+    private val categoryRepository: CategoryRepository by lazy { CategoryRepositoryImpl(db) }
+    private val testUser = UserDb(ObjectId(), "test", "", "", emptyList(), emptyList())
 
     @BeforeTest
     fun setup() {

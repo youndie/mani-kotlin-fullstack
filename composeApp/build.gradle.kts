@@ -123,13 +123,19 @@ kotlin {
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
+
+
         }
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
 
-
+        desktopTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(compose.uiTest)
+            implementation(libs.koin.test)
+        }
     }
 }
 
@@ -175,9 +181,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.compose.ui.tooling.preview)
     testImplementation(libs.koin.test.junit4)
-    testImplementation(libs.kotlin.test)
-    testImplementation(compose.uiTest)
-    testImplementation(libs.koin.test)
+
 }
 
 applyKtorWasmWorkaround("3.0.0-beta-2")
