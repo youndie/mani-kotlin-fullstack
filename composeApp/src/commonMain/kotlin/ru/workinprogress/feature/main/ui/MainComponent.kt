@@ -125,16 +125,9 @@ fun MainComponent(
                     .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {
                 Column(Modifier.width(IntrinsicSize.Min)) {
-                    ListItem(
-                        { Text("Logout") }, trailingContent = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.KeyboardArrowRight, "Logout"
-                            )
-                        }, colors = ListItemDefaults.colors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
-                        ), modifier = Modifier.testTag("logout").clickable {
-                            viewModel.onLogoutClicked()
-                        })
+                    DropdownMenuItem({ Text("Logout") }, {
+                        viewModel.onLogoutClicked()
+                    }, modifier = Modifier.testTag("logout"))
                 }
             }
 
