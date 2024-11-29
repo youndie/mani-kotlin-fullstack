@@ -48,7 +48,7 @@ dependencies {
 
 val copyFrontend = task<Copy>("copyFrontend") {
     val jsBrowserDistribution =
-        project(rootProject.projects.composeApp.path).tasks.named("jsBrowserDevelopmentExecutableDistribution")
+        project(rootProject.projects.composeApp.path).tasks.named("jsBrowserDistribution")
     from(jsBrowserDistribution)
     include("styles.css", "skiko.js", "composeApp.js", "index.html", "**.wasm", "composeResources/**/*")
     destinationDir = file("$projectDir/build/resources/main/static")
