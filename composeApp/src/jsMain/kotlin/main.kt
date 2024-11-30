@@ -6,7 +6,7 @@ import ru.workinprogress.mani.App
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     onWasmReady {
-        CanvasBasedWindow("Compose App") {
+        CanvasBasedWindow("Mani") {
             App()
         }
     }

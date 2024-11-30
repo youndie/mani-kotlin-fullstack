@@ -9,9 +9,9 @@ fun Routing.wasmJsApp() {
         default("index.html")
         cacheControl { file ->
             if (file.file.contains("ttf")
-                || file.file == "skiko.wasm"
+                || file.file == "skiko"
             ) {
-                listOf(Immutable, CacheControl.MaxAge(1000))
+                listOf(Immutable, CacheControl.MaxAge(10000))
             } else {
                 emptyList<CacheControl>()
             }

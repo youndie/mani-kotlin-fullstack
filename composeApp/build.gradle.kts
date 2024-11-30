@@ -53,7 +53,7 @@ kotlin {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
             commonWebpackConfig {
-                outputFileName = "composeApp.js"
+                outputFileName = "mani.js"
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     static = (static ?: mutableListOf()).apply {
                         // Serve sources to debug inside browser
@@ -68,7 +68,9 @@ kotlin {
 
     js(IR) {
         browser {
-
+            commonWebpackConfig {
+                outputFileName = "mani.js"
+            }
         }
         binaries.executable()
     }
