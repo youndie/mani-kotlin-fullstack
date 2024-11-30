@@ -4,6 +4,8 @@ import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
+import org.jetbrains.kotlin.gradle.internal.builtins.StandardNames.FqNames.target
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
@@ -48,15 +50,15 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "composeApp"
+        moduleName = "mani"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
+
             commonWebpackConfig {
                 outputFileName = "mani.js"
                 devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
                     static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
                         add(rootDirPath)
                         add(projectDirPath)
                     }
@@ -67,6 +69,8 @@ kotlin {
     }
 
     js(IR) {
+        moduleName = "mani"
+
         browser {
             commonWebpackConfig {
                 outputFileName = "mani.js"
@@ -191,6 +195,12 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     testImplementation(libs.koin.test.junit4)
 
+}
+
+tasks.withType<KotlinJsCompile>().configureEach {
+    kotlinOptions {
+        target = "es2015"
+    }
 }
 
 applyKtorWasmWorkaround("3.0.0-beta-2")
