@@ -8,7 +8,8 @@ import kotlinx.browser.document
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     ComposeViewport(document.body!!) {
-        LaunchedEffect("") {
+
+    LaunchedEffect("") {
             document.getElementById("preloader")?.let { element ->
                 document.body?.removeChild(element)
             }

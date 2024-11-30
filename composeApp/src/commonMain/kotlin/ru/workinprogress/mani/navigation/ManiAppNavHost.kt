@@ -38,6 +38,8 @@ fun ManiAppNavHost(
     navController: NavHostController,
     appBarState: MainAppBarState,
     snackbarHostState: SnackbarHostState,
+    onBackClicked: () -> Unit,
+    route: String?
 ) {
     val tokenRepository = koinInject<TokenRepository>()
     val tokenState = tokenRepository.observeToken().collectAsStateWithLifecycle()
@@ -45,7 +47,9 @@ fun ManiAppNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = if (isAuth.value) ManiScreen.Main.name else ManiScreen.Login.name,
+        startDestination = if (isAuth.value) (route?.split("/")?.lastOrNull()?.let {
+            ManiScreen.entries.find { screen -> screen.name.equals(it, true) }
+        } ?: ManiScreen.Main).name else ManiScreen.Login.name,
         modifier = Modifier.fillMaxSize().then(modifier)
     ) {
         composable(ManiScreen.Main.name) {
@@ -84,7 +88,7 @@ fun ManiAppNavHost(
                 })
             })
         {
-            SignupComponent({ navController.popBackStack() }) {
+            SignupComponent(onBackClicked) {
                 navController.navigate(ManiScreen.Login.name)
             }
         }

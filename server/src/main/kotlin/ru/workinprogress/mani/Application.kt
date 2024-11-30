@@ -69,7 +69,7 @@ fun Application.module() {
             allowHeadersPrefixed("sec-")
             allowHeader("Authorization")
             exposeHeader("Authorization")
-            hosts.add(currentServerConfig.host)
+            anyHost()
         }
     }
 

@@ -1,26 +1,23 @@
 package ru.workinprogress.mani
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.core.module.Module
+import ru.workinprogress.feature.transaction.Transaction
+import ru.workinprogress.feature.transaction.ui.model.stringResource
 import ru.workinprogress.mani.components.MainAppBarState
 import ru.workinprogress.mani.components.ManiAppBar
 import ru.workinprogress.mani.navigation.ManiAppNavHost
@@ -33,13 +30,18 @@ import kotlin.math.roundToInt
 @Preview
 fun App(
     modifier: Modifier = Modifier,
-    platformModules: List<Module> = emptyList()
+    platformModules: List<Module> = emptyList(),
+    navController: NavHostController = rememberNavController(),
+    onBackClicked: () -> Unit = {
+        navController.popBackStack()
+    },
+    route: String? = null
 ) {
-    KoinApplication(application = {
+    KoinApplication({
         modules(appModules + platformModules)
     }) {
         AppTheme {
-            ManiApp(modifier)
+            ManiApp(modifier, navController, onBackClicked = onBackClicked, route = route)
         }
     }
 }
@@ -49,7 +51,9 @@ fun ManiApp(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     appBarState: MainAppBarState = remember { MainAppBarState() },
-    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onBackClicked: () -> Unit,
+    route: String?
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
 
@@ -58,6 +62,8 @@ fun ManiApp(
     } catch (e: Exception) {
         ManiScreen.Edit
     }
+
+    val labels = Transaction.Period.entries.map { period -> stringResource(period.stringResource) }
 
     LaunchedEffect(backStackEntry) {
         appBarState.showBack.value = navController.previousBackStackEntry != null
@@ -68,13 +74,12 @@ fun ManiApp(
         appBarState.title.value = currentScreen.title()
     }
 
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             Column(modifier = Modifier.animateContentSize()) {
                 ManiAppBar(appBarState) {
-                    navController.popBackStack()
+                    onBackClicked()
                 }
             }
         },
@@ -82,14 +87,12 @@ fun ManiApp(
         snackbarHost = { SnackbarHost(snackBarHostState) },
         floatingActionButton = {
             AnimatedVisibility(
-                currentScreen == ManiScreen.Main,
-                exit = fadeOut() + slideOut(
+                currentScreen == ManiScreen.Main, exit = fadeOut() + slideOut(
                     targetOffset = {
                         IntOffset(
                             0, (it.height / 2f).roundToInt()
                         )
-                    }),
-                enter = fadeIn() + slideIn(
+                    }), enter = fadeIn() + slideIn(
                     initialOffset = {
                         IntOffset(
                             0, (it.height / 2f).roundToInt()
@@ -99,8 +102,7 @@ fun ManiApp(
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(ManiScreen.Add.name)
-                    },
-                    modifier = Modifier.navigationBarsPadding()
+                    }, modifier = Modifier.navigationBarsPadding()
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
@@ -113,7 +115,9 @@ fun ManiApp(
             modifier = Modifier.consumeWindowInsets(padding).padding(top = padding.calculateTopPadding()),
             navController = navController,
             appBarState = appBarState,
-            snackbarHostState = snackBarHostState
+            snackbarHostState = snackBarHostState,
+            onBackClicked,
+            route
         )
     }
 }

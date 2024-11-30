@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalComposeLibrary::class)
 
 import org.jetbrains.compose.ExperimentalComposeLibrary
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -132,12 +133,11 @@ kotlin {
 
             implementation(projects.shared)
         }
+
         desktopMain.dependencies {
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
-
-
         }
 
         iosMain.dependencies {
@@ -220,6 +220,7 @@ fun Project.applyKtorWasmWorkaround(version: String) {
 }
 
 compose.desktop {
+
     application {
         mainClass = "MainKt"
 
@@ -230,6 +231,12 @@ compose.desktop {
         if (System.getProperty("os.name").contains("Mac")) {
             jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
             jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+        }
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "ru.workinprogress.mani"
+            packageVersion = "1.0.0"
         }
     }
 }
