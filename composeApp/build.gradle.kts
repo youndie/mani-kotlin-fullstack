@@ -149,6 +149,11 @@ kotlin {
             implementation(compose.uiTest)
             implementation(libs.koin.test)
         }
+
+        jsMain.dependencies {
+            implementation(kotlinWrappers.browser)
+
+        }
     }
 }
 
