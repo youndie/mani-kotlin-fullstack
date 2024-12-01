@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
@@ -60,7 +59,7 @@ fun ManiApp(
     val currentScreen = try {
         ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Preload.name)
     } catch (e: Exception) {
-        ManiScreen.Edit
+        ManiScreen.Transaction
     }
 
     val labels = Transaction.Period.entries.map { period -> stringResource(period.stringResource) }

@@ -199,6 +199,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     implementation(libs.androidx.compose.ui.tooling.preview)
     testImplementation(libs.koin.test.junit4)
+    testImplementation(libs.koin.test)
+
 
 }
 

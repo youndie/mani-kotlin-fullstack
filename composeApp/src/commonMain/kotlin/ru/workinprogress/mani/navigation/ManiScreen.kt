@@ -1,11 +1,12 @@
 package ru.workinprogress.mani.navigation
 
+
 enum class ManiScreen {
     Preload,
     Main,
     History,
     Add,
-    Edit,
+    Transaction,
     Login,
     Signup,
 }
@@ -13,7 +14,7 @@ enum class ManiScreen {
 fun ManiScreen.title() = when (this) {
     ManiScreen.Main -> "Home"
     ManiScreen.Add -> "Add transaction"
-    ManiScreen.Edit -> "Edit transaction"
+    ManiScreen.Transaction -> "Edit transaction"
     ManiScreen.History -> "History"
     ManiScreen.Signup -> "Mani"
     else -> ""

@@ -33,10 +33,44 @@ fun main() {
 
             LaunchedEffect("") {
                 window.onpopstate = {
-                    navController.popBackStack()
+                    val popState = (it.state as? String).orEmpty()
+
+                    val history = navController.currentBackStack.value.map { entry ->
+                        val screen = try {
+                            ManiScreen.valueOf(entry.destination.route ?: ManiScreen.Preload.name)
+                        } catch (e: Exception) {
+                            ManiScreen.Transaction
+                        }
+                        when (screen) {
+                            ManiScreen.Transaction -> {
+                                "/transaction/${entry.toRoute<TransactionRoute>()?.id}/"
+                            }
+
+                            else -> {
+                                "/" + screen.name.lowercase()
+                            }
+                        }
+                    }
+
+                    if (popState in history) {
+                        navController.popBackStack()
+                    } else {
+                        val screen = ManiScreen.entries.firstOrNull { screen ->
+                            screen.name.equals(popState.split("/")[1], true)
+                        }
+                        console.log(screen)
+                        console.log(popState)
+                        if (screen == ManiScreen.Transaction) {
+                            val id = popState.split("/")[2]
+                            console.log(id)
+
+                            navController.navigate(TransactionRoute(id))
+                        } else {
+                            navController.navigate(screen?.name ?: ManiScreen.Main.name)
+                        }
+                    }
                 }
             }
-
 
             App(
                 onBackClicked = { history.back() },
@@ -54,33 +88,33 @@ private fun BrowserNavigator(navController: NavHostController) {
     val currentScreen = try {
         ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Preload.name)
     } catch (e: Exception) {
-        ManiScreen.Edit
+        ManiScreen.Transaction
     }
 
     LaunchedEffect(currentScreen) {
         when (currentScreen) {
-            ManiScreen.Edit -> {
+            ManiScreen.Transaction -> {
                 history.pushState(
-                    null,
+                    "/transaction/${backStackEntry?.toRoute<TransactionRoute>()?.id}/",
                     "",
                     "/transaction/${backStackEntry?.toRoute<TransactionRoute>()?.id}/"
                 )
             }
 
             ManiScreen.Main -> {
-                history.replaceState(null, "", "/" + currentScreen.name.lowercase())
+                history.replaceState("/" + currentScreen.name.lowercase(), "", "/" + currentScreen.name.lowercase())
             }
 
             ManiScreen.Add -> {
-                history.pushState(null, "", "/" + currentScreen.name.lowercase())
+                history.pushState("/" + currentScreen.name.lowercase(), "", "/" + currentScreen.name.lowercase())
             }
 
             ManiScreen.Login -> {
-                history.replaceState(null, "", "/" + currentScreen.name.lowercase())
+                history.replaceState("/" + currentScreen.name.lowercase(), "", "/" + currentScreen.name.lowercase())
             }
 
             ManiScreen.Signup -> {
-                history.pushState(null, "", "/" + currentScreen.name.lowercase())
+                history.pushState("/" + currentScreen.name.lowercase(), "", "/" + currentScreen.name.lowercase())
             }
 
             else -> {
