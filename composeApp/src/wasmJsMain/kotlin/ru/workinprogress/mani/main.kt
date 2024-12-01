@@ -10,7 +10,7 @@ fun main() {
     ComposeViewport(document.body!!) {
 
     LaunchedEffect("") {
-            document.getElementById("preloader")?.let { element ->
+        document.getElementById("progressBar")?.let { element ->
                 document.body?.removeChild(element)
             }
         }

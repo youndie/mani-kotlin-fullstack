@@ -53,7 +53,10 @@ class MainAppBarState {
         if (this.enabled.not()) {
             enable()
         }
-        this.actionsState.value = this.actionsState.value.plus(action).toImmutableSet()
+        this.actionsState.value = this.actionsState.value
+            .filter { action -> action.name == action.name }
+            .plus(action)
+            .toImmutableSet()
     }
 
     fun removeAction(action: Action) {

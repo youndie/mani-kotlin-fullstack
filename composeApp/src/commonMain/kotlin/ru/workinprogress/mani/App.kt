@@ -33,14 +33,13 @@ fun App(
     navController: NavHostController = rememberNavController(),
     onBackClicked: () -> Unit = {
         navController.popBackStack()
-    },
-    route: String? = null
+    }
 ) {
     KoinApplication({
         modules(appModules + platformModules)
     }) {
         AppTheme {
-            ManiApp(modifier, navController, onBackClicked = onBackClicked, route = route)
+            ManiApp(modifier, navController, onBackClicked = onBackClicked)
         }
     }
 }
@@ -51,8 +50,7 @@ fun ManiApp(
     navController: NavHostController = rememberNavController(),
     appBarState: MainAppBarState = remember { MainAppBarState() },
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onBackClicked: () -> Unit,
-    route: String?
+    onBackClicked: () -> Unit
 ) {
     val backStackEntry by navController.currentBackStackEntryAsState()
 
@@ -115,8 +113,7 @@ fun ManiApp(
             navController = navController,
             appBarState = appBarState,
             snackbarHostState = snackBarHostState,
-            onBackClicked,
-            route
+            onBackClicked
         )
     }
 }
