@@ -18,7 +18,7 @@ jobs:
           cache: gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
-      - name: Test
+      - name: Run tests
         run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest :composeApp:wasmJsTest --no-daemon
       - name: Summarize tests results
         uses: jeantessier/test-summary-action@v1.0.6
@@ -66,6 +66,30 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: ./gradlew :composeApp:connectedAndroidTest
+
+      - name: Summarize tests results
+        uses: jeantessier/test-summary-action@v1.0.6
+        if: ${{ always() }}
+
+  test-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: 21
+          cache: gradle
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+      - name: Start simulator
+        uses: futureware-tech/simulator-action@v4
+        with:
+          model: 'iPhone 16'
+      - name: Run tests
+        run: ./gradlew :composeApp:iosSimulatorArm64Test
 
       - name: Summarize tests results
         uses: jeantessier/test-summary-action@v1.0.6
