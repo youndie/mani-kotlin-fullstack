@@ -31,7 +31,10 @@ class LoginUseCase(
                     Result.Error(UserNotFoundException())
                 } else {
                     val result = response.body<Tokens>()
-                    tokenRepository.set(result.accessToken, result.refreshToken)
+                    tokenRepository.set(
+                        accessToken = result.accessToken,
+                        refreshToken = result.refreshToken
+                    )
                     Result.Success(true)
                 }
             }

@@ -264,23 +264,27 @@ internal fun MainContent(
     onTransactionSelected: (TransactionUiItem) -> Unit = {},
     onUpcomingToggle: (Boolean) -> Unit = {},
     onCategorySelected: (Category?) -> Unit = {},
-    chartContent: @Composable (() -> Unit) = { ChartComponent() },
+    chart: @Composable (() -> Unit) = remember { @Composable { ChartComponent() } }
 ) {
-    val chart = remember { movableContentOf { chartContent() } }
-
     val futureInfo = remember(futureInformation) {
-        movableContentOf {
+        @Composable {
             Column(
-                Modifier.padding(
-                    start = 24.dp, top = 12.dp, bottom = 16.dp, end = 24.dp
-                ).testTag("futureInfo"), verticalArrangement = Arrangement.spacedBy(2.dp)
+                Modifier
+                    .padding(
+                        start = 24.dp,
+                        top = 12.dp,
+                        bottom = 16.dp,
+                        end = 24.dp
+                    ).testTag("futureInfo"),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (loading) {
                     FutureInfoShimmer()
                 } else {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                         Text(
-                            futureInformation, style = MaterialTheme.typography.labelMedium
+                            futureInformation,
+                            style = MaterialTheme.typography.labelMedium
                         )
                     }
                 }
@@ -288,9 +292,8 @@ internal fun MainContent(
         }
     }
 
-
     val filters = remember(filtersState) {
-        movableContentOf {
+        @Composable {
             FiltersChips(
                 filtersState = filtersState, modifier = Modifier.testTag("filters"), onUpcomingToggle = {
                     onUpcomingToggle(it)
@@ -398,7 +401,12 @@ private fun LazyListScope.transactionItemsOrEmpty(
         }
     } else {
         transactionItems(
-            transactions, selectedTransactions, loading, contextMode, onTransactionClicked, onTransactionSelected
+            transactions,
+            selectedTransactions = selectedTransactions,
+            loading = loading,
+            contextMode = contextMode,
+            onTransactionClicked = onTransactionClicked,
+            onTransactionSelected = onTransactionSelected
         )
     }
 
@@ -480,7 +488,7 @@ private fun ColumnScope.FutureInfoShimmer() {
     val shimmer = rememberShimmer(ShimmerBounds.Window)
     val modifier = Modifier.shimmer(shimmer).background(
         MaterialTheme.colorScheme.surfaceContainerHigh, shape = MaterialTheme.shapes.extraSmall
-    )
+    ).testTag("futureInfoShimmer")
 
     Text("    ", modifier, style = MaterialTheme.typography.labelMedium)
     Text("               ", modifier, style = MaterialTheme.typography.labelMedium)

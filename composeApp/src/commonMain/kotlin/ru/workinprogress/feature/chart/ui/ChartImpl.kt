@@ -56,8 +56,7 @@ fun ChartImpl(
         colors = CardDefaults.cardColors()
             .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
         modifier = Modifier
-            .heightIn(max = CHART_MAX_HEIGHT.dp)
-            .widthIn(max = CHART_MAX_WIDTH.dp)
+            .size(width = CHART_MAX_WIDTH.dp, height = CHART_MAX_HEIGHT.dp)
             .aspectRatio(3 / 2f)
             .border(2.dp, Color.Transparent, RoundedCornerShape(12.dp)),
         elevation = CardDefaults.elevatedCardElevation(2.dp),
