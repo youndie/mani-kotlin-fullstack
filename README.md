@@ -16,7 +16,22 @@ server + [Compose multiplatform](https://www.jetbrains.com/compose-multiplatform
 
 https://mani.kotlin.website
 
-### run
+also available [swagger ui](https://mani.kotlin.website/swagger/index.html) 
+
+### local run
+
+* configure server config `ru.workinprogress.mani.Constants.kt`
+
+```kotlin
+val currentServerConfig: ServerConfig = ServerConfig(
+    "Local",
+    scheme = "http",
+    host = <your ip>,
+    development = true,
+    port = "8080"
+)`
+```
+
 * build server
   `gradle publishImageToLocalRegistry`
 * start
@@ -24,8 +39,8 @@ https://mani.kotlin.website
 * web: open http://localhost:8080/
 
 
-* android
+* android:
   `gradle installDebug`
-* desktop
+* desktop:
   `gradle desktopRun`
-* ios: open iosApp/iosApp.xcodeproj via xcode and run
+* ios: open iosApp/iosApp.xcodeproj via xcode and run or just [fleet](https://www.jetbrains.com/help/kotlin-multiplatform-dev/fleet.html) 
