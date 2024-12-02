@@ -84,10 +84,12 @@ kotlin {
         val desktopMain by getting
         val desktopTest by getting {
             dependencies {
-                implementation(compose.desktop.uiTestJUnit4)
                 implementation(compose.desktop.currentOs)
+                implementation(compose.desktop.uiTestJUnit4)
+                implementation(libs.androidx.ui.test.junit4.desktop)
             }
         }
+
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -200,7 +202,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     testImplementation(libs.koin.test.junit4)
     testImplementation(libs.koin.test)
-
 
 }
 

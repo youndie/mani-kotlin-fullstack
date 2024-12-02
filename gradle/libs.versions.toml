@@ -40,6 +40,7 @@ espressoCore = "3.6.1"
 uiautomator = "2.3.0"
 benchmarkMacroJunit4 = "1.3.3"
 baselineprofile = "1.3.3"
+uiTestJunit4Desktop = "1.7.0"
 
 [libraries]
 
@@ -115,6 +116,7 @@ androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchm
 
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name ="ui-tooling", version.ref="compose-multiplatform" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name ="ui-tooling-preview", version.ref="compose-multiplatform" }
+androidx-ui-test-junit4-desktop = { group = "androidx.compose.ui", name = "ui-test-junit4-desktop", version.ref = "uiTestJunit4Desktop" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
