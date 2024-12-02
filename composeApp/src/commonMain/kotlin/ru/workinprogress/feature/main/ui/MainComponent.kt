@@ -205,7 +205,7 @@ data class FiltersState(
 ) {
     companion object {
         const val Upcoming = "Upcoming"
-        const val Past = "Past"
+        const val Past = "Pazt"
     }
 }
 
