@@ -32,11 +32,11 @@ import ru.workinprogress.feature.main.ui.TransactionDeleteDialog
 import ru.workinprogress.feature.main.ui.connectToAppBarState
 import ru.workinprogress.feature.main.ui.transactionItems
 import ru.workinprogress.feature.transaction.ui.TransactionsViewModel
+import ru.workinprogress.feature.transaction.ui.model.TransactionListUiState
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.MainAppBarState
 
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview
 fun TransactionsListComponent(
@@ -51,7 +51,7 @@ fun TransactionsListComponent(
     }
 
     val viewModel = koinViewModel<TransactionsViewModel>()
-    val state by viewModel.observe.collectAsStateWithLifecycle()
+    val state: TransactionListUiState by viewModel.observe.collectAsStateWithLifecycle()
 
     TransactionDeleteDialog(
         state.showDeleteDialog,
@@ -66,7 +66,11 @@ fun TransactionsListComponent(
         viewModel::onContextMenuClosed
     )
 
-    BoxWithConstraints(contentAlignment = Alignment.TopCenter) {
+    if (!state.loading && state.data.isEmpty()) {
+        TrasactionsEmpty()
+    } else {
+        BoxWithConstraints(contentAlignment = Alignment.TopCenter) {
+        }
         LazyColumn(
             modifier = modifier.widthIn(max = 640.dp),
             contentPadding = PaddingValues(vertical = 16.dp),
