@@ -1,3 +1,5 @@
+package ru.workinprogress.feature.main.ui
+
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -107,7 +109,13 @@ class TransactionsViewModelErrorTest : KoinTest {
 }
 
 val toDelete = Transaction(
-    "toDelete", 500.0, true, LocalDate(2000, 1, 1), null, Transaction.Period.OneTime, ""
+    "ru.workinprogress.feature.main.ui.toDelete",
+    500.0,
+    true,
+    LocalDate(2000, 1, 1),
+    null,
+    Transaction.Period.OneTime,
+    ""
 )
 
 private class FakeTransactionsRepository(private val shouldCrash: Boolean = false) :
