@@ -212,7 +212,7 @@ data class FiltersState(
 @Composable
 internal fun FiltersChips(
     filtersState: FiltersState = FiltersState(),
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     onUpcomingToggle: (Boolean) -> Unit = {},
     onCategorySelected: (Category?) -> Unit = {}
 ) {

@@ -19,4 +19,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
       - name: Test
-        run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest --no-daemon
+        run: ./gradlew :shared:jvmTest :server:test :composeApp:desktopTest :composeApp:wasmJsTest --no-daemon
+      - name: Summarize tests results
+        uses: jeantessier/test-summary-action@v1.0.6
+        if: ${{ always() }}

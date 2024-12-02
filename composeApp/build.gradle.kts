@@ -6,7 +6,6 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinJsCompile
-import org.jetbrains.kotlin.gradle.internal.builtins.StandardNames.FqNames.target
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
@@ -136,6 +135,12 @@ kotlin {
             implementation(projects.shared)
         }
 
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(compose.uiTest)
+
+        }
+
         desktopMain.dependencies {
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
@@ -154,7 +159,6 @@ kotlin {
 
         jsMain.dependencies {
             implementation(kotlinWrappers.browser)
-
         }
     }
 }
@@ -202,7 +206,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     testImplementation(libs.koin.test.junit4)
     testImplementation(libs.koin.test)
-
 }
 
 tasks.withType<KotlinJsCompile>().configureEach {

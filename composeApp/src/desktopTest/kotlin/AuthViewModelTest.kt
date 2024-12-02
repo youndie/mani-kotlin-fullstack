@@ -1,4 +1,4 @@
-package ru.workinprogress.mani
+package ru.workinprogress.feature.main.ui
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
