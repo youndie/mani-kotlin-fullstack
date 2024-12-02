@@ -30,7 +30,7 @@ jobs:
       matrix:
         api-level: [ 24, 31 ]
     steps:
-      - name: checkout
+      - name: Checkout sources
         uses: actions/checkout@v4
 
       - name: Enable KVM
