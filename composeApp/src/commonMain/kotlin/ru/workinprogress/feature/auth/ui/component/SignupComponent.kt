@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.singleOf
@@ -55,14 +54,18 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
             Icon(Icons.Default.Close, "Close")
         }
         AuthComponentImpl(
-            Modifier.align(Alignment.CenterHorizontally), AuthComponentUiState(
-                "Sign up",
-                state.value.username,
-                state.value.password,
-                "Create",
-                state.value.errorMessage,
-                state.value.loading
-            ), viewModel::onUsernameChanged, viewModel::onPasswordChanged, viewModel::onLoginClicked
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            state = AuthComponentUiState(
+                title = "Sign up",
+                username = state.value.username,
+                password = state.value.password,
+                buttonText = "Create",
+                errorMessage = state.value.errorMessage,
+                loading = state.value.loading
+            ),
+            onUsernameChanged = viewModel::onUsernameChanged,
+            onPasswordChanged = viewModel::onPasswordChanged,
+            onButtonClicked = viewModel::onLoginClicked
         )
         Spacer(Modifier.height(128.dp))
     }

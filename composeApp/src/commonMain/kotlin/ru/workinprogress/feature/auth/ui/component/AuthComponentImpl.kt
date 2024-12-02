@@ -38,23 +38,27 @@ internal fun AuthComponentImpl(
                 Text(
                     text = state.title,
                     style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.padding(horizontal = 16.dp).testTag("appname")
+                    modifier = Modifier.padding(horizontal = 16.dp).testTag("title")
                 )
+
                 Spacer(Modifier.height(24.dp))
+
                 OutlinedTextField(
-                    state.username,
-                    onUsernameChanged,
-                    Modifier.testTag("username"),
+                    value = state.username,
+                    onValueChange = onUsernameChanged,
+                    modifier = Modifier.testTag("username"),
                     enabled = !state.loading,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
                     ),
                     label = { Text("Username") })
+
                 Spacer(Modifier.height(8.dp))
+
                 OutlinedTextField(
-                    state.password,
-                    onPasswordChanged,
-                    Modifier.testTag("password"),
+                    value = state.password,
+                    onValueChange = onPasswordChanged,
+                    modifier = Modifier.testTag("password"),
                     enabled = !state.loading,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password, imeAction = ImeAction.Done
@@ -70,11 +74,12 @@ internal fun AuthComponentImpl(
                 state.errorMessage?.let {
                     Text(
                         it,
-                        modifier = Modifier.padding(horizontal = 8.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp).testTag("errorMessage"),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Spacer(Modifier.height(24.dp))
                 }
+
                 Spacer(Modifier.height(8.dp))
 
                 LoadingButton(

@@ -11,7 +11,7 @@ fun main() = application {
             size = DpSize(1024.dp, 720.dp)
         ),
         onCloseRequest = ::exitApplication,
-        resizable = false,
+        resizable = true,
         title = "mani",
     ) {
         App()

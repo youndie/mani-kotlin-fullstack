@@ -86,6 +86,8 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.desktop.uiTestJUnit4)
                 implementation(libs.androidx.ui.test.junit4.desktop)
+                implementation(libs.ktor.client.mock)
+
             }
         }
 
@@ -137,7 +139,6 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(compose.uiTest)
-
         }
 
         desktopMain.dependencies {
