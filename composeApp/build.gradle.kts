@@ -97,7 +97,6 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.androidx.core.splashscreen)
             implementation(libs.androidx.profileinstaller)
-
         }
         commonMain.dependencies {
             implementation(libs.ktor.client.core)
@@ -191,12 +190,16 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
+
     implementation(libs.androidx.profileinstaller)
     androidTestImplementation(libs.androidx.ui.test.junit4.android)
     baselineProfile(projects.baselineprofile)

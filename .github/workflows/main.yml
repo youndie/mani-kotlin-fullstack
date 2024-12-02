@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [ 26, 29 ]
+        api-level: [ 24, 29 ]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
@@ -90,7 +90,3 @@ jobs:
           model: 'iPhone 15'
       - name: Run tests
         run: ./gradlew :composeApp:iosSimulatorArm64Test
-
-      - name: Summarize tests results
-        uses: jeantessier/test-summary-action@v1.0.6
-        if: ${{ always() }}
