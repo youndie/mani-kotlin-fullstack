@@ -21,7 +21,7 @@ fun TrasactionsEmpty() {
     ) {
         CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
             Text(
-                "nothing to show\n\n¯\\_(ツ)_/¯",
+                "nothing to show\n\n¯\\_(-_-)_/¯",
                 style = MaterialTheme.typography.labelMedium,
                 textAlign = TextAlign.Center
             )
