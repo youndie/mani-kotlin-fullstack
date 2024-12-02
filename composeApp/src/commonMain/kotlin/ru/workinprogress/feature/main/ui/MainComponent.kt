@@ -44,6 +44,7 @@ import ru.workinprogress.feature.main.MainViewModel
 import ru.workinprogress.feature.main.ui.FiltersState.Companion.Past
 import ru.workinprogress.feature.main.ui.FiltersState.Companion.Upcoming
 import ru.workinprogress.feature.transaction.Category
+import ru.workinprogress.feature.transaction.ui.component.TrasactionsEmpty
 import ru.workinprogress.feature.transaction.ui.component.transactionsDay
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.Action
@@ -336,7 +337,7 @@ private fun MainContent(
                     filters()
                 }
 
-                transactionItems(
+                transactionItemsOrEmpty(
                     transactions,
                     selectedTransactions,
                     loading,
@@ -346,20 +347,25 @@ private fun MainContent(
                 )
             }
         } else {
-            Row(modifier = Modifier.fillMaxHeight().padding(start = 24.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(start = 24.dp)
+            ) {
                 Column(modifier = Modifier.padding(top = 48.dp)) {
                     chart()
                     futureInfo()
                 }
                 LazyColumn(
-                    modifier = lazyColumnModifier, contentPadding = PaddingValues(16.dp)
+                    modifier = lazyColumnModifier,
+                    contentPadding = PaddingValues(16.dp)
                 ) {
 
                     item {
                         filters()
                     }
 
-                    transactionItems(
+                    transactionItemsOrEmpty(
                         transactions,
                         selectedTransactions,
                         loading,
@@ -375,6 +381,31 @@ private fun MainContent(
             }
         }
     }
+}
+
+private fun LazyListScope.transactionItemsOrEmpty(
+    transactions: ImmutableMap<LocalDate, ImmutableList<TransactionUiItem>>,
+    selectedTransactions: ImmutableList<TransactionUiItem>,
+    loading: Boolean,
+    contextMode: Boolean,
+    onTransactionClicked: (TransactionUiItem) -> Unit,
+    onTransactionSelected: (TransactionUiItem) -> Unit,
+) {
+    if (!loading && transactions.isEmpty()) {
+        item {
+            TrasactionsEmpty()
+        }
+    } else {
+        transactionItems(
+            transactions,
+            selectedTransactions,
+            loading,
+            contextMode,
+            onTransactionClicked,
+            onTransactionSelected
+        )
+    }
+
 }
 
 fun LazyListScope.transactionItems(
