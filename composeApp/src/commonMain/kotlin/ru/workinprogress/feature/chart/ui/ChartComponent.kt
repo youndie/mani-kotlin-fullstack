@@ -1,12 +1,12 @@
 package ru.workinprogress.feature.chart.ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.toImmutableList
@@ -35,9 +35,14 @@ fun ChartComponent(modifier: Modifier = Modifier) {
     val viewModel = koinViewModel<ChartViewModel>()
     val state: ChartUi by viewModel.observe.collectAsStateWithLifecycle(ChartUi.Loading)
 
+    ChartComponent(state, modifier)
+}
+
+@Composable
+fun ChartComponent(state: ChartUi, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.padding(16.dp),
+        modifier = modifier.padding(16.dp).testTag("chartBox"),
     ) {
         ChartImpl(
             state.days.values.toImmutableList(),
@@ -50,6 +55,7 @@ fun ChartComponent(modifier: Modifier = Modifier) {
         )
     }
 }
+
 
 private val format = LocalDate.Format {
     monthName(MonthNames.ENGLISH_ABBREVIATED)

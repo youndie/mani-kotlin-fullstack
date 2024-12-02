@@ -1,14 +1,11 @@
 package ru.workinprogress.feature.main.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
@@ -35,6 +32,7 @@ import kotlinx.datetime.LocalDate
 import mani.composeapp.generated.resources.Res
 import mani.composeapp.generated.resources.transactions
 import org.jetbrains.compose.resources.getPluralString
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -50,7 +48,6 @@ import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.mani.components.Action
 import ru.workinprogress.mani.components.MainAppBarState
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainComponent(
     appBarState: MainAppBarState,
@@ -213,17 +210,24 @@ data class FiltersState(
 }
 
 @Composable
-private fun FiltersChips(
-    filtersState: FiltersState,
-    onUpcomingToggle: (Boolean) -> Unit,
-    onCategorySelected: (Category?) -> Unit
+internal fun FiltersChips(
+    filtersState: FiltersState = FiltersState(),
+    modifier: Modifier,
+    onUpcomingToggle: (Boolean) -> Unit = {},
+    onCategorySelected: (Category?) -> Unit = {}
 ) {
     Row(
-        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
+        modifier = modifier.padding(horizontal = 16.dp).padding(bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         if (filtersState.loading) {
-            FilterChip(false, {}, label = { Text("   ") }, enabled = false)
+            FilterChip(
+                false,
+                {},
+                modifier = Modifier.testTag("filtersShimmer"),
+                label = { Text("   ") },
+                enabled = false
+            )
             FilterChip(false, {}, label = { Text("   ") }, enabled = false)
         } else {
             DropdownFilterChip(
@@ -248,25 +252,28 @@ private fun FiltersChips(
 }
 
 @Composable
-private fun MainContent(
-    transactions: ImmutableMap<LocalDate, ImmutableList<TransactionUiItem>>,
-    selectedTransactions: ImmutableList<TransactionUiItem>,
-    filtersState: FiltersState,
-    futureInformation: AnnotatedString,
-    loading: Boolean,
-    contextMode: Boolean,
-    onTransactionClicked: (TransactionUiItem) -> Unit,
-    onTransactionSelected: (TransactionUiItem) -> Unit,
-    onUpcomingToggle: (Boolean) -> Unit,
-    onCategorySelected: (Category?) -> Unit
+@Preview
+internal fun MainContent(
+    transactions: ImmutableMap<LocalDate, ImmutableList<TransactionUiItem>> = persistentMapOf(),
+    selectedTransactions: ImmutableList<TransactionUiItem> = persistentListOf(),
+    filtersState: FiltersState = FiltersState(),
+    futureInformation: AnnotatedString = AnnotatedString(""),
+    loading: Boolean = false,
+    contextMode: Boolean = false,
+    onTransactionClicked: (TransactionUiItem) -> Unit = {},
+    onTransactionSelected: (TransactionUiItem) -> Unit = {},
+    onUpcomingToggle: (Boolean) -> Unit = {},
+    onCategorySelected: (Category?) -> Unit = {},
+    chartContent: @Composable (() -> Unit) = { ChartComponent() },
 ) {
-    val chart = remember { movableContentOf { ChartComponent() } }
+    val chart = remember { movableContentOf { chartContent() } }
+
     val futureInfo = remember(futureInformation) {
         movableContentOf {
             Column(
                 Modifier.padding(
                     start = 24.dp, top = 12.dp, bottom = 16.dp, end = 24.dp
-                ), verticalArrangement = Arrangement.spacedBy(2.dp)
+                ).testTag("futureInfo"), verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 if (loading) {
                     FutureInfoShimmer()
@@ -285,8 +292,7 @@ private fun MainContent(
     val filters = remember(filtersState) {
         movableContentOf {
             FiltersChips(
-                filtersState = filtersState,
-                onUpcomingToggle = {
+                filtersState = filtersState, modifier = Modifier.testTag("filters"), onUpcomingToggle = {
                     onUpcomingToggle(it)
                 }) {
                 onCategorySelected(it)
@@ -323,15 +329,13 @@ private fun MainContent(
                 item {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                         Text(
-                            "Transactions",
-                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp).then(
+                            "Transactions", modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp).then(
                                 if (loading) {
                                     Modifier.shimmer()
                                 } else {
                                     Modifier
                                 }
-                            ),
-                            style = MaterialTheme.typography.titleMedium
+                            ), style = MaterialTheme.typography.titleMedium
                         )
                     }
                     filters()
@@ -348,17 +352,14 @@ private fun MainContent(
             }
         } else {
             Row(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(start = 24.dp)
+                modifier = Modifier.fillMaxHeight().padding(start = 24.dp)
             ) {
                 Column(modifier = Modifier.padding(top = 48.dp)) {
                     chart()
                     futureInfo()
                 }
                 LazyColumn(
-                    modifier = lazyColumnModifier,
-                    contentPadding = PaddingValues(16.dp)
+                    modifier = lazyColumnModifier, contentPadding = PaddingValues(16.dp)
                 ) {
 
                     item {
@@ -397,12 +398,7 @@ private fun LazyListScope.transactionItemsOrEmpty(
         }
     } else {
         transactionItems(
-            transactions,
-            selectedTransactions,
-            loading,
-            contextMode,
-            onTransactionClicked,
-            onTransactionSelected
+            transactions, selectedTransactions, loading, contextMode, onTransactionClicked, onTransactionSelected
         )
     }
 

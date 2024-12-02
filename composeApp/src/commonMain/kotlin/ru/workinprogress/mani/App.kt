@@ -5,8 +5,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -99,7 +103,8 @@ fun ManiApp(
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(ManiScreen.Add.name)
-                    }, modifier = Modifier.navigationBarsPadding()
+                    },
+                    modifier = Modifier.navigationBarsPadding().testTag("fab")
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Add,
