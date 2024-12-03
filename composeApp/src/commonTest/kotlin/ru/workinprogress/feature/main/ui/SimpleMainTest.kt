@@ -1,6 +1,9 @@
 package ru.workinprogress.feature.main.ui
 
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.datetime.LocalDate
@@ -15,9 +18,11 @@ class SimpleMainTest {
     fun mainLayoutTest() {
         runComposeUiTest {
             setContent {
-                MainContent(futureInformation = AnnotatedString("future info"), chart = {
-                    ChartComponent(ChartUi(days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0)))
-                })
+                MainContent(
+                    futureInformation = AnnotatedString("future info"),
+                    chart = {
+                        ChartComponent(ChartUi(days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0)))
+                    })
             }
             onNodeWithTag("chartBox").assertIsDisplayed()
             onNodeWithTag("futureInfo").assertIsDisplayed()
