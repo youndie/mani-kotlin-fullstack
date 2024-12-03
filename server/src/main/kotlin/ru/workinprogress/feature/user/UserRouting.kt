@@ -1,12 +1,11 @@
 package ru.workinprogress.feature.user
 
 import io.github.smiley4.ktorswaggerui.dsl.routing.resources.post
-
-import io.ktor.http.HttpStatusCode
-import io.ktor.server.application.call
-import io.ktor.server.request.receive
-import io.ktor.server.response.respond
-import io.ktor.server.routing.Routing
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
 import org.koin.ktor.ext.inject
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.user.data.UserRepository
@@ -20,7 +19,7 @@ fun Routing.userRouting() {
         }
         response {
             HttpStatusCode.Created to { }
-            HttpStatusCode.BadRequest to { }
+            HttpStatusCode.BadRequest to { description = "User already exist" }
         }
     }, {
         val params = call.receive<LoginParams>()

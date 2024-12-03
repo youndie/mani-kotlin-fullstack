@@ -44,7 +44,7 @@ fun Routing.categoryRouting() {
             }
             response {
                 HttpStatusCode.OK to { body<Category>() }
-                HttpStatusCode.Forbidden to { }
+                HttpStatusCode.Forbidden to { description = "Forbidden" }
             }
         }) { path ->
             if (categoryRepository.getByUser(call.currentUserId()).none { category -> category.id == path.id }) {
@@ -64,7 +64,7 @@ fun Routing.categoryRouting() {
             }
             response {
                 HttpStatusCode.OK to { body<Category>() }
-                HttpStatusCode.Forbidden to { }
+                HttpStatusCode.Forbidden to { description = "Forbidden" }
             }
         }) { path ->
             if (categoryRepository.getByUser(call.currentUserId()).none { category -> category.id == path.id }) {
@@ -81,7 +81,7 @@ fun Routing.categoryRouting() {
             }
             response {
                 HttpStatusCode.OK to { }
-                HttpStatusCode.Forbidden to { }
+                HttpStatusCode.Forbidden to { description = "Forbidden" }
             }
         }) { path ->
             if (categoryRepository.getByUser(call.currentUserId()).none { category -> category.id == path.id }) {

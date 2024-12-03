@@ -20,7 +20,7 @@ fun Routing.authRouting() {
         }
         response {
             HttpStatusCode.OK to { body<Tokens>() }
-            HttpStatusCode.NotFound to {}
+            HttpStatusCode.NotFound to { description = "User not found or invalid params" }
         }
     }) {
         val credentials = call.receive<LoginParams>()
