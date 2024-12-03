@@ -23,15 +23,15 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
-val currencyRepository = object : CurrentCurrencyRepository {
+val testCurrencyRepository = object : CurrentCurrencyRepository {
     override var currency = Currency.Usd
 }
 
 private fun testModule(withError: Boolean = false) = module {
-    single<TransactionRepository> { FakeTransactionsRepository(withError) }
+    single<TransactionRepository> { FakeTransactionsRepository({ withError }) }
     single<GetTransactionsUseCase> { GetTransactionsUseCase(get()) }
     single<GetCurrentCurrencyUseCase> { GetCurrentCurrencyUseCase(get()) }
-    single<CurrentCurrencyRepository> { currencyRepository }
+    single<CurrentCurrencyRepository> { testCurrencyRepository }
     single<DeleteTransactionsUseCase> { DeleteTransactionsUseCase(get()) }
     single<TransactionsViewModel> { TransactionsViewModel(get(), get(), get()) }
 }
@@ -51,7 +51,6 @@ class TransactionsViewModelTest : KoinTest {
         Dispatchers.setMain(StandardTestDispatcher())
     }
 
-    //
     @Test
     fun testLoadTransactions() = runTest {
         while (viewModel.observe.value.data.isEmpty()) {

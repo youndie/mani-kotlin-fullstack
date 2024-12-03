@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -43,23 +42,6 @@ class MainViewModel(
     private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
-    private val loadingItems by lazy {
-        mapOf(
-            today() to (0..2).map {
-                TransactionUiItem(
-                    it.toString(),
-                    0.0,
-                    false,
-                    date = today(),
-                    until = null,
-                    period = Transaction.Period.OneTime,
-                    comment = "Loading",
-                    currency = Currency.Usd
-                )
-            }.toImmutableList()
-        ).toImmutableMap()
-    }
-
     private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
 
     private val filterUpcoming = MutableStateFlow(true)
@@ -69,12 +51,14 @@ class MainViewModel(
 
     private lateinit var currency: Currency
 
+
     init {
-        viewModelScope.launch { load() }
+        viewModelScope.launch {
+            load()
+        }
         viewModelScope.launch {
             currency = getCurrencyUseCase.get()
         }
-
     }
 
     private suspend fun load() {
@@ -93,7 +77,7 @@ class MainViewModel(
                     filterUpcoming,
                     filterCategory
                 ) { transactions, categories, upcoming, category ->
-                    val simulationResult = transactions.run { simulate() }
+                    val simulationResult = transactions.simulate()
 
                     MainUiState(
                         loading = false,
@@ -133,10 +117,9 @@ class MainViewModel(
                             .associate { it.key to it.value }.toImmutableMap(),
                         futureInformation = buildFutureInformation(simulationResult)
                     )
-                }.flowOn(Dispatchers.Default)
-                    .collectLatest { result: MainUiState ->
-                        state.update { result }
-                    }
+                }.collectLatest { result: MainUiState ->
+                    state.update { result }
+                }
             }
         }
     }
@@ -180,9 +163,7 @@ class MainViewModel(
     }
 
     fun onShowDeleteDialogClicked() {
-        state.update {
-            it.copy(showDeleteDialog = true)
-        }
+        state.value = state.value.copy(showDeleteDialog = true)
     }
 
     fun onDismissDeleteDialog() {
@@ -310,6 +291,26 @@ class MainViewModel(
 
     fun onCategorySelected(category: Category?) {
         filterCategory.value = category
+    }
+
+    companion object {
+        val loadingItems by lazy {
+            mapOf(
+                today() to (0..2).map {
+                    TransactionUiItem(
+                        it.toString(),
+                        0.0,
+                        false,
+                        date = today(),
+                        until = null,
+                        period = Transaction.Period.OneTime,
+                        comment = "Loading",
+                        currency = Currency.Usd,
+                        category = Category.default,
+                    )
+                }.toImmutableList()
+            ).toImmutableMap()
+        }
     }
 
 }

@@ -8,6 +8,7 @@ import androidx.compose.ui.text.withStyle
 import ir.ehsannarmani.compose_charts.extensions.format
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.currency.Currency
+import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.Transaction
 import kotlin.math.absoluteValue
 
@@ -20,10 +21,9 @@ data class TransactionUiItem(
     val period: Transaction.Period,
     val comment: String,
     val currency: Currency,
+    val category: Category,
 ) {
     val amountText get() = buildColoredAmount(amount, currency, income)
-
-    val amountSigned get() = this.amount * (if (this.income) 1 else -1).toDouble()
 
     companion object {
         operator fun invoke(transaction: Transaction, currency: Currency): TransactionUiItem {
@@ -35,12 +35,12 @@ data class TransactionUiItem(
                 until = transaction.until,
                 period = transaction.period,
                 comment = transaction.comment,
-                currency = currency
+                currency = currency,
+                category = transaction.category
             )
         }
     }
 }
-
 
 val PositiveColor = Color.Green
 val NegativeColor = Color.Red
