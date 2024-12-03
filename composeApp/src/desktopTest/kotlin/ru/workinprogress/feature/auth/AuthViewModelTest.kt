@@ -8,9 +8,8 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.KoinTest
 import org.koin.test.get
-import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.domain.AuthUseCase
-import ru.workinprogress.feature.auth.domain.ServerException
+import ru.workinprogress.mani.data.ServerException
 import ru.workinprogress.feature.auth.ui.AuthViewModel
 import ru.workinprogress.feature.auth.ui.model.AuthUiState
 import kotlin.test.*

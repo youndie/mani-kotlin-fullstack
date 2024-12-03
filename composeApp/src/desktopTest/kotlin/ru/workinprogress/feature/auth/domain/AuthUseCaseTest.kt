@@ -1,4 +1,4 @@
-package ru.workinprogress.feature.transaction.ui.ru.workinprogress.feature.auth.domain
+package ru.workinprogress.feature.auth.domain
 
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
@@ -15,9 +15,7 @@ import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.data.TokenRepository
 import ru.workinprogress.feature.auth.data.TokenRepositoryCommon
 import ru.workinprogress.feature.auth.data.TokenStorageImpl
-import ru.workinprogress.feature.auth.domain.LoginUseCase
-import ru.workinprogress.feature.auth.domain.ServerException
-import ru.workinprogress.feature.auth.domain.UserNotFoundException
+import ru.workinprogress.mani.data.ServerException
 import ru.workinprogress.useCase.UseCase
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -47,7 +45,7 @@ class AuthUseCaseTest {
     @Test
     fun loginUserNotFoundErrorTest() = runTest {
         val tokenRepository: TokenRepository = TokenRepositoryCommon(TokenStorageImpl())
-        val authUseCase = LoginUseCase(
+        val authUseCase: AuthUseCase = LoginUseCase(
             defaultHttpRequest {
                 respond(
                     content = ByteReadChannel(""""""),
@@ -56,7 +54,9 @@ class AuthUseCaseTest {
                 )
             }, tokenRepository
         )
+
         val result = authUseCase(LoginParams("username", "password"))
+
         result as UseCase.Result.Error
         assertIs<UserNotFoundException>(result.throwable)
     }
@@ -72,6 +72,7 @@ class AuthUseCaseTest {
                 )
             }, tokenRepository
         )
+
         val result = authUseCase(LoginParams("username", "password"))
 
         result as UseCase.Result.Error
@@ -79,7 +80,7 @@ class AuthUseCaseTest {
     }
 
     @Test
-    fun loginUserNotFoundSuccessTest() = runTest {
+    fun loginSuccessTest() = runTest {
         val tokenRepository: TokenRepository = TokenRepositoryCommon(TokenStorageImpl())
         val authUseCase = LoginUseCase(
             defaultHttpRequest { data ->
@@ -110,4 +111,59 @@ class AuthUseCaseTest {
             tokenRepository.getToken().refreshToken
         )
     }
+
+    @Test
+    fun signupAlreadyRegisteredErrorTest() = runTest {
+        val authUseCase: AuthUseCase = SignupUseCase(
+            defaultHttpRequest {
+                respond(
+                    content = ByteReadChannel(""""""),
+                    status = HttpStatusCode.BadRequest,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+        )
+
+        val result = authUseCase(LoginParams("username", "password"))
+
+        result as UseCase.Result.Error
+        assertIs<AlreadyRegisteredException>(result.throwable)
+    }
+
+    @Test
+    fun signupServerErrorTest() = runTest {
+        val authUseCase = SignupUseCase(
+            defaultHttpRequest {
+                respond(
+                    content = ByteReadChannel(""""""),
+                    status = HttpStatusCode.InternalServerError,
+                )
+            }
+        )
+
+        val result = authUseCase(LoginParams("username", "password"))
+
+        result as UseCase.Result.Error
+        assertIs<ServerException>(result.throwable)
+    }
+
+    @Test
+    fun signupSuccessTest() = runTest {
+        val authUseCase = SignupUseCase(
+            defaultHttpRequest { data ->
+                respond(
+                    content = ByteReadChannel(
+                        """""".trimIndent()
+                    ),
+                    status = HttpStatusCode.Created,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json")
+                )
+            }
+        )
+
+        val result = authUseCase(LoginParams("username", "password"))
+
+        assertIs<UseCase.Result.Success<Boolean>>(result)
+    }
+
 }

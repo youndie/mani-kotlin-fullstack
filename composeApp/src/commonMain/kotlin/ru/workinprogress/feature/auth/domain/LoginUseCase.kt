@@ -11,9 +11,7 @@ import ru.workinprogress.feature.auth.AuthResource
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.auth.data.TokenRepository
-import ru.workinprogress.useCase.UseCase
-
-abstract class AuthUseCase : UseCase<LoginParams, Boolean>()
+import ru.workinprogress.mani.data.ServerException
 
 class LoginUseCase(
     private val httpClient: HttpClient,
@@ -44,11 +42,6 @@ class LoginUseCase(
         }
     }
 }
-
-open class ServerException(
-    override val message: String,
-    override val cause: Exception? = null
-) : Exception(message, cause)
 
 class UserNotFoundException : ServerException("User not found or invalid password")
 class AlreadyRegisteredException : ServerException("User already exist")

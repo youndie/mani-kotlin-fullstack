@@ -1,6 +1,6 @@
 package ru.workinprogress.feature.transaction.domain
 
-import ru.workinprogress.feature.auth.domain.ServerException
+import ru.workinprogress.mani.data.ServerException
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.useCase.UseCase
 
