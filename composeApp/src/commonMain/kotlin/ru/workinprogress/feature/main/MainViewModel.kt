@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
@@ -51,13 +52,10 @@ class MainViewModel(
 
     private lateinit var currency: Currency
 
-
     init {
         viewModelScope.launch {
-            load()
-        }
-        viewModelScope.launch {
             currency = getCurrencyUseCase.get()
+            load()
         }
     }
 
@@ -69,7 +67,7 @@ class MainViewModel(
             }
 
             is UseCase.Result.Success -> {
-                state.update { state -> state.copy(loading = true, transactions = emptyImmutableMap()) }
+                state.value = state.value.copy(loading = true, transactions = emptyImmutableMap())
 
                 combine(
                     result.data,
@@ -286,7 +284,6 @@ class MainViewModel(
 
     fun onUpcomingToggle(bool: Boolean) {
         filterUpcoming.value = bool
-
     }
 
     fun onCategorySelected(category: Category?) {

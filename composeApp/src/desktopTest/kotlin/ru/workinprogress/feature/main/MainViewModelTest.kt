@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package ru.workinprogress.feature.main
 
 import kotlinx.coroutines.Dispatchers
@@ -48,18 +50,20 @@ class MainViewModelTest : KoinTest {
         Dispatchers.setMain(StandardTestDispatcher())
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testLoadTransactionsSuccess() = runTest {
         val viewModel: MainViewModel = get()
         assertEquals(MainViewModel.loadingItems, viewModel.observe.value.transactions)
-        runCurrent()
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
         assertTrue(!viewModel.observe.value.loading)
         assertTrue(viewModel.observe.value.transactions.isNotEmpty())
         assertTrue(viewModel.observe.value.transactions.all { entry -> entry.key >= today() })
+
+        get<TransactionRepository>().reset()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testLoadTransactionsError() = runTest {
         shouldReturnError = true
@@ -72,9 +76,10 @@ class MainViewModelTest : KoinTest {
         assertTrue(!viewModel.observe.value.loading)
         assertTrue(viewModel.observe.value.transactions.isEmpty())
         assertTrue(viewModel.observe.value.errorMessage != null)
+
+        get<TransactionRepository>().reset()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testTransactionFilters() = runTest {
         val viewModel: MainViewModel = get()
@@ -94,13 +99,16 @@ class MainViewModelTest : KoinTest {
                 .all { item ->
                     item.category.id == targetCategory.id
                 })
+
+        get<TransactionRepository>().reset()
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun testTransactionSelected() = runTest {
         val viewModel: MainViewModel = get()
-        runCurrent()
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
 
         val firstTransaction = viewModel.observe.value.transactions.entries.first().value.first()
 
@@ -115,9 +123,72 @@ class MainViewModelTest : KoinTest {
         assertNull(
             viewModel.observe.value.selectedTransactions.find { item -> item.id == firstTransaction.id }
         )
+
+        get<TransactionRepository>().reset()
     }
 
+    @Test
+    fun testTransactionDelete() = runTest {
+        val viewModel: MainViewModel = get()
 
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
+
+        val firstTransaction = viewModel.observe.value.transactions.entries.first().value.first()
+
+        viewModel.onTransactionSelected(firstTransaction)
+        viewModel.onShowDeleteDialogClicked()
+        runCurrent()
+
+        assertTrue(viewModel.observe.value.showDeleteDialog)
+        viewModel.onDeleteClicked()
+
+        runCurrent()
+        assertFalse(viewModel.observe.value.showDeleteDialog)
+        assertTrue(viewModel.observe.value.selectedTransactions.isEmpty())
+
+        assertNull(
+            viewModel.observe.value.transactions.flatMap {
+                it.value
+            }.find { item -> item.id == firstTransaction.id }
+        )
+
+        assertNull(
+            viewModel.observe.value.selectedTransactions.find { item -> item.id == firstTransaction.id }
+        )
+
+        get<TransactionRepository>().reset()
+    }
+
+    @Test
+    fun testCloseContextMenu() = runTest {
+        val viewModel: MainViewModel = get()
+
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
+
+        viewModel.onCategorySelected(targetCategory)
+        viewModel.onContextMenuClosed()
+        assertTrue(viewModel.observe.value.selectedTransactions.isEmpty())
+    }
+
+    @Test
+    fun testLogout() = runTest {
+        val viewModel: MainViewModel = get()
+
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
+
+        viewModel.onProfileClicked()
+        assertTrue(viewModel.observe.value.showProfile)
+
+        viewModel.onLogoutClicked()
+        runCurrent()
+        assertTrue(viewModel.observe.value.transactions.isEmpty())
+    }
 
 
     @AfterTest
@@ -127,7 +198,7 @@ class MainViewModelTest : KoinTest {
     }
 
     private fun testModule(withError: () -> Boolean) = module {
-        factory<TransactionRepository> {
+        single<TransactionRepository> {
             FakeTransactionsRepository(
                 withError,
                 listOf(
