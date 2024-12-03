@@ -54,6 +54,7 @@ class BaselineProfileGenerator {
             device.findObject(By.res("login")).clickAndWait(Until.newWindow(), 3000)
             device.findObject(By.scrollable(true)).scroll(Direction.DOWN, 10000f)
             device.findObject(By.scrollable(true)).scroll(Direction.DOWN, 10000f)
+            device.findObject(By.scrollable(true)).scroll(Direction.DOWN, 10000f)
             device.waitForIdle()
             device.findObject(By.res("profile")).click()
             device.findObject(By.text("Logout")).clickAndWait(Until.newWindow(), 3000)
