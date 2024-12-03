@@ -1,4 +1,4 @@
-package ru.workinprogress.feature.main.ui
+package ru.workinprogress.mani
 
 import io.ktor.client.HttpClientConfig
 import io.ktor.client.engine.HttpClientEngine

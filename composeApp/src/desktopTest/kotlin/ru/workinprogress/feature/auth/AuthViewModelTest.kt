@@ -1,4 +1,4 @@
-package ru.workinprogress.feature.main.ui
+package ru.workinprogress.feature.auth
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

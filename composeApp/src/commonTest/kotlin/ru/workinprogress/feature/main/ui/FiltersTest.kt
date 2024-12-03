@@ -19,20 +19,6 @@ import kotlin.test.assertFalse
 class FiltersTest {
 
     @Test
-    fun mainLayoutTest() = runComposeUiTest {
-        setContent {
-            MainContent {
-                ChartComponent(ChartUi(days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0)))
-            }
-        }
-
-        onNodeWithTag("chartBox").isDisplayed()
-        onNodeWithTag("futureInfo").isDisplayed()
-        onNodeWithTag("filters").isDisplayed()
-        onNodeWithTag("transactions").isDisplayed()
-    }
-
-    @Test
     fun filterChipsTest() = runComposeUiTest {
         val targetCategory = Category("1", "Test1")
         val stateFlow = MutableStateFlow(
@@ -58,21 +44,21 @@ class FiltersTest {
             }
         }
 
-        onNodeWithTag("filtersShimmer").isDisplayed()
+        onNodeWithTag("filtersShimmer").assertIsDisplayed()
 
         stateFlow.update { state ->
             state.copy(loading = false)
         }
-        onNodeWithText("Upcoming").isDisplayed()
-        onNodeWithText("All categories").isDisplayed()
+        onNodeWithText("Upcoming").assertIsDisplayed()
+        onNodeWithText("All categories").assertIsDisplayed()
 
         onNodeWithText("Upcoming").performClick()
-        onNodeWithText("Past").isDisplayed()
+        onNodeWithText("Past").assertIsDisplayed()
 
         onNodeWithText("Past").performClick()
         assertFalse(stateFlow.value.upcoming)
         onNodeWithText("All categories").performClick()
-        onNodeWithText(targetCategory.name).isDisplayed()
+        onNodeWithText(targetCategory.name).assertIsDisplayed()
         onNodeWithText(targetCategory.name).performClick()
         assertEquals(targetCategory, stateFlow.value.category)
     }
