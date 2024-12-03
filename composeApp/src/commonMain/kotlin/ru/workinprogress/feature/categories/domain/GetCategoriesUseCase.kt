@@ -1,7 +1,7 @@
 package ru.workinprogress.feature.categories.domain
 
 import kotlinx.coroutines.flow.Flow
-import ru.workinprogress.feature.auth.domain.ServerException
+import ru.workinprogress.mani.data.ServerException
 import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.categories.data.CategoriesRepository
 import ru.workinprogress.useCase.EmptyParams

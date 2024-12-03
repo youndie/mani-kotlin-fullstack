@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -43,23 +42,6 @@ class MainViewModel(
     private val logoutUseCase: LogoutUseCase,
 ) : ViewModel() {
 
-    private val loadingItems by lazy {
-        mapOf(
-            today() to (0..2).map {
-                TransactionUiItem(
-                    it.toString(),
-                    0.0,
-                    false,
-                    date = today(),
-                    until = null,
-                    period = Transaction.Period.OneTime,
-                    comment = "Loading",
-                    currency = Currency.Usd
-                )
-            }.toImmutableList()
-        ).toImmutableMap()
-    }
-
     private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
 
     private val filterUpcoming = MutableStateFlow(true)
@@ -70,11 +52,10 @@ class MainViewModel(
     private lateinit var currency: Currency
 
     init {
-        viewModelScope.launch { load() }
         viewModelScope.launch {
             currency = getCurrencyUseCase.get()
+            load()
         }
-
     }
 
     private suspend fun load() {
@@ -85,7 +66,7 @@ class MainViewModel(
             }
 
             is UseCase.Result.Success -> {
-                state.update { state -> state.copy(loading = true, transactions = emptyImmutableMap()) }
+                state.value = state.value.copy(loading = true, transactions = emptyImmutableMap())
 
                 combine(
                     result.data,
@@ -93,7 +74,7 @@ class MainViewModel(
                     filterUpcoming,
                     filterCategory
                 ) { transactions, categories, upcoming, category ->
-                    val simulationResult = transactions.run { simulate() }
+                    val simulationResult = transactions.simulate()
 
                     MainUiState(
                         loading = false,
@@ -131,12 +112,11 @@ class MainViewModel(
                                 }
                             }
                             .associate { it.key to it.value }.toImmutableMap(),
-                        futureInformation = buildFutureInformation(simulationResult)
+                        futureInformation = buildFutureInformation(simulationResult, currency)
                     )
-                }.flowOn(Dispatchers.Default)
-                    .collectLatest { result: MainUiState ->
-                        state.update { result }
-                    }
+                }.collectLatest { result: MainUiState ->
+                    state.update { result }
+                }
             }
         }
     }
@@ -180,9 +160,7 @@ class MainViewModel(
     }
 
     fun onShowDeleteDialogClicked() {
-        state.update {
-            it.copy(showDeleteDialog = true)
-        }
+        state.value = state.value.copy(showDeleteDialog = true)
     }
 
     fun onDismissDeleteDialog() {
@@ -191,15 +169,66 @@ class MainViewModel(
         }
     }
 
-    private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =
-        this
-            .filter {
-                it.key.monthNumber == monthDate.monthNumber &&
-                        it.key.year == monthDate.year
-            }.flatMap { it.value }.sumOf { it.amountSigned }
 
-    private fun buildFutureInformation(simulationResult: Map<LocalDate, List<Transaction>>) =
-        buildAnnotatedString {
+    fun onProfileClicked() {
+        state.update { state ->
+            state.copy(showProfile = true)
+        }
+    }
+
+    fun onProfileDismiss() {
+        state.update { state ->
+            state.copy(showProfile = false)
+        }
+    }
+
+    fun onLogoutClicked() {
+        viewModelScope.launch {
+            logoutUseCase()
+            state.value = MainUiState()
+        }
+    }
+
+    fun onUpcomingToggle(bool: Boolean) {
+        filterUpcoming.value = bool
+    }
+
+    fun onCategorySelected(category: Category?) {
+        filterCategory.value = category
+    }
+
+    companion object {
+        val loadingItems by lazy {
+            mapOf(
+                today() to (0..2).map {
+                    TransactionUiItem(
+                        it.toString(),
+                        0.0,
+                        false,
+                        date = today(),
+                        until = null,
+                        period = Transaction.Period.OneTime,
+                        comment = "Loading",
+                        currency = Currency.Usd,
+                        category = Category.default,
+                    )
+                }.toImmutableList()
+            ).toImmutableMap()
+        }
+
+
+        private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =
+            this
+                .filter {
+                    it.key.monthNumber == monthDate.monthNumber &&
+                            it.key.year == monthDate.year
+                }.flatMap { it.value }.sumOf { it.amountSigned }
+
+        internal fun buildFutureInformation(
+            simulationResult: Map<LocalDate, List<Transaction>>,
+            currency: Currency,
+            today: LocalDate = today()
+        ) = buildAnnotatedString {
 
             val localDateFormat = LocalDate.Format {
                 dayOfMonth()
@@ -210,15 +239,19 @@ class MainViewModel(
             }
             val filteredTransactions =
                 simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
-                    .filterKeys { today() <= it }
+                    .filterKeys { today <= it }
 
             val todayAmount = simulationResult.entries
                 .runningFold(0.0) { acc, entry ->
-                    if (entry.key > today()) acc
+                    if (entry.key > today) acc
                     else acc + entry.value.sumOf { it.amountSigned }
                 }.last()
 
-            val firstOfTheFirst = filteredTransactions.entries.firstOrNull()?.value?.firstOrNull()
+            val nextTransaction = simulationResult.entries.filter { entry ->
+                entry.key > today
+            }.firstOrNull { entry ->
+                entry.value.isNotEmpty()
+            }?.value?.firstOrNull()
 
             append("balance: ")
             append(buildColoredAmount(todayAmount, currency))
@@ -226,13 +259,13 @@ class MainViewModel(
             append(
                 "today balance change: "
             )
-            append(buildColoredAmount(filteredTransactions.filter { it.key == today() }.entries.flatMap { it.value }
+            append(buildColoredAmount(filteredTransactions.filter { it.key == today }.entries.flatMap { it.value }
                 .sumOf { it.amountSigned }, currency))
             append("\n")
 
-            firstOfTheFirst?.let {
-                append("next transaction ${firstOfTheFirst.date.format(localDateFormat)}: ")
-                append(buildColoredAmount(firstOfTheFirst.amountSigned, currency))
+            nextTransaction?.let {
+                append("next transaction ${nextTransaction.date.format(localDateFormat)}: ")
+                append(buildColoredAmount(nextTransaction.amountSigned, currency))
                 append("\n")
             }
 
@@ -241,7 +274,7 @@ class MainViewModel(
             )
             append(
                 buildColoredAmount(
-                    simulationResult.sumByMonth(today()),
+                    simulationResult.sumByMonth(today),
                     currency
                 )
             )
@@ -250,7 +283,7 @@ class MainViewModel(
             )
             append(
                 buildColoredAmount(
-                    simulationResult.sumByMonth(today().plus(1, DateTimeUnit.MONTH)), currency
+                    simulationResult.sumByMonth(today.plus(1, DateTimeUnit.MONTH)), currency
                 )
             )
             append("\n")
@@ -284,32 +317,6 @@ class MainViewModel(
             }
         }
 
-    fun onProfileClicked() {
-        state.update { state ->
-            state.copy(showProfile = true)
-        }
-    }
-
-    fun onProfileDismiss() {
-        state.update { state ->
-            state.copy(showProfile = false)
-        }
-    }
-
-    fun onLogoutClicked() {
-        viewModelScope.launch {
-            logoutUseCase()
-            state.value = MainUiState()
-        }
-    }
-
-    fun onUpcomingToggle(bool: Boolean) {
-        filterUpcoming.value = bool
-
-    }
-
-    fun onCategorySelected(category: Category?) {
-        filterCategory.value = category
     }
 
 }

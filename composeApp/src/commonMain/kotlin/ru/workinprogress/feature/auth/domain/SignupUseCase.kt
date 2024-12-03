@@ -7,6 +7,7 @@ import io.ktor.http.*
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.user.UserResource
+import ru.workinprogress.mani.data.ServerException
 
 interface UserService {
     suspend fun signup(params: LoginParams): Boolean
@@ -16,19 +17,22 @@ interface UserService {
 class SignupUseCase(
     private val httpClient: HttpClient,
 ) : AuthUseCase() {
-    override suspend fun invoke(params: LoginParams): Result<Boolean> {
-        try {
-            val response = httpClient.post(UserResource()) {
-                setBody(params)
-            }
-            if (response.status == HttpStatusCode.BadRequest) {
-                return Result.Error(AlreadyRegisteredException())
+    override suspend fun invoke(params: LoginParams) = try {
+        val response = httpClient.post(UserResource()) {
+            setBody(params)
+        }
+        when (response.status) {
+            HttpStatusCode.BadRequest -> {
+                Result.Error(AlreadyRegisteredException())
             }
 
-            return Result.Success(true)
-        } catch (e: Exception) {
-            return Result.Error(e)
-            throw e
+            HttpStatusCode.InternalServerError -> {
+                Result.Error(ServerException())
+            }
+
+            else -> Result.Success(true)
         }
+    } catch (e: Exception) {
+        Result.Error(e)
     }
 }

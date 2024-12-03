@@ -52,6 +52,7 @@ class AuthComponentTest {
             onNodeWithTag("username").isDisplayed()
             onNodeWithTag("password").isDisplayed()
             onNodeWithTag("login").isDisplayed()
+            onNodeWithTag("login").assertTextEquals("Submit")
 
             val targetUsername = "TESTER"
             onNodeWithTag("username").performTextInput(targetUsername)

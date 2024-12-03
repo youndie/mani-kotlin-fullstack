@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
+import ru.workinprogress.feature.main.MainViewModel.Companion.loadingItems
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
@@ -25,23 +26,6 @@ class TransactionsViewModel(
     private val getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
     private val deleteTransactionsUseCase: DeleteTransactionsUseCase,
 ) : ViewModel() {
-
-    private val loadingItems by lazy {
-        mapOf(
-            today() to (0..5).map {
-                TransactionUiItem(
-                    it.toString(),
-                    0.0,
-                    false,
-                    date = today(),
-                    until = null,
-                    period = Transaction.Period.OneTime,
-                    comment = "Loading",
-                    currency = Currency.Usd
-                )
-            }.toImmutableList()
-        ).toImmutableMap()
-    }
 
     private val state = MutableStateFlow(TransactionListUiState(loading = true, data = loadingItems))
     val observe = state.asStateFlow()
