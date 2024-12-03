@@ -42,7 +42,10 @@ fun Routing.categoryRouting() {
             request {
                 pathParameter<String>("id")
             }
-            response { HttpStatusCode.OK to { body<Category>() } }
+            response {
+                HttpStatusCode.OK to { body<Category>() }
+                HttpStatusCode.Forbidden to { }
+            }
         }) { path ->
             if (categoryRepository.getByUser(call.currentUserId()).none { category -> category.id == path.id }) {
                 call.respond(HttpStatusCode.Forbidden)
@@ -59,7 +62,10 @@ fun Routing.categoryRouting() {
                 pathParameter<String>("id")
                 body<Category>()
             }
-            response { HttpStatusCode.OK to { body<Category>() } }
+            response {
+                HttpStatusCode.OK to { body<Category>() }
+                HttpStatusCode.Forbidden to { }
+            }
         }) { path ->
             if (categoryRepository.getByUser(call.currentUserId()).none { category -> category.id == path.id }) {
                 call.respond(HttpStatusCode.Forbidden)
@@ -73,7 +79,10 @@ fun Routing.categoryRouting() {
             request {
                 pathParameter<String>("id")
             }
-            response { HttpStatusCode.OK to { } }
+            response {
+                HttpStatusCode.OK to { }
+                HttpStatusCode.Forbidden to { }
+            }
         }) { path ->
             if (categoryRepository.getByUser(call.currentUserId()).none { category -> category.id == path.id }) {
                 call.respond(HttpStatusCode.Forbidden)
