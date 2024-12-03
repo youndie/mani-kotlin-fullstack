@@ -20,6 +20,7 @@ fun Routing.userRouting() {
         }
         response {
             HttpStatusCode.Created to { }
+            HttpStatusCode.BadRequest to { }
         }
     }, {
         val params = call.receive<LoginParams>()
