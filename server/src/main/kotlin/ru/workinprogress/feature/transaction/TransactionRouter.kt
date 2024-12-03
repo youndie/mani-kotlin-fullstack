@@ -70,6 +70,7 @@ fun Routing.transactionRouting() {
             }
             response {
                 HttpStatusCode.OK to { body<Transaction>() }
+                HttpStatusCode.Forbidden to { description = "Forbidden" }
             }
         }) { path ->
             val new = call.receive<Transaction>()
@@ -90,6 +91,7 @@ fun Routing.transactionRouting() {
             }
             response {
                 HttpStatusCode.OK to { }
+                HttpStatusCode.Forbidden to { description = "Forbidden" }
             }
         }) { path ->
             val transaction = transactionRepository.getById(path.id)
