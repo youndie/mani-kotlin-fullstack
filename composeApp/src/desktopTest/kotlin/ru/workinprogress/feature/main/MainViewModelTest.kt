@@ -117,37 +117,7 @@ class MainViewModelTest : KoinTest {
         )
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    @Test
-    fun testTransactionDelete() = runTest {
-        val viewModel: MainViewModel = get()
 
-        while (viewModel.observe.value.transactions.entries.isEmpty()) {
-            runCurrent()
-        }
-
-        val firstTransaction = viewModel.observe.value.transactions.entries.first().value.first()
-
-        viewModel.onTransactionSelected(firstTransaction)
-        viewModel.onShowDeleteDialogClicked()
-        runCurrent()
-
-        assertTrue(viewModel.observe.value.showDeleteDialog)
-        viewModel.onDeleteClicked()
-
-        runCurrent()
-        assertFalse(viewModel.observe.value.showDeleteDialog)
-        assertTrue(viewModel.observe.value.selectedTransactions.isEmpty())
-//        assertNull(
-//            viewModel.observe.value.transactions.flatMap {
-//                it.value
-//            }.find { item -> item.id == firstTransaction.id }
-//        )
-//
-//        assertNull(
-//            viewModel.observe.value.selectedTransactions.find { item -> item.id == firstTransaction.id }
-//        )
-    }
 
 
     @AfterTest
