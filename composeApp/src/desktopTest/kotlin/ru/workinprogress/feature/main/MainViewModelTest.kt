@@ -24,11 +24,10 @@ import ru.workinprogress.feature.auth.domain.LogoutUseCase
 import ru.workinprogress.feature.categories.data.CategoriesRepository
 import ru.workinprogress.feature.categories.domain.GetCategoriesUseCase
 import ru.workinprogress.feature.category.FakeCategoriesDataSource
+import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
 import ru.workinprogress.feature.currency.data.CurrentCurrencyRepository
-import ru.workinprogress.feature.transaction.Category
-import ru.workinprogress.feature.transaction.DataSource
-import ru.workinprogress.feature.transaction.Transaction
+import ru.workinprogress.feature.transaction.*
 import ru.workinprogress.feature.transaction.data.FakeTransactionsRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
@@ -140,7 +139,14 @@ class MainViewModelTest : KoinTest {
         viewModel.onTransactionSelected(firstTransaction)
         viewModel.onShowDeleteDialogClicked()
         runCurrent()
+        assertTrue(viewModel.observe.value.showDeleteDialog)
 
+        viewModel.onDismissDeleteDialog()
+        runCurrent()
+        assertFalse(viewModel.observe.value.showDeleteDialog)
+
+        viewModel.onShowDeleteDialogClicked()
+        runCurrent()
         assertTrue(viewModel.observe.value.showDeleteDialog)
         viewModel.onDeleteClicked()
 
@@ -188,6 +194,139 @@ class MainViewModelTest : KoinTest {
         viewModel.onLogoutClicked()
         runCurrent()
         assertTrue(viewModel.observe.value.transactions.isEmpty())
+    }
+
+    @Test
+    fun testProfile() = runTest {
+        val viewModel: MainViewModel = get()
+
+        while (viewModel.observe.value.loading) {
+            runCurrent()
+        }
+
+        viewModel.onProfileClicked()
+        assertTrue(viewModel.observe.value.showProfile)
+        viewModel.onProfileDismiss()
+        assertFalse(viewModel.observe.value.showProfile)
+    }
+
+    @Test
+    fun testFutureInfoSimple() {
+        val start = LocalDate(2000, 1, 1)
+        val transactions = listOf(Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""))
+        val today = start.plus(1, DateTimeUnit.DAY)
+
+        val futureInformation = MainViewModel.buildFutureInformation(
+            transactions.simulate(start, defaultPeriodAppend(start)),
+            Currency.Usd,
+            today
+        )
+
+        assertEquals(
+            "balance: +100 \$\n" +
+                    "today balance change: 0 \$\n" +
+                    "in month: +100 \$, in next month: 0 \$\n" +
+                    "no zero events", futureInformation.toString()
+        )
+    }
+
+
+    @Test
+    fun testFutureInfoTodayBalanceChange() {
+        val start = LocalDate(2000, 1, 1)
+
+        val transactions = listOf(
+            Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""),
+            Transaction("0", 50.0, true, start.plus(1, DateTimeUnit.DAY), null, Transaction.Period.OneTime, "")
+        )
+        val today = start.plus(1, DateTimeUnit.DAY)
+
+        val futureInformation = MainViewModel.buildFutureInformation(
+            transactions.simulate(start, defaultPeriodAppend(start)),
+            Currency.Usd,
+            today
+        )
+
+        assertEquals(
+            "balance: +150 \$\n" +
+                    "today balance change: +50 \$\n" +
+                    "in month: +150 \$, in next month: 0 \$\n" +
+                    "no zero events", futureInformation.toString()
+        )
+    }
+
+    @Test
+    fun testFutureInfoNegative() {
+        val start = LocalDate(2000, 1, 1)
+        val transactions = listOf(
+            Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""),
+            Transaction("0", 200.0, false, start.plus(5, DateTimeUnit.DAY), null, Transaction.Period.OneTime, "")
+
+        )
+        val today = start.plus(1, DateTimeUnit.DAY)
+
+        val futureInformation = MainViewModel.buildFutureInformation(
+            transactions.simulate(start, defaultPeriodAppend(start)),
+            Currency.Usd,
+            today
+        )
+
+        assertEquals(
+            "balance: +100 \$\n" +
+                    "today balance change: 0 \$\n" +
+                    "next transaction 06 Jan 2000: −200 \$\n" +
+                    "in month: −100 \$, in next month: 0 \$\n" +
+                    "balance will become negative: 06 Jan 2000", futureInformation.toString()
+        )
+    }
+
+    @Test
+    fun testFutureInfoPositive() {
+        val start = LocalDate(2000, 1, 1)
+        val transactions = listOf(
+            Transaction("0", 100.0, false, start, null, Transaction.Period.OneTime, ""),
+            Transaction("0", 200.0, true, start.plus(5, DateTimeUnit.DAY), null, Transaction.Period.OneTime, "")
+
+        )
+        val today = start.plus(1, DateTimeUnit.DAY)
+
+        val futureInformation = MainViewModel.buildFutureInformation(
+            transactions.simulate(start, defaultPeriodAppend(start)),
+            Currency.Usd,
+            today
+        )
+        assertEquals(
+            "balance: −100 \$\n" +
+                    "today balance change: 0 \$\n" +
+                    "next transaction 06 Jan 2000: +200 \$\n" +
+                    "in month: +100 \$, in next month: 0 \$\n" +
+                    "balance will become positive: 06 Jan 2000", futureInformation.toString()
+        )
+    }
+
+    @Test
+    fun testFutureInfoNextMonth() {
+        val start = LocalDate(2000, 1, 1)
+        val transactions = listOf(
+            Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""),
+            Transaction("0", 200.0, false, start.plus(1, DateTimeUnit.MONTH), null, Transaction.Period.OneTime, "")
+
+        )
+        val today = start.plus(1, DateTimeUnit.DAY)
+
+        val futureInformation = MainViewModel.buildFutureInformation(
+            transactions.simulate(start, defaultPeriodAppend(start)),
+            Currency.Usd,
+            today
+        )
+
+        assertEquals(
+            "balance: +100 \$\n" +
+                    "today balance change: 0 \$\n" +
+                    "next transaction 01 Feb 2000: −200 \$\n" +
+                    "in month: +100 \$, in next month: −200 \$\n" +
+                    "balance will become negative: 01 Feb 2000", futureInformation.toString()
+        )
     }
 
 

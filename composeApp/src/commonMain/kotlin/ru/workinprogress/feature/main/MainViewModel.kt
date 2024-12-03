@@ -10,7 +10,6 @@ import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
@@ -113,7 +112,7 @@ class MainViewModel(
                                 }
                             }
                             .associate { it.key to it.value }.toImmutableMap(),
-                        futureInformation = buildFutureInformation(simulationResult)
+                        futureInformation = buildFutureInformation(simulationResult, currency)
                     )
                 }.collectLatest { result: MainUiState ->
                     state.update { result }
@@ -170,98 +169,6 @@ class MainViewModel(
         }
     }
 
-    private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =
-        this
-            .filter {
-                it.key.monthNumber == monthDate.monthNumber &&
-                        it.key.year == monthDate.year
-            }.flatMap { it.value }.sumOf { it.amountSigned }
-
-    private fun buildFutureInformation(simulationResult: Map<LocalDate, List<Transaction>>) =
-        buildAnnotatedString {
-
-            val localDateFormat = LocalDate.Format {
-                dayOfMonth()
-                char(' ')
-                monthName(MonthNames.ENGLISH_ABBREVIATED)
-                char(' ')
-                year()
-            }
-            val filteredTransactions =
-                simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
-                    .filterKeys { today() <= it }
-
-            val todayAmount = simulationResult.entries
-                .runningFold(0.0) { acc, entry ->
-                    if (entry.key > today()) acc
-                    else acc + entry.value.sumOf { it.amountSigned }
-                }.last()
-
-            val firstOfTheFirst = filteredTransactions.entries.firstOrNull()?.value?.firstOrNull()
-
-            append("balance: ")
-            append(buildColoredAmount(todayAmount, currency))
-            append("\n")
-            append(
-                "today balance change: "
-            )
-            append(buildColoredAmount(filteredTransactions.filter { it.key == today() }.entries.flatMap { it.value }
-                .sumOf { it.amountSigned }, currency))
-            append("\n")
-
-            firstOfTheFirst?.let {
-                append("next transaction ${firstOfTheFirst.date.format(localDateFormat)}: ")
-                append(buildColoredAmount(firstOfTheFirst.amountSigned, currency))
-                append("\n")
-            }
-
-            append(
-                "in month: "
-            )
-            append(
-                buildColoredAmount(
-                    simulationResult.sumByMonth(today()),
-                    currency
-                )
-            )
-            append(
-                ", in next month: "
-            )
-            append(
-                buildColoredAmount(
-                    simulationResult.sumByMonth(today().plus(1, DateTimeUnit.MONTH)), currency
-                )
-            )
-            append("\n")
-
-            val (positiveDate, negativeDate) = simulationResult.findZeroEvents()
-
-            when {
-                (todayAmount > 0 && negativeDate != null) -> {
-                    append("balance will become ")
-
-                    withStyle(style = SpanStyle(color = NegativeColor)) {
-                        append("negative: ")
-                    }
-
-                    append(negativeDate.format(localDateFormat))
-                }
-
-                (todayAmount < 0 && positiveDate != null) -> {
-                    append("balance will become ")
-
-                    withStyle(style = SpanStyle(color = PositiveColor)) {
-                        append("positive: ")
-                    }
-
-                    append(positiveDate.format(localDateFormat))
-                }
-
-                else -> {
-                    append("no zero events")
-                }
-            }
-        }
 
     fun onProfileClicked() {
         state.update { state ->
@@ -308,6 +215,108 @@ class MainViewModel(
                 }.toImmutableList()
             ).toImmutableMap()
         }
+
+
+        private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =
+            this
+                .filter {
+                    it.key.monthNumber == monthDate.monthNumber &&
+                            it.key.year == monthDate.year
+                }.flatMap { it.value }.sumOf { it.amountSigned }
+
+        internal fun buildFutureInformation(
+            simulationResult: Map<LocalDate, List<Transaction>>,
+            currency: Currency,
+            today: LocalDate = today()
+        ) = buildAnnotatedString {
+
+            val localDateFormat = LocalDate.Format {
+                dayOfMonth()
+                char(' ')
+                monthName(MonthNames.ENGLISH_ABBREVIATED)
+                char(' ')
+                year()
+            }
+            val filteredTransactions =
+                simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
+                    .filterKeys { today <= it }
+
+            val todayAmount = simulationResult.entries
+                .runningFold(0.0) { acc, entry ->
+                    if (entry.key > today) acc
+                    else acc + entry.value.sumOf { it.amountSigned }
+                }.last()
+
+            val nextTransaction = simulationResult.entries.filter { entry ->
+                entry.key > today
+            }.firstOrNull { entry ->
+                entry.value.isNotEmpty()
+            }?.value?.firstOrNull()
+
+            append("balance: ")
+            append(buildColoredAmount(todayAmount, currency))
+            append("\n")
+            append(
+                "today balance change: "
+            )
+            append(buildColoredAmount(filteredTransactions.filter { it.key == today }.entries.flatMap { it.value }
+                .sumOf { it.amountSigned }, currency))
+            append("\n")
+
+            nextTransaction?.let {
+                append("next transaction ${nextTransaction.date.format(localDateFormat)}: ")
+                append(buildColoredAmount(nextTransaction.amountSigned, currency))
+                append("\n")
+            }
+
+            append(
+                "in month: "
+            )
+            append(
+                buildColoredAmount(
+                    simulationResult.sumByMonth(today),
+                    currency
+                )
+            )
+            append(
+                ", in next month: "
+            )
+            append(
+                buildColoredAmount(
+                    simulationResult.sumByMonth(today.plus(1, DateTimeUnit.MONTH)), currency
+                )
+            )
+            append("\n")
+
+            val (positiveDate, negativeDate) = simulationResult.findZeroEvents()
+
+            when {
+                (todayAmount > 0 && negativeDate != null) -> {
+                    append("balance will become ")
+
+                    withStyle(style = SpanStyle(color = NegativeColor)) {
+                        append("negative: ")
+                    }
+
+                    append(negativeDate.format(localDateFormat))
+                }
+
+                (todayAmount < 0 && positiveDate != null) -> {
+                    append("balance will become ")
+
+                    withStyle(style = SpanStyle(color = PositiveColor)) {
+                        append("positive: ")
+                    }
+
+                    append(positiveDate.format(localDateFormat))
+                }
+
+                else -> {
+                    append("no zero events")
+                }
+            }
+        }
+
     }
 
 }
