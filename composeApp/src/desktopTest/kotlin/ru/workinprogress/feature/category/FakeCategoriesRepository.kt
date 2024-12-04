@@ -8,9 +8,12 @@ import ru.workinprogress.feature.transaction.WithId
 
 open class StateFlowDataSource<T : WithId> : DataSource<T> {
 
+    var withError = false
+
     val stateFlow = MutableStateFlow(listOf<T>())
 
     override suspend fun create(params: T): T {
+        if (withError) throw RuntimeException("error")
         stateFlow.update { items ->
             items + params
         }
@@ -29,6 +32,8 @@ open class StateFlowDataSource<T : WithId> : DataSource<T> {
     }
 
     override suspend fun delete(id: String): Boolean {
+        if (withError) throw RuntimeException("error")
+
         stateFlow.update { items ->
             items - items.first { it.id == id }
         }

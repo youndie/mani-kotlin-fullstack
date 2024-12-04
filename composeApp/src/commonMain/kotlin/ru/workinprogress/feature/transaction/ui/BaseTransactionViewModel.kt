@@ -68,10 +68,7 @@ abstract class BaseTransactionViewModel(
         state.copy(periods = Transaction.Period.entries.toImmutableList())
     }
 
-    fun onExpandCategoryClicked() = state.update { state ->
-        state
-//        state.copy(categories = persistentListOf(Category.default, Category.default.copy(name = "Otlojenia")))
-    }
+    fun onExpandCategoryClicked() {}
 
     fun onToggleDatePicker() = state.update { state ->
         state.copy(date = state.date.copy(showDatePicker = state.date.showDatePicker.not()))
@@ -112,7 +109,7 @@ abstract class BaseTransactionViewModel(
                 append(" from ")
             }
 
-            append("${state.date.value?.formatted ?: today().formatted}")
+            append(state.date.value?.formatted ?: today().formatted)
 
             if (state.period == Transaction.Period.OneTime) {
                 return@buildAnnotatedString
@@ -129,8 +126,8 @@ abstract class BaseTransactionViewModel(
             }
             if (state.until.value != null) {
                 append(" to ")
-                append("${state.until.value?.formatted}.")
-                append(" Repeat ")
+                append("${state.until.value?.formatted}")
+                append(" repeat ")
 
                 proceedSimulate(listOf(state.tempTransaction).run {
                     simulate(state.date.value.orToday, state.until.value)
