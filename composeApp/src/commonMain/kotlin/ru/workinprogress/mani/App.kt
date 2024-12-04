@@ -10,6 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.navigation.NavHostController
@@ -39,11 +40,19 @@ fun App(
         navController.popBackStack()
     }
 ) {
+
     KoinApplication({
         modules(appModules + platformModules)
     }) {
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         AppTheme {
-            ManiApp(modifier, navController, onBackClicked = onBackClicked)
+            ManiApp(
+                modifier, navController,
+                onBackClicked = {
+                    keyboardController?.hide()
+                    onBackClicked()
+                })
         }
     }
 }

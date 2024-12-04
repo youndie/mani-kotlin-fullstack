@@ -15,7 +15,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -62,6 +61,19 @@ fun AddTransactionComponent(onNavigateBack: () -> Unit) {
         listOf(module {
             singleOf(::AddTransactionUseCase)
             viewModelOf(::AddTransactionViewModel).bind<BaseTransactionViewModel>()
+        })
+    }
+
+    TransactionComponentImpl(onNavigateBack)
+}
+
+@Composable
+fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
+    rememberKoinModules {
+        listOf(module {
+            single<TransactionRoute> { transactionRoute }
+            singleOf(::UpdateTransactionUseCase)
+            viewModelOf(::EditTransactionViewModel).bind<BaseTransactionViewModel>()
         })
     }
 
@@ -165,20 +177,6 @@ internal fun <T> ChipsSelector(
         }
     }
 }
-
-@Composable
-fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
-    rememberKoinModules {
-        listOf(module {
-            single<TransactionRoute> { transactionRoute }
-            singleOf(::UpdateTransactionUseCase)
-            viewModelOf(::EditTransactionViewModel).bind<BaseTransactionViewModel>()
-        })
-    }
-
-    TransactionComponentImpl(onNavigateBack)
-}
-
 
 @Composable
 private fun NewCategoryDialog(
