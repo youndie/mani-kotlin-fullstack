@@ -30,6 +30,7 @@ class FakeTransactionsRepository(
     }
 
     override suspend fun create(params: Transaction): Transaction {
+        if (shouldCrash()) throw RuntimeException("fake")
         data.value += params
         return params
     }

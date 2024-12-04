@@ -86,7 +86,7 @@ internal fun <T> ChipsSelector(
     items: ImmutableCollection<T>,
     selected: T,
     expanded: Boolean,
-    onExpanded: () -> Unit,
+    onExpanded: () -> Unit = { },
     onSelected: (T) -> Unit,
     deleteEnabled: (T) -> Boolean = { false },
     showCreateNew: Boolean = false,
