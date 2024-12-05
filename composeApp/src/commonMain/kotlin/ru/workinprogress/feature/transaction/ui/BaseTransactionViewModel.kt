@@ -16,6 +16,7 @@ import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
 import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
 import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.transaction.*
+import ru.workinprogress.feature.transaction.ui.component.model.TransactionAction
 import ru.workinprogress.feature.transaction.ui.component.formatted
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
@@ -44,7 +45,26 @@ abstract class BaseTransactionViewModel(
         }
     }
 
-    fun onAmountChanged(amount: String) {
+    fun onAction(action: TransactionAction) {
+        when (action) {
+            is TransactionAction.AmountChanged -> onAmountChanged(action.amount)
+            is TransactionAction.CategoryChanged -> onCategoryChanged(action.category)
+            is TransactionAction.CategoryCreate -> onCategoryCreate(action.name)
+            is TransactionAction.CategoryDelete -> onCategoryDelete(action.category)
+            is TransactionAction.CommentChanged -> onCommentChanged(action.comment)
+            is TransactionAction.DateSelected -> onDateSelected(action.date)
+            is TransactionAction.DateUntilSelected -> onDateUntilSelected(action.date)
+            TransactionAction.ExpandCategoryClicked -> onExpandCategoryClicked()
+            TransactionAction.ExpandPeriodClicked -> onExpandPeriodClicked()
+            is TransactionAction.IncomeChanged -> onIncomeChanged(action.income)
+            is TransactionAction.PeriodChanged -> onPeriodChanged(action.period)
+            TransactionAction.SubmitClicked -> onSubmitClicked()
+            TransactionAction.ToggleDatePicker -> onToggleDatePicker()
+            TransactionAction.ToggleUntilDatePicker -> onToggleUntilDatePicker()
+        }
+    }
+
+    internal fun onAmountChanged(amount: String) {
         if (amount.toDoubleOrNull() != null || amount.isEmpty()) {
             state.update { state ->
                 state.copy(amount = amount).addFutureInformation()
@@ -52,42 +72,81 @@ abstract class BaseTransactionViewModel(
         }
     }
 
-    fun onCommentChanged(comment: String) = state.update { state ->
+    internal fun onCommentChanged(comment: String) = state.update { state ->
         state.copy(comment = comment)
     }
 
-    fun onIncomeChanged(income: Boolean) = state.update { state ->
+    internal fun onIncomeChanged(income: Boolean) = state.update { state ->
         state.copy(income = income).addFutureInformation()
     }
 
-    fun onPeriodChanged(period: Transaction.Period) = state.update { state ->
+    internal fun onPeriodChanged(period: Transaction.Period) = state.update { state ->
         state.copy(period = period).addFutureInformation()
     }
 
-    fun onExpandPeriodClicked() = state.update { state ->
+    internal fun onExpandPeriodClicked() = state.update { state ->
         state.copy(periods = Transaction.Period.entries.toImmutableList())
     }
 
-    fun onExpandCategoryClicked() {}
+    internal fun onExpandCategoryClicked() {}
 
-    fun onToggleDatePicker() = state.update { state ->
+    internal fun onToggleDatePicker() = state.update { state ->
         state.copy(date = state.date.copy(showDatePicker = state.date.showDatePicker.not()))
     }
 
-    fun onToggleUntilDatePicker() = state.update { state ->
+    internal fun onToggleUntilDatePicker() = state.update { state ->
         state.copy(until = state.until.copy(showDatePicker = state.until.showDatePicker.not()))
     }
 
-    fun onDateSelected(date: LocalDate) = state.update { state ->
+    internal fun onDateSelected(date: LocalDate) = state.update { state ->
         state.copy(date = state.date.copy(value = date, showDatePicker = false)).addFutureInformation()
     }
 
-    fun onDateUntilSelected(date: LocalDate) = state.update { state ->
+    internal fun onDateUntilSelected(date: LocalDate) = state.update { state ->
         state.copy(until = state.until.copy(value = date, showDatePicker = false)).addFutureInformation()
     }
 
-    fun onCategoryChanged(category: Category) = state.update { state ->
+    internal fun onCategoryChanged(category: Category) = state.update { state ->
         state.copy(category = category)
+    }
+
+    internal fun onCategoryCreate(name: String) {
+        viewModelScope.launch {
+            val new = Category("", name = name)
+            state.update {
+                it.copy(category = new)
+            }
+
+            val result = addCategoryUseCase(new)
+
+            when (result) {
+                is UseCase.Result.Error -> {
+                    state.update {
+                        it.copy(category = Category.default, errorMessage = result.throwable.message)
+                    }
+                }
+
+                is UseCase.Result.Success -> {
+                    state.update {
+                        it.copy(category = result.data)
+                    }
+                }
+            }
+
+        }
+    }
+
+    internal fun onCategoryDelete(category: Category?) {
+        (state.value.categories - category).firstOrNull()?.let {
+            onCategoryChanged(it)
+        }
+        category?.let {
+            viewModelScope.launch {
+                if (deleteCategoryUseCase(category) !is UseCase.Result.Success) {
+                    onCategoryChanged(category)
+                }
+            }
+        }
     }
 
     private fun TransactionUiState.addFutureInformation() = copy(futureInformation = buildFutureInformation(this))
@@ -159,47 +218,6 @@ abstract class BaseTransactionViewModel(
                             )
                         })
                     }
-                }
-
-
-            }
-        }
-    }
-
-    fun onCategoryCreate(name: String) {
-        viewModelScope.launch {
-            val new = Category("", name = name)
-            state.update {
-                it.copy(category = new)
-            }
-
-            val result = addCategoryUseCase(new)
-
-            when (result) {
-                is UseCase.Result.Error -> {
-                    state.update {
-                        it.copy(category = Category.default, errorMessage = result.throwable.message)
-                    }
-                }
-
-                is UseCase.Result.Success -> {
-                    state.update {
-                        it.copy(category = result.data)
-                    }
-                }
-            }
-
-        }
-    }
-
-    fun onCategoryDelete(category: Category?) {
-        (state.value.categories - category).firstOrNull()?.let {
-            onCategoryChanged(it)
-        }
-        category?.let {
-            viewModelScope.launch {
-                if (deleteCategoryUseCase(category) !is UseCase.Result.Success) {
-                    onCategoryChanged(category)
                 }
             }
         }

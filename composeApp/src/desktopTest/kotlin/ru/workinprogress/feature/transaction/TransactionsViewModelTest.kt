@@ -1,4 +1,4 @@
-package ru.workinprogress.feature.transaction.ui.ru.workinprogress.feature.transaction
+package ru.workinprogress.feature.transaction
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -12,7 +12,6 @@ import org.koin.test.get
 import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.currency.GetCurrentCurrencyUseCase
 import ru.workinprogress.feature.currency.data.CurrentCurrencyRepository
-import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.data.FakeTransactionsRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase

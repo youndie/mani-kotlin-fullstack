@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.TransactionRepository
-import ru.workinprogress.feature.transaction.ui.ru.workinprogress.feature.transaction.toDelete
+import ru.workinprogress.feature.transaction.toDelete
 
 class FakeTransactionsRepository(
     private val shouldCrash: () -> Boolean = { false },
