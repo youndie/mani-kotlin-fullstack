@@ -16,7 +16,7 @@ import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
 import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
 import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.transaction.*
-import ru.workinprogress.feature.transaction.ui.component.TransactionAction
+import ru.workinprogress.feature.transaction.ui.component.model.TransactionAction
 import ru.workinprogress.feature.transaction.ui.component.formatted
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
