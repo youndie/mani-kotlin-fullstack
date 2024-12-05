@@ -32,7 +32,7 @@ import ru.workinprogress.feature.transaction.data.FakeTransactionsRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.TransactionRepository
-import ru.workinprogress.feature.transaction.ui.ru.workinprogress.feature.transaction.testCurrencyRepository
+import ru.workinprogress.feature.transaction.testCurrencyRepository
 import ru.workinprogress.mani.today
 import kotlin.test.*
 

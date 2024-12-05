@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package ru.workinprogress.feature.transaction.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
@@ -23,6 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -48,6 +51,7 @@ import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.AddTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
+import ru.workinprogress.feature.transaction.ui.component.TransactionAction.*
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.stringResource
 import ru.workinprogress.feature.transaction.ui.utils.CurrencyVisualTransformation
@@ -97,8 +101,7 @@ internal fun <T> ChipsSelector(
     val markToDelete = remember { mutableStateOf<T?>(null) }
 
     FlowRow(
-        horizontalArrangement = spacedBy(8.dp),
-        modifier = Modifier.animateContentSize()
+        horizontalArrangement = spacedBy(8.dp), modifier = Modifier.animateContentSize()
     ) {
         items.forEach { item ->
             key(item) {
@@ -131,43 +134,35 @@ internal fun <T> ChipsSelector(
                         interactionSource = inputChipInteractionSource,
                     )
                     Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .combinedClickable(
-                                onLongClick = {
-                                    if (deleteEnabled(item)) {
-                                        onSelected(item)
-                                        markToDelete.value = item
-                                    }
-                                },
-                                onClick = {
-                                    if (markToDelete.value == null || item != markToDelete.value) {
-                                        markToDelete.value = null
-                                        onSelected(item)
-                                    } else {
-                                        onDelete(item)
-                                    }
-                                },
-                                interactionSource = inputChipInteractionSource,
-                                indication = null,
-                            )
+                        modifier = Modifier.matchParentSize().combinedClickable(
+                            onLongClick = {
+                                if (deleteEnabled(item)) {
+                                    onSelected(item)
+                                    markToDelete.value = item
+                                }
+                            },
+                            onClick = {
+                                if (markToDelete.value == null || item != markToDelete.value) {
+                                    markToDelete.value = null
+                                    onSelected(item)
+                                } else {
+                                    onDelete(item)
+                                }
+                            },
+                            interactionSource = inputChipInteractionSource,
+                            indication = null,
+                        )
                     )
                 }
             }
         }
 
         if (showCreateNew) {
-            AssistChip(
-                onClick = onCreateNew,
-                label = { Text("Add") },
-                leadingIcon = {
-                    Icon(
-                        Icons.Filled.Add,
-                        contentDescription = "add",
-                        Modifier.size(AssistChipDefaults.IconSize)
-                    )
-                }
-            )
+            AssistChip(onClick = onCreateNew, label = { Text("Add") }, leadingIcon = {
+                Icon(
+                    Icons.Filled.Add, contentDescription = "add", Modifier.size(AssistChipDefaults.IconSize)
+                )
+            })
         }
 
         if (!expanded) {
@@ -180,51 +175,40 @@ internal fun <T> ChipsSelector(
 
 @Composable
 private fun NewCategoryDialog(
-    showCreateCategoryDialog: MutableState<Boolean> = remember { mutableStateOf(false) },
-    onCreate: (String) -> Unit
+    showCreateCategoryDialog: MutableState<Boolean> = remember { mutableStateOf(false) }, onCreate: (String) -> Unit
 ) {
     var newCategoryName by remember { mutableStateOf("") }
 
     if (showCreateCategoryDialog.value) {
-        AlertDialog(
-            title = { Text("New category") },
-            text = {
-                OutlinedTextField(
-                    newCategoryName, {
-                        newCategoryName = it
-                    },
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    label = { Text("Category name") })
-            },
-            onDismissRequest = {
+        AlertDialog(title = { Text("New category") }, text = {
+            OutlinedTextField(newCategoryName, {
+                newCategoryName = it
+            }, modifier = Modifier.padding(vertical = 16.dp), label = { Text("Category name") })
+        }, onDismissRequest = {
+            newCategoryName = ""
+            showCreateCategoryDialog.value = false
+        }, confirmButton = {
+            TextButton(onClick = {
+                onCreate(newCategoryName)
                 newCategoryName = ""
                 showCreateCategoryDialog.value = false
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    onCreate(newCategoryName)
-                    newCategoryName = ""
-                    showCreateCategoryDialog.value = false
-                }) {
-                    Text("Create")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    newCategoryName = ""
-                    showCreateCategoryDialog.value = false
-                }) {
-                    Text("Cancel")
-                }
-            })
+            }) {
+                Text("Create")
+            }
+        }, dismissButton = {
+            TextButton(onClick = {
+                newCategoryName = ""
+                showCreateCategoryDialog.value = false
+            }) {
+                Text("Cancel")
+            }
+        })
     }
 }
 
 @Composable
 fun CategoryDeleteDialog(
-    showDeleteDialog: Boolean,
-    onDelete: () -> Unit,
-    onDismiss: () -> Unit
+    showDeleteDialog: Boolean, onDelete: () -> Unit, onDismiss: () -> Unit
 ) {
     if (showDeleteDialog) {
         AlertDialog(
@@ -244,36 +228,61 @@ fun CategoryDeleteDialog(
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
     val viewModel = koinViewModel<BaseTransactionViewModel>()
     val state: State<TransactionUiState> = viewModel.observe.collectAsStateWithLifecycle()
-    val stateValue = state.value
+
+    TransactionComponentImpl(state.value, viewModel::onAction, onNavigateBack)
+}
+
+sealed class UiAction()
+
+sealed class TransactionAction : UiAction() {
+    data class AmountChanged(val amount: String) : TransactionAction()
+    data class CommentChanged(val comment: String) : TransactionAction()
+    data class IncomeChanged(val income: Boolean) : TransactionAction()
+    data class PeriodChanged(val period: Transaction.Period) : TransactionAction()
+    data object ExpandPeriodClicked : TransactionAction()
+    data object ExpandCategoryClicked : TransactionAction()
+    data object ToggleDatePicker : TransactionAction()
+    data object ToggleUntilDatePicker : TransactionAction()
+    data class DateSelected(val date: LocalDate) : TransactionAction()
+    data class DateUntilSelected(val date: LocalDate) : TransactionAction()
+    data class CategoryChanged(val category: Category) : TransactionAction()
+    data class CategoryCreate(val name: String) : TransactionAction()
+    data class CategoryDelete(val category: Category?) : TransactionAction()
+    data object SubmitClicked : TransactionAction()
+}
+
+@Composable
+internal fun TransactionComponentImpl(
+    state: TransactionUiState,
+    onAction: (TransactionAction) -> Unit,
+    onNavigateBack: () -> Unit
+) {
 
     var showCreateCategoryDialog = remember { mutableStateOf(false) }
     var categoryToRemove = remember { mutableStateOf<Category?>(null) }
 
-    val datePickerState = rememberDatePickerState(
-        selectableDates = object : SelectableDates {
-            override fun isSelectableYear(year: Int): Boolean {
-                return year > 2022
-            }
+    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
+        override fun isSelectableYear(year: Int): Boolean {
+            return year > 2022
         }
-    )
+    })
 
-    val dateUntilPickerState = rememberDatePickerState(
-        selectableDates = object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                val date = utcTimeMillis.toDate
-                val stateDate = state.value.date.value
-                if (date != null && stateDate != null) {
-                    return date > stateDate
-                }
-                return false
+    val dateUntilPickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
+        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+            val date = utcTimeMillis.toDate
+            val stateDate = state.date.value
+            if (date != null && stateDate != null) {
+                return date > stateDate
             }
+            return false
         }
-    )
+    })
 
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -284,7 +293,7 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
         val observer = LifecycleEventObserver { lifecycleOwner, event ->
             when (event) {
                 Lifecycle.Event.ON_START -> {
-                    if (!stateValue.edit) {
+                    if (!state.edit) {
                         coroutineScope.launch {
                             focusRequester.requestFocus()
                         }
@@ -305,92 +314,84 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
         }
     }
 
-    LaunchedEffect(stateValue.success) {
-        if (stateValue.success) {
+    LaunchedEffect(state.success) {
+        if (state.success) {
             onNavigateBack()
         }
     }
 
-    LaunchedEffect(stateValue.date.showDatePicker) {
-        if (!stateValue.date.showDatePicker && stateValue.amount.isNotEmpty()) {
+    LaunchedEffect(state.date.showDatePicker) {
+        if (!state.date.showDatePicker && state.amount.isNotEmpty()) {
             focusManager.clearFocus()
         }
     }
 
     NewCategoryDialog(showCreateCategoryDialog) {
-        viewModel.onCategoryCreate(it)
+        onAction(CategoryCreate(it))
     }
 
     CategoryDeleteDialog(
         showDeleteDialog = categoryToRemove.value != null,
         onDelete = {
-            viewModel.onCategoryDelete(categoryToRemove.value)
+            onAction(CategoryDelete(categoryToRemove.value))
             categoryToRemove.value = null
-        },
-        onDismiss = {
+        }, onDismiss = {
             categoryToRemove.value = null
-        }
-    )
+        })
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 24.dp),
+        modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(bottom = 24.dp),
     ) {
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors()
-                .copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            colors = CardDefaults.cardColors().copy(containerColor = MaterialTheme.colorScheme.surfaceContainer),
             shape = MaterialTheme.shapes.medium.copy(
-                topStart = CornerSize(0.dp),
-                topEnd = CornerSize(0.dp)
+                topStart = CornerSize(0.dp), topEnd = CornerSize(0.dp)
             )
         ) {
             Column(
-                modifier = Modifier
-                    .widthIn(max = 640.dp)
-                    .align(Alignment.CenterHorizontally)
+                modifier = Modifier.widthIn(max = 640.dp).align(Alignment.CenterHorizontally)
                     .padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 32.dp),
                 verticalArrangement = spacedBy(8.dp)
             ) {
                 OutlinedTextField(
-                    stateValue.amount,
-                    viewModel::onAmountChanged,
+                    state.amount,
+                    { onAction(AmountChanged(it)) },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
-                        imeAction = ImeAction.Next
+                        keyboardType = KeyboardType.Number, imeAction = ImeAction.Next
                     ),
-                    keyboardActions = KeyboardActions(onNext = { viewModel.onToggleDatePicker() }),
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    keyboardActions = KeyboardActions(onNext = { onAction(ToggleDatePicker) }),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester).testTag("amount"),
                     maxLines = 1,
-                    visualTransformation = CurrencyVisualTransformation(stateValue.currency),
-                    label = { Text("Amount") }
-                )
+                    visualTransformation = CurrencyVisualTransformation(state.currency),
+                    label = { Text("Amount") })
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Checkbox(stateValue.income, viewModel::onIncomeChanged)
+                    Checkbox(
+                        state.income, { onAction(IncomeChanged(it)) }, modifier = Modifier.testTag("income")
+                    )
                     Text("Income")
                 }
 
-                Column(modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp)) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 8.dp).testTag("categoryContainer")
+                ) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                         Text(
                             "Category",
                             style = MaterialTheme.typography.labelMedium,
                             modifier = Modifier.padding(
-                                start = 16.dp,
-                                bottom = 4.dp
+                                start = 16.dp, bottom = 4.dp
                             )
                         )
                     }
 
                     ChipsSelector(
-                        stateValue.categories,
-                        stateValue.category,
-                        stateValue.categoriesExpanded,
-                        viewModel::onExpandCategoryClicked,
-                        viewModel::onCategoryChanged,
+                        state.categories,
+                        state.category,
+                        state.categoriesExpanded,
+                        { onAction(ExpandCategoryClicked) },
+                        { onAction(CategoryChanged(it)) },
                         showCreateNew = true,
                         deleteEnabled = {
                             it != Category.default
@@ -400,57 +401,54 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
                         },
                         onDelete = {
                             categoryToRemove.value = it
-                        }
-                    ) { it.name }
+                        }) { it.name }
                 }
 
-                HorizontalDivider(thickness = 1.dp)
+                HorizontalDivider(modifier = Modifier.testTag("divider"), thickness = 1.dp)
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 TransactionDatePicker(
                     label = "Date",
-                    value = stateValue.date.value?.formatted,
+                    value = state.date.value?.formatted,
+                    modifier = Modifier.testTag("date"),
                     datePickerState = datePickerState,
-                    showDialog = stateValue.date.showDatePicker,
-                    onToggleDatePicker = viewModel::onToggleDatePicker,
-                    onDateSelected = viewModel::onDateSelected,
+                    showDialog = state.date.showDatePicker,
+                    onToggleDatePicker = { onAction(ToggleDatePicker) },
+                    onDateSelected = { onAction(DateSelected(it)) },
                 )
 
-                if (stateValue.date.value != null) {
-                    Column() {
+                if (state.date.value != null) {
+                    Column(Modifier.testTag("periodContainer")) {
                         CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                             Text(
                                 "Repeat",
                                 style = MaterialTheme.typography.labelMedium,
                                 modifier = Modifier.padding(
-                                    start = 16.dp,
-                                    top = 16.dp,
-                                    bottom = 4.dp
+                                    start = 16.dp, top = 16.dp, bottom = 4.dp
                                 )
                             )
                         }
 
                         ChipsSelector(
-                            stateValue.periods,
-                            stateValue.period,
-                            stateValue.periodsExpanded,
-                            viewModel::onExpandPeriodClicked,
-                            viewModel::onPeriodChanged
-                        ) { item ->
+                            state.periods,
+                            state.period,
+                            state.periodsExpanded,
+                            { onAction(ExpandPeriodClicked) },
+                            { onAction(PeriodChanged(it)) }) { item ->
                             stringResource(item.stringResource)
                         }
                     }
 
-                    AnimatedVisibility(stateValue.period != Transaction.Period.OneTime) {
+                    AnimatedVisibility(state.period != Transaction.Period.OneTime) {
                         TransactionDatePicker(
-                            modifier = Modifier.padding(top = 8.dp),
+                            modifier = Modifier.padding(top = 8.dp).testTag("until"),
                             label = "Repeat until",
-                            value = stateValue.until.value?.formatted,
+                            value = state.until.value?.formatted,
                             datePickerState = dateUntilPickerState,
-                            showDialog = stateValue.until.showDatePicker,
-                            onToggleDatePicker = viewModel::onToggleUntilDatePicker,
-                            onDateSelected = viewModel::onDateUntilSelected,
+                            showDialog = state.until.showDatePicker,
+                            onToggleDatePicker = { onAction(ToggleUntilDatePicker) },
+                            onDateSelected = { onAction(DateUntilSelected(it)) },
                         )
                     }
                 }
@@ -458,16 +456,16 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
         }
 
         Column(modifier = Modifier.widthIn(max = 640.dp).align(Alignment.CenterHorizontally)) {
-            AnimatedVisibility(stateValue.amount.isNotBlank() && stateValue.date.value != null) {
+            AnimatedVisibility(state.amount.isNotBlank() && state.date.value != null) {
                 CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.secondary) {
                     Text(
-                        stateValue.futureInformation,
+                        state.futureInformation,
                         modifier = Modifier.padding(
                             start = 32.dp,
                             top = 12.dp,
                             bottom = 4.dp,
                             end = 32.dp
-                        ),
+                        ).testTag("futureInformation"),
                         style = MaterialTheme.typography.labelMedium
                     )
                 }
@@ -479,34 +477,32 @@ private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
             val keyboardController = LocalSoftwareKeyboardController.current
 
             OutlinedTextField(
-                stateValue.comment,
-                viewModel::onCommentChanged,
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+                state.comment,
+                { onAction(CommentChanged(it)) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).testTag("comment"),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(
                     onDone = { keyboardController?.hide() }),
                 minLines = 2,
-                label = { Text("Comment") }
-            )
+                label = { Text("Comment") })
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            state.value.errorMessage?.let {
+            state.errorMessage?.let {
                 Text(
                     it,
-                    modifier = Modifier.padding(horizontal = 48.dp),
+                    modifier = Modifier.padding(horizontal = 48.dp).testTag("errorMessage"),
                     style = MaterialTheme.typography.labelMedium
                 )
                 Spacer(Modifier.height(24.dp))
             }
 
             LoadingButton(
-                Modifier.align(Alignment.CenterHorizontally),
-                loading = stateValue.loading,
-                enabled = stateValue.valid,
-                if (stateValue.edit) "Save" else "Create",
-                viewModel::onSubmitClicked
-            )
+                Modifier.align(Alignment.CenterHorizontally).testTag("submit"),
+                loading = state.loading,
+                enabled = state.valid,
+                if (state.edit) "Save" else "Create"
+            ) { onAction(SubmitClicked) }
 
             Spacer(Modifier.height(24.dp))
         }
