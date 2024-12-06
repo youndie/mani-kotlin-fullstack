@@ -16,7 +16,8 @@ data class ChartUi(
     val from: LocalDate = LocalDate(2000, 1, 1),
     val to: LocalDate = LocalDate(2001, 4, 1),
     val currency: Currency = Currency.Usd,
-    val loading: Boolean = false
+    val loading: Boolean = false,
+    val todayIndexProvider: () -> Int = { days.entries.indexOfFirst { entry -> entry.key == today() } },
 ) {
     companion object {
         val Loading = ChartUi(emptyImmutableMap(), today(), today(), Currency.Usd, true)

@@ -21,7 +21,11 @@ class SimpleMainTest {
                 MainContent(
                     futureInformation = AnnotatedString("future info"),
                     chart = {
-                        ChartComponent(ChartUi(days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0)))
+                        ChartComponent(
+                            ChartUi(
+                                days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0),
+                                todayIndexProvider = { 0 }),
+                        )
                     })
             }
             onNodeWithTag("chartBox").assertIsDisplayed()

@@ -30,8 +30,9 @@ private const val CHART_MAX_WIDTH = 496
 fun ChartImpl(
     values: ImmutableList<Double>,
     labels: ImmutableList<String>,
+    todayIndexProvider: () -> Int,
     loading: Boolean,
-    currency: Currency
+    currency: Currency,
 ) {
     val color = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
@@ -48,6 +49,12 @@ fun ChartImpl(
                 gradientAnimationDelay = 600,
                 drawStyle = DrawStyle.Stroke(2.dp),
                 curvedEdges = false,
+                dotPointProperties = DotPointProperties(
+                    true,
+                    color = SolidColor(color),
+                    outlineColor = SolidColor(secondary),
+                    points = listOf(todayIndexProvider())
+                )
             ),
         )
     }
