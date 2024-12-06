@@ -30,9 +30,9 @@ private const val CHART_MAX_WIDTH = 496
 fun ChartImpl(
     values: ImmutableList<Double>,
     labels: ImmutableList<String>,
-    todayIndex: Int = 0,
+    todayIndexProvider: () -> Int,
     loading: Boolean,
-    currency: Currency
+    currency: Currency,
 ) {
     val color = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
@@ -53,7 +53,7 @@ fun ChartImpl(
                     true,
                     color = SolidColor(color),
                     outlineColor = SolidColor(secondary),
-                    points = listOf(todayIndex)
+                    points = listOf(todayIndexProvider())
                 )
             ),
         )
