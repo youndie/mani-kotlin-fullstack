@@ -30,6 +30,7 @@ private const val CHART_MAX_WIDTH = 496
 fun ChartImpl(
     values: ImmutableList<Double>,
     labels: ImmutableList<String>,
+    todayIndex: Int = 0,
     loading: Boolean,
     currency: Currency
 ) {
@@ -48,6 +49,12 @@ fun ChartImpl(
                 gradientAnimationDelay = 600,
                 drawStyle = DrawStyle.Stroke(2.dp),
                 curvedEdges = false,
+                dotPointProperties = DotPointProperties(
+                    true,
+                    color = SolidColor(color),
+                    outlineColor = SolidColor(secondary),
+                    points = listOf(todayIndex)
+                )
             ),
         )
     }

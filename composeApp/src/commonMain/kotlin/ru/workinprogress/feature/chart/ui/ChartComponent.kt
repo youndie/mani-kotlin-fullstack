@@ -22,6 +22,7 @@ import org.koin.dsl.module
 import ru.workinprogress.feature.chart.ChartViewModel
 import ru.workinprogress.feature.chart.GetChartUseCase
 import ru.workinprogress.feature.chart.ui.model.ChartUi
+import ru.workinprogress.mani.today
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
@@ -46,10 +47,11 @@ fun ChartComponent(state: ChartUi, modifier: Modifier = Modifier) {
     ) {
         ChartImpl(
             state.days.values.toImmutableList(),
-            state.days.keys
-                .groupBy { "${it.year}-${it.monthNumber}" }
-                .map { it.value.first().format(format) }
+            state.days.keys.groupBy { "${it.year}-${it.monthNumber}" }.map { it.value.first().format(format) }
                 .toImmutableList(),
+            todayIndex = state.days.entries.indexOfFirst { entry ->
+                entry.key == today()
+            },
             currency = state.currency,
             loading = state.loading
         )
