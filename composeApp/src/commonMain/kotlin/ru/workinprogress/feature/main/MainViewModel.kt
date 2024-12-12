@@ -25,7 +25,7 @@ import ru.workinprogress.feature.main.ui.MainUiState
 import ru.workinprogress.feature.transaction.*
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
-import ru.workinprogress.feature.transaction.ui.model.NegativeColor
+import ru.workinprogress.featuremo.transaction.ui.model.NegativeColor
 import ru.workinprogress.feature.transaction.ui.model.PositiveColor
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiItem
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount

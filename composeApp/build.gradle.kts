@@ -86,9 +86,11 @@ kotlin {
             dependencies {
                 implementation(compose.desktop.currentOs)
                 implementation(compose.desktop.uiTestJUnit4)
+                implementation(compose.uiTest)
                 implementation(libs.androidx.ui.test.junit4.desktop)
                 implementation(libs.ktor.client.mock)
-
+                implementation(libs.kotlin.test)
+                implementation(libs.koin.test)
             }
         }
 
@@ -152,11 +154,6 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
 
-        desktopTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(compose.uiTest)
-            implementation(libs.koin.test)
-        }
 
         jsMain.dependencies {
             implementation(kotlinWrappers.browser)
