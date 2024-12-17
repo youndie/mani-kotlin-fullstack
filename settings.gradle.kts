@@ -27,7 +27,7 @@ dependencyResolutionManagement {
         mavenCentral()
         // Desktop target has to add this repo
         maven("https://jogamp.org/deployment/maven")
-        maven("https://mvn.kotlin.website/")
+        maven("https://reposilite.kotlin.website/releases")
     }
 
     versionCatalogs {
