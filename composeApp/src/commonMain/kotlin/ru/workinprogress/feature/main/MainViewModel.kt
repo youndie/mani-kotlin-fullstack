@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -42,6 +43,7 @@ class MainViewModel(
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val logoutUseCase: LogoutUseCase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
@@ -63,7 +65,7 @@ class MainViewModel(
     private suspend fun load() {
         state.value = MainUiState(loading = true, transactions = loadingItems)
 
-        val result = withContext(Dispatchers.Default) { transactionsUseCase() }
+        val result = withContext(dispatcher) { transactionsUseCase() }
 
         when (result) {
             is UseCase.Result.Error -> {
@@ -119,7 +121,7 @@ class MainViewModel(
                             .associate { it.key to it.value }.toImmutableMap(),
                         futureInformation = buildFutureInformation(simulationResult, currency)
                     )
-                }.flowOn(Dispatchers.Default).collectLatest { result: MainUiState ->
+                }.flowOn(dispatcher).collectLatest { result: MainUiState ->
                     state.update { result }
                 }
             }
@@ -152,7 +154,7 @@ class MainViewModel(
                 )
             }
 
-            withContext(Dispatchers.Default) {
+            withContext(dispatcher) {
                 deleteTransactionsUseCase(selected)
             }
         }

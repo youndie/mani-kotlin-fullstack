@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.transaction.domain
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -9,12 +10,12 @@ import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.useCase.UseCase
 
 class DeleteTransactionsUseCase(
-    private val repository: TransactionRepository
+    private val repository: TransactionRepository,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default.limitedParallelism(4),
 ) : UseCase<List<String>, Boolean>() {
 
     override suspend fun invoke(params: List<String>): Result<Boolean> {
         val supervisor = SupervisorJob()
-        val dispatcher = Dispatchers.Default.limitedParallelism(4)
 
         params.map { transactionId ->
             CoroutineScope(supervisor + dispatcher).async {
