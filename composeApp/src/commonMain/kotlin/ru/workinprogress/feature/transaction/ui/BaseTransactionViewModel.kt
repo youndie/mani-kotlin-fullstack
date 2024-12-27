@@ -6,18 +6,20 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
 import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
 import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
 import ru.workinprogress.feature.transaction.*
-import ru.workinprogress.feature.transaction.ui.component.model.TransactionAction
 import ru.workinprogress.feature.transaction.ui.component.formatted
+import ru.workinprogress.feature.transaction.ui.component.model.TransactionAction
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
 import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
@@ -117,7 +119,7 @@ abstract class BaseTransactionViewModel(
                 it.copy(category = new)
             }
 
-            val result = addCategoryUseCase(new)
+            val result = withContext(Dispatchers.Default) { addCategoryUseCase(new) }
 
             when (result) {
                 is UseCase.Result.Error -> {

@@ -35,7 +35,6 @@ fun LoginComponent(
     rememberKoinModules {
         listOf(module {
             singleOf(::LoginUseCase).bind<AuthUseCase>()
-
             viewModelOf(::AuthViewModel)
         })
     }

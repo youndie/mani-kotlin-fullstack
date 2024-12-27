@@ -18,7 +18,7 @@ import ru.workinprogress.mani.navigation.TransactionRoute
 import ru.workinprogress.useCase.UseCase
 
 class EditTransactionViewModel(
-    private val route: TransactionRoute,
+    private val transactionId: String,
     private val getTransactionUseCase: GetTransactionUseCase,
     private val updateTransactionUseCase: UpdateTransactionUseCase,
     addCategoryUseCase: AddCategoryUseCase,
@@ -31,7 +31,7 @@ class EditTransactionViewModel(
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
-            val transaction = getTransactionUseCase.get(route.id)
+            val transaction = getTransactionUseCase.get(transactionId)
 
             state.value = TransactionUiState(
                 transaction,

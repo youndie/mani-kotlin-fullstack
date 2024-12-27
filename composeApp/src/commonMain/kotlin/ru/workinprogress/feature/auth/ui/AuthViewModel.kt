@@ -2,6 +2,7 @@ package ru.workinprogress.feature.auth.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,7 +36,9 @@ class AuthViewModel(private val authUseCase: AuthUseCase) : ViewModel() {
                 it.copy(loading = true, errorMessage = null)
             }
 
-            val result = authUseCase.invoke(LoginParams(state.value.username, state.value.password))
+            val result = with(Dispatchers.Default) {
+                authUseCase.invoke(LoginParams(state.value.username, state.value.password))
+            }
 
             when (result) {
                 is UseCase.Result.Success -> {

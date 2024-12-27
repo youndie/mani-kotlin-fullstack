@@ -4,6 +4,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import ru.workinprogress.feature.categories.domain.AddCategoryUseCase
 import ru.workinprogress.feature.categories.domain.DeleteCategoryUseCase
 import ru.workinprogress.feature.categories.domain.ObserveCategoriesUseCase
@@ -17,7 +18,7 @@ class AddTransactionViewModel(
     addCategoryUseCase: AddCategoryUseCase,
     observeCategoriesUseCase: ObserveCategoriesUseCase,
     deleteCategoryUseCase: DeleteCategoryUseCase,
-    getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase
+    getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
 ) : BaseTransactionViewModel(addCategoryUseCase, observeCategoriesUseCase, deleteCategoryUseCase) {
 
     init {
@@ -37,7 +38,8 @@ class AddTransactionViewModel(
             state.update {
                 it.copy(loading = true)
             }
-            val result = addTransactionUseCase(state.value.tempTransaction)
+
+            val result = withContext(Dispatchers.Default) { addTransactionUseCase(state.value.tempTransaction) }
             when (result) {
                 is UseCase.Result.Error -> {
                     state.update {
