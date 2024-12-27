@@ -40,14 +40,13 @@ import kotlinx.datetime.format.char
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import ru.workinprogress.feature.transaction.Category
 import ru.workinprogress.feature.transaction.Transaction
-import ru.workinprogress.feature.transaction.domain.AddTransactionUseCase
-import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.AddTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.BaseTransactionViewModel
 import ru.workinprogress.feature.transaction.ui.EditTransactionViewModel
@@ -64,25 +63,26 @@ import ru.workinprogress.mani.navigation.TransactionRoute
 fun AddTransactionComponent(onNavigateBack: () -> Unit) {
     rememberKoinModules {
         listOf(module {
-            singleOf(::AddTransactionUseCase)
             viewModelOf(::AddTransactionViewModel).bind<BaseTransactionViewModel>()
         })
     }
 
-    TransactionComponentImpl(onNavigateBack)
+    TransactionComponentImpl(null, onNavigateBack)
 }
 
 @Composable
 fun EditTransactionComponent(transactionRoute: TransactionRoute, onNavigateBack: () -> Unit) {
     rememberKoinModules {
         listOf(module {
-            single<TransactionRoute> { transactionRoute }
-            singleOf(::UpdateTransactionUseCase)
-            viewModelOf(::EditTransactionViewModel).bind<BaseTransactionViewModel>()
+            viewModel { parameters ->
+                EditTransactionViewModel(
+                    transactionId = parameters.get(), get(), get(), get(), get(), get(), get()
+                )
+            }.bind<BaseTransactionViewModel>()
         })
     }
 
-    TransactionComponentImpl(onNavigateBack)
+    TransactionComponentImpl(transactionRoute.id, onNavigateBack)
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalFoundationApi::class)
@@ -233,8 +233,11 @@ fun CategoryDeleteDialog(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-private fun TransactionComponentImpl(onNavigateBack: () -> Unit) {
-    val viewModel = koinViewModel<BaseTransactionViewModel>()
+private fun TransactionComponentImpl(transactionId: String?, onNavigateBack: () -> Unit) {
+    val viewModel = koinViewModel<BaseTransactionViewModel>(
+        key = transactionId,
+        parameters = { parametersOf(transactionId) }
+    )
     val state: State<TransactionUiState> = viewModel.observe.collectAsStateWithLifecycle()
 
     TransactionComponentImpl(state.value, viewModel::onAction, onNavigateBack)

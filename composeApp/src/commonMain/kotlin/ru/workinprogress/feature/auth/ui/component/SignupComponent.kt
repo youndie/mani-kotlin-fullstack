@@ -28,7 +28,6 @@ fun SignupComponent(onNavigateBack: () -> Unit, onSuccess: () -> Unit) {
     rememberKoinModules {
         listOf(module {
             singleOf(::SignupUseCase).bind<AuthUseCase>()
-
             viewModelOf(::AuthViewModel)
         })
     }

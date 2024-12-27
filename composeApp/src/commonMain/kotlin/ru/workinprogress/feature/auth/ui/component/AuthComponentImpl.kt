@@ -11,6 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -30,6 +32,8 @@ internal fun AuthComponentImpl(
     onPasswordChanged: (String) -> Unit = {},
     onButtonClicked: () -> Unit = {},
 ) {
+    val focusManager = LocalFocusManager.current
+
     Box(modifier, contentAlignment = Alignment.Center) {
         Card(Modifier) {
             Column(
@@ -49,8 +53,14 @@ internal fun AuthComponentImpl(
                     modifier = Modifier.testTag("username"),
                     enabled = !state.loading,
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text, imeAction = ImeAction.Next
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
                     ),
+                    singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onNext = {
+                            focusManager.moveFocus(FocusDirection.Down)
+                        }),
                     label = { Text("Username") })
 
                 Spacer(Modifier.height(8.dp))
@@ -66,6 +76,7 @@ internal fun AuthComponentImpl(
                     keyboardActions = KeyboardActions(onDone = {
                         onButtonClicked()
                     }),
+                    singleLine = true,
                     visualTransformation = PasswordVisualTransformation(),
                     label = { Text("Password") })
 
@@ -83,9 +94,9 @@ internal fun AuthComponentImpl(
                 Spacer(Modifier.height(8.dp))
 
                 LoadingButton(
-                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login"),
                     loading = state.loading,
                     buttonText = state.buttonText,
+                    modifier = Modifier.align(Alignment.CenterHorizontally).testTag("login"),
                     onButtonClicked = onButtonClicked
                 )
 

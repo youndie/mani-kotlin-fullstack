@@ -42,7 +42,7 @@ data class TransactionUiItem(
     }
 }
 
-val PositiveColor = Color.Green
+val PositiveColor = Color(0xFF089000)
 val NegativeColor = Color.Red
 
 fun buildColoredAmount(

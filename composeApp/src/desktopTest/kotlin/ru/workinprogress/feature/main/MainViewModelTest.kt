@@ -32,7 +32,6 @@ import ru.workinprogress.feature.transaction.data.FakeTransactionsRepository
 import ru.workinprogress.feature.transaction.domain.DeleteTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.GetTransactionsUseCase
 import ru.workinprogress.feature.transaction.domain.TransactionRepository
-import ru.workinprogress.feature.transaction.testCurrencyRepository
 import ru.workinprogress.mani.today
 import kotlin.test.*
 
@@ -375,9 +374,9 @@ class MainViewModelTest : KoinTest {
         single<GetTransactionsUseCase> { GetTransactionsUseCase(get()) }
         single<GetCurrentCurrencyUseCase> { GetCurrentCurrencyUseCase(get()) }
         single<CurrentCurrencyRepository> { testCurrencyRepository }
-        single<DeleteTransactionsUseCase> { DeleteTransactionsUseCase(get()) }
+        single<DeleteTransactionsUseCase> { DeleteTransactionsUseCase(get(), Dispatchers.Unconfined) }
         single<GetCategoriesUseCase> { GetCategoriesUseCase(get()) }
-        factory<MainViewModel> { MainViewModel(get(), get(), get(), get(), get()) }
+        factory<MainViewModel> { MainViewModel(get(), get(), get(), get(), get(), Dispatchers.Unconfined) }
 
         singleOf(::TokenRepositoryCommon).bind<TokenRepository>()
         singleOf(::TokenStorageImpl).bind<TokenStorage>()

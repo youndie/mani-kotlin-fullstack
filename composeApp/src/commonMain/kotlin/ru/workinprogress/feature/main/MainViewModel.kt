@@ -8,8 +8,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
@@ -40,6 +43,7 @@ class MainViewModel(
     private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
     private val getCategoriesUseCase: GetCategoriesUseCase,
     private val logoutUseCase: LogoutUseCase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
@@ -60,7 +64,10 @@ class MainViewModel(
 
     private suspend fun load() {
         state.value = MainUiState(loading = true, transactions = loadingItems)
-        when (val result = transactionsUseCase()) {
+
+        val result = withContext(dispatcher) { transactionsUseCase() }
+
+        when (result) {
             is UseCase.Result.Error -> {
                 state.value = MainUiState(errorMessage = result.throwable.message)
             }
@@ -114,7 +121,7 @@ class MainViewModel(
                             .associate { it.key to it.value }.toImmutableMap(),
                         futureInformation = buildFutureInformation(simulationResult, currency)
                     )
-                }.collectLatest { result: MainUiState ->
+                }.flowOn(dispatcher).collectLatest { result: MainUiState ->
                     state.update { result }
                 }
             }
@@ -147,7 +154,9 @@ class MainViewModel(
                 )
             }
 
-            deleteTransactionsUseCase(selected)
+            withContext(dispatcher) {
+                deleteTransactionsUseCase(selected)
+            }
         }
     }
 
@@ -227,7 +236,7 @@ class MainViewModel(
         internal fun buildFutureInformation(
             simulationResult: Map<LocalDate, List<Transaction>>,
             currency: Currency,
-            today: LocalDate = today()
+            today: LocalDate = today(),
         ) = buildAnnotatedString {
 
             val localDateFormat = LocalDate.Format {
@@ -316,8 +325,6 @@ class MainViewModel(
                 }
             }
         }
-
     }
-
 }
 

@@ -26,12 +26,6 @@ import ru.workinprogress.feature.chart.ui.model.ChartUi
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun ChartComponent(modifier: Modifier = Modifier) {
-    rememberKoinModules {
-        listOf(module {
-            singleOf(::GetChartUseCase)
-            viewModelOf(::ChartViewModel)
-        })
-    }
     val viewModel = koinViewModel<ChartViewModel>()
     val state: ChartUi by viewModel.observe.collectAsStateWithLifecycle(ChartUi.Loading)
 
