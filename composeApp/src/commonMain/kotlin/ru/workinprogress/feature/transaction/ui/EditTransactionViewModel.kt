@@ -2,6 +2,7 @@ package ru.workinprogress.feature.transaction.ui
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
@@ -14,7 +15,6 @@ import ru.workinprogress.feature.transaction.Transaction
 import ru.workinprogress.feature.transaction.domain.GetTransactionUseCase
 import ru.workinprogress.feature.transaction.domain.UpdateTransactionUseCase
 import ru.workinprogress.feature.transaction.ui.model.TransactionUiState
-import ru.workinprogress.mani.navigation.TransactionRoute
 import ru.workinprogress.useCase.UseCase
 
 class EditTransactionViewModel(
@@ -25,12 +25,13 @@ class EditTransactionViewModel(
     observeCategoriesUseCase: ObserveCategoriesUseCase,
     getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
     deleteCategoryUseCase: DeleteCategoryUseCase,
-) : BaseTransactionViewModel(addCategoryUseCase, observeCategoriesUseCase, deleteCategoryUseCase) {
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : BaseTransactionViewModel(addCategoryUseCase, observeCategoriesUseCase, deleteCategoryUseCase, dispatcher) {
 
     override val state: MutableStateFlow<TransactionUiState> = MutableStateFlow(TransactionUiState(edit = true))
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             val transaction = getTransactionUseCase.get(transactionId)
 
             state.value = TransactionUiState(

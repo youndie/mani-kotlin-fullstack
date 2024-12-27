@@ -1,6 +1,7 @@
 package ru.workinprogress.feature.transaction.ui
 
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -19,10 +20,11 @@ class AddTransactionViewModel(
     observeCategoriesUseCase: ObserveCategoriesUseCase,
     deleteCategoryUseCase: DeleteCategoryUseCase,
     getCurrentCurrencyUseCase: GetCurrentCurrencyUseCase,
-) : BaseTransactionViewModel(addCategoryUseCase, observeCategoriesUseCase, deleteCategoryUseCase) {
+    dispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : BaseTransactionViewModel(addCategoryUseCase, observeCategoriesUseCase, deleteCategoryUseCase, dispatcher) {
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             state.update {
                 it.copy(
                     currency = getCurrentCurrencyUseCase.get(),
@@ -39,7 +41,7 @@ class AddTransactionViewModel(
                 it.copy(loading = true)
             }
 
-            val result = withContext(Dispatchers.Default) { addTransactionUseCase(state.value.tempTransaction) }
+            val result = withContext(dispatcher) { addTransactionUseCase(state.value.tempTransaction) }
             when (result) {
                 is UseCase.Result.Error -> {
                     state.update {

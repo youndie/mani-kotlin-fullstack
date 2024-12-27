@@ -68,7 +68,9 @@ class TransactionViewModelTest : KoinTest {
 
                     singleOf(::FakeCategoriesDataSource).bind<DataSource<Category>>()
 
-                    factoryOf(::AddTransactionViewModel)
+                    factory {
+                        AddTransactionViewModel(get(), get(), get(), get(), get(), Dispatchers.Unconfined)
+                    }
                     singleOf(::AddTransactionUseCase)
                 })
         }

@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableSet
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,6 +31,7 @@ abstract class BaseTransactionViewModel(
     private val addCategoryUseCase: AddCategoryUseCase,
     private val observeCategoriesUseCase: ObserveCategoriesUseCase,
     private val deleteCategoryUseCase: DeleteCategoryUseCase,
+    protected val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     protected open val state = MutableStateFlow(TransactionUiState())
@@ -119,7 +121,7 @@ abstract class BaseTransactionViewModel(
                 it.copy(category = new)
             }
 
-            val result = withContext(Dispatchers.Default) { addCategoryUseCase(new) }
+            val result = withContext(dispatcher) { addCategoryUseCase(new) }
 
             when (result) {
                 is UseCase.Result.Error -> {
