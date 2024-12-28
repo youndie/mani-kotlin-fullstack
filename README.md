@@ -6,41 +6,60 @@
 ![Static Badge](https://img.shields.io/badge/Browser(JS)-orange)
 ![Static Badge](https://img.shields.io/badge/Server(JVM)-red)
 
-Simple kotlin multiplatform budget planner app. [Ktor](https://ktor.io/)
-server + [Compose multiplatform](https://www.jetbrains.com/compose-multiplatform/) clients
+A modern Kotlin multiplatform budget planner application built with [Ktor](https://ktor.io/) for the backend
+and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/) for clients.
 
+![Screenshot](/Screenshot.png?raw=true "screenshot")
 
-![screenshot](/Screenshot.png?raw=true "screenshot")
+### Demo
 
-### demo
+Check out live demo here: [mani.kotlin.website](https://mani.kotlin.website)  
+Swagger API documentation is also available: [Swagger UI](https://mani.kotlin.website/swagger/index.html)
 
-https://mani.kotlin.website
+### Running Locally
 
-also available [swagger ui](https://mani.kotlin.website/swagger/index.html) 
+1. Configure server settings in `ru.workinprogress.mani.Constants.kt`:
 
-### local run
+   ```kotlin
+   val currentServerConfig: ServerConfig = ServerConfig(
+       name = "Local",
+       scheme = "http",
+       host = "<your-ip>",
+       development = true,
+       port = "8080"
+   )
+   ```
 
-* configure server config `ru.workinprogress.mani.Constants.kt`
+2. Build the server:
 
-```kotlin
-val currentServerConfig: ServerConfig = ServerConfig(
-    "Local",
-    scheme = "http",
-    host = <your ip>,
-    development = true,
-    port = "8080"
-)`
-```
+   ```bash
+   ./gradlew publishImageToLocalRegistry
+   ```
 
-* build server
-  `gradle publishImageToLocalRegistry`
-* start
-  `docker-compose up -d`
-* web: open http://localhost:8080/
+3. Start the server using Docker:
 
+   ```bash
+   docker-compose up -d
+   ```
 
-* android:
-  `gradle installDebug`
-* desktop:
-  `gradle desktopRun`
-* ios: open iosApp/iosApp.xcodeproj via xcode and run or just [fleet](https://www.jetbrains.com/help/kotlin-multiplatform-dev/fleet.html) 
+4. Access the web application at [http://localhost:8080/](http://localhost:8080/).
+
+---
+
+#### Running on Different Platforms:
+
+- **Android:**  
+  Build and install with:
+  ```bash
+  ./gradlew installDebug
+  ```
+
+- **Desktop:**  
+  Run the app on desktop with:
+  ```bash
+  ./gradlew desktopRun
+  ```
+
+- **iOS:**  
+  Open `iosApp/iosApp.xcodeproj` in Xcode and run the application, or
+  use [Fleet](https://www.jetbrains.com/help/kotlin-multiplatform-dev/fleet.html) for development.
