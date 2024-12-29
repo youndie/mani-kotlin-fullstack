@@ -57,18 +57,18 @@ val copyFrontend = task<Copy>("copyFrontend") {
 project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)
 
 ktor {
-    docker {
-        jreVersion.set(JavaVersion.VERSION_21)
-        localImageName.set("mani-backend")
-        imageTag.set("0.0.1-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
-        customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
-        externalRegistry.set(
-            DockerImageRegistry.externalRegistry(
-                username = providers.gradleProperty("REGISTRY_USERNAME"),
-                password = providers.gradleProperty("REGISTRY_PASSWORD"),
-                project = provider { "mani-backend" },
-                hostname = providers.gradleProperty("REGISTRY_HOSTNAME"),
-            )
-        )
-    }
+	docker {
+		jreVersion.set(JavaVersion.VERSION_21)
+		localImageName.set("mani-backend")
+		imageTag.set("0.0.2-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
+		customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
+		externalRegistry.set(
+			DockerImageRegistry.externalRegistry(
+				username = providers.gradleProperty("REGISTRY_USERNAME"),
+				password = providers.gradleProperty("REGISTRY_PASSWORD"),
+				project = provider { "mani-kotlin-fullstack" },
+				hostname = providers.gradleProperty("REGISTRY_HOSTNAME"),
+			)
+		)
+	}
 }

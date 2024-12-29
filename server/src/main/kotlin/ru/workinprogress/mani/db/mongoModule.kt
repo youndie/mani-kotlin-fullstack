@@ -7,7 +7,7 @@ import ru.workinprogress.mani.model.MongoConfig
 fun mongoModule(mongoConfig: MongoConfig) = module {
     single<MongoClient> {
         MongoClient.create(
-            "mongodb://${mongoConfig.userName}:${mongoConfig.password}@${mongoConfig.host}/?defaultauthdb=mani&retryWrites=true&w=majority&appName=Mani"
+            "mongodb://${mongoConfig.host}/?&w=majority&appName=Mani"
         )
     }
     single { get<MongoClient>().getDatabase("mani") }
