@@ -21,11 +21,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
       - name: Build
         run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
-      - name: Deploy
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Apply deployment
+        uses: neosec-com/kubectl-aws-eks@1.1.2
+        env:
+          buildnumber: ${{github.run_number}}
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.HOST_USER }}
-          key: ${{ secrets.HOST_KEY }}
-          port: ${{ secrets.HOST_PORT }}
-          script: sh deploy.sh ${{github.run_number}}
+          args: |
+            envsubst < .k8s-templates/deployment.yaml > .k8s/deployment.yaml
+            kubectl apply -f .k8s/

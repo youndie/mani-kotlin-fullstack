@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mani-backend
+  labels:
+    app: mani-backend
+  namespace: mani
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mani-backend
+  template:
+    metadata:
+      labels:
+        app: mani-backend
+    spec:
+      containers:
+        - name: mani-backend
+          image: ghcr.io/youndie/mani-kotlin-fullstack:0.0.2-$buildnumber
+          ports:
+            - name: http
+              containerPort: 8080
+          imagePullPolicy: Always
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "1"
+              memory: "256Mi"
+          env:
+            - name: MONGO_HOST
+              value: mani-mongodb
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: regcred
