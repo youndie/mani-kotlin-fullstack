@@ -146,6 +146,7 @@ kotlin {
         }
 
         desktopMain.dependencies {
+            implementation(libs.appframe.desktop)
             implementation(libs.ktor.client.cio)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
