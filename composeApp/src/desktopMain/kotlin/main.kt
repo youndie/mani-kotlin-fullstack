@@ -13,7 +13,7 @@ fun main() = application {
 	AppFrame(
 		::exitApplication,
 		title = "Mani",
-		appTheme = { AppTheme { it() } }) {
+		appThemeApplier = { AppTheme { it() } }) {
 		App(modifier = Modifier.fillMaxSize().padding(top = 32.dp))
 	}
 }
