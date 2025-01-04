@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "ru.workinprogress.mani"
-version = "0.0.1-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}"
+version = "0.0.2-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}"
 
 application {
     mainClass.set("ru.workinprogress.mani.ApplicationKt")
