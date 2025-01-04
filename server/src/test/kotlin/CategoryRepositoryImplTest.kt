@@ -7,16 +7,11 @@ import de.flapdoodle.embed.mongo.distribution.Version
 import de.flapdoodle.embed.mongo.transitions.Mongod
 import de.flapdoodle.embed.mongo.transitions.RunningMongodProcess
 import de.flapdoodle.reverse.TransitionWalker
-import io.ktor.server.testing.*
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import org.bson.types.ObjectId
-import org.junit.Rule
 import org.junit.Test
 import org.koin.core.context.GlobalContext.stopKoin
-import org.koin.dsl.module
-import org.koin.test.KoinTestRule
-import org.koin.test.inject
 import ru.workinprogress.feature.category.CategoryRepository
 import ru.workinprogress.feature.category.data.CategoryRepositoryImpl
 import ru.workinprogress.feature.transaction.Category
@@ -28,126 +23,132 @@ import kotlin.test.*
 
 class CategoryRepositoryImplTest {
 
-    lateinit var running: TransitionWalker.ReachedState<RunningMongodProcess>
-    private val url get() = "mongodb://${running.current().serverAddress}"
-    private val databaseName = "test"
-    private val collectionName = "users"
-    private val client by lazy { MongoClient.create(url) }
-    private val db by lazy { client.getDatabase(databaseName) }
-    private val collection get() = db.getCollection<UserDb>(collectionName)
-    private val categoryRepository: CategoryRepository by lazy { CategoryRepositoryImpl(db) }
-    private val testUser = UserDb(ObjectId(), "test", "", "", emptyList(), emptyList())
+	lateinit var running: TransitionWalker.ReachedState<RunningMongodProcess>
+	private val url get() = "mongodb://${running.current().serverAddress}"
+	private val databaseName = "test"
+	private val collectionName = "users"
+	private val client by lazy { MongoClient.create(url) }
+	private val db by lazy { client.getDatabase(databaseName) }
+	private val collection get() = db.getCollection<UserDb>(collectionName)
+	private val categoryRepository: CategoryRepository by lazy { CategoryRepositoryImpl(db) }
+	private val testUser = UserDb(ObjectId(), "test", "", "", emptyList(), emptyList())
 
-    @BeforeTest
-    fun setup() {
-        running = Mongod.instance().start(Version.Main.PRODUCTION)
+	@BeforeTest
+	fun setup() {
+		running = Mongod.instance().start(Version.V8_0_3)
 
-        runBlocking {
-            db.createCollection(collectionName)
-        }
-    }
+		runBlocking {
+			db.createCollection(collectionName)
+		}
+	}
 
-    private fun dbTest(
-        before: suspend () -> Unit = {
-            collection.insertOne(testUser)
-        },
-        after: suspend () -> Unit = {
-            collection.deleteById(testUser.id.toHexString())
-        },
-        test: suspend () -> Unit,
-    ) {
-        runBlocking {
-            before()
-            test()
-            after()
-        }
-    }
+	private fun dbTest(
+		before: suspend () -> Unit = {
+			collection.insertOne(testUser)
+		},
+		after: suspend () -> Unit = {
+			collection.deleteById(testUser.id.toHexString())
+		},
+		test: suspend () -> Unit,
+	) {
+		runBlocking {
+			try {
+				before()
 
-    @Test
-    fun `Category create test`() {
-        dbTest {
-            val category = Category("Test", "Create")
-            categoryRepository.create(category, testUser.id.toHexString())
+				test()
+			} catch (e: Throwable) {
+				println("Error: ${e.message}")
+				throw e
+			}
+			after()
+		}
+	}
 
-            val user = collection.find(
-                Filters.eq("_id", testUser.id)
-            ).firstOrNull()
+	@Test
+	fun `Category create test`() {
+		dbTest {
+			val category = Category("Test", "Create")
+			categoryRepository.create(category, testUser.id.toHexString())
 
-            assertNotNull(user)
-            assertTrue(
-                user.categories.orEmpty()
-                    .any {
-                        it.name == category.name
-                    }
-            )
-        }
-    }
+			val user = collection.find(
+				Filters.eq("_id", testUser.id)
+			).firstOrNull()
 
-    @Test
-    fun `Category read test`() {
-        dbTest {
-            val category = Category("", "Read")
-            val categoryDb = CategoryDb(ObjectId(), category.name)
+			assertNotNull(user)
+			assertTrue(
+				user.categories.orEmpty()
+					.any {
+						it.name == category.name
+					}
+			)
+		}
+	}
 
-            collection.findOneAndUpdate(
-                Filters.eq("_id", testUser.id),
-                Updates.addToSet(UserDb::categories.name, categoryDb)
-            )
+	@Test
+	fun `Category read test`() {
+		dbTest {
+			val category = Category("", "Read")
+			val categoryDb = CategoryDb(ObjectId(), category.name)
 
-            assertEquals(
-                category.name,
-                categoryRepository.getById(categoryDb.id.toHexString())?.name
-            )
+			collection.findOneAndUpdate(
+				Filters.eq("_id", testUser.id),
+				Updates.addToSet(UserDb::categories.name, categoryDb)
+			)
 
-            assertEquals(
-                category.name,
-                categoryRepository.getByUser(testUser.id.toHexString()).firstOrNull()?.name
-            )
-        }
-    }
+			assertEquals(
+				category.name,
+				categoryRepository.getById(categoryDb.id.toHexString())?.name
+			)
 
-    @Test
-    fun `Category update test`() {
-        dbTest {
-            val category = Category("", "Create")
-            val categoryDb = CategoryDb(ObjectId(), category.name)
-            val updatedDb = categoryDb.copy(name = "Update")
-            val updated = Category(updatedDb.id.toHexString(), updatedDb.name)
+			assertEquals(
+				category.name,
+				categoryRepository.getByUser(testUser.id.toHexString()).firstOrNull()?.name
+			)
+		}
+	}
 
-            collection.findOneAndUpdate(
-                Filters.eq("_id", testUser.id),
-                Updates.addToSet(UserDb::categories.name, categoryDb)
-            )
+	@Test
+	fun `Category update test`() {
+		dbTest {
+			val category = Category("", "Create")
+			val categoryDb = CategoryDb(ObjectId(), category.name)
+			val updatedDb = categoryDb.copy(name = "Update")
+			val updated = Category(updatedDb.id.toHexString(), updatedDb.name)
 
-            categoryRepository.update(updated)
-            val actualUser = collection.find(Filters.eq("_id", testUser.id)).firstOrNull()
-            val actualCategory = actualUser?.categories?.firstOrNull()
+			collection.findOneAndUpdate(
+				Filters.eq("_id", testUser.id),
+				Updates.addToSet(UserDb::categories.name, categoryDb)
+			)
 
-            assertEquals(updated.name, actualCategory?.name)
-        }
-    }
+			categoryRepository.update(updated)
+			val actualUser = collection.find(Filters.eq("_id", testUser.id)).firstOrNull()
+			val actualCategory = actualUser?.categories?.firstOrNull()
 
-    @Test
-    fun `Category delete test`() {
-        dbTest {
-            val category = Category("", "Create")
-            val categoryDb = CategoryDb(ObjectId(), category.name)
+			assertEquals(updated.name, actualCategory?.name)
+		}
+	}
 
-            collection.findOneAndUpdate(
-                Filters.eq("_id", testUser.id),
-                Updates.addToSet(UserDb::categories.name, categoryDb)
-            )
+	@Test
+	fun `Category delete test`() {
+		dbTest {
+			val category = Category("", "Create")
+			val categoryDb = CategoryDb(ObjectId(), category.name)
 
-            assertNotNull(collection.find(Filters.eq("_id", testUser.id)).firstOrNull()?.categories?.firstOrNull())
+			collection.findOneAndUpdate(
+				Filters.eq("_id", testUser.id),
+				Updates.addToSet(UserDb::categories.name, categoryDb)
+			)
 
-            categoryRepository.delete(categoryDb.id.toHexString())
+			assertNotNull(collection.find(Filters.eq("_id", testUser.id)).firstOrNull()?.categories?.firstOrNull())
 
-            assertNull(collection.find(Filters.eq("_id", testUser.id)).firstOrNull()?.categories?.firstOrNull())
-        }
-    }
+			categoryRepository.delete(categoryDb.id.toHexString())
 
-    @AfterTest
-    fun tearDown() {
-        stopKoin()
-    }
+			assertNull(collection.find(Filters.eq("_id", testUser.id)).firstOrNull()?.categories?.firstOrNull())
+		}
+	}
+
+	@AfterTest
+	fun tearDown() {
+		stopKoin()
+	}
 }
