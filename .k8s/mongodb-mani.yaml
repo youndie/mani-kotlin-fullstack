@@ -47,6 +47,13 @@ spec:
           volumeMounts:
             - name: mongodb-storage
               mountPath: /data/db
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
   volumeClaimTemplates:
     - metadata:
         name: mongodb-storage
