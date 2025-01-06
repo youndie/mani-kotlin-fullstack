@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
       - name: Apply deployment
-        uses: neosec-com/kubectl-aws-eks@1.1.2
+        uses: neosec-com/kubectl-aws-eks@1.1.6
         env:
           buildnumber: ${{github.run_number}}
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
