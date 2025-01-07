@@ -28,7 +28,7 @@ spec:
               memory: "128Mi"
             limits:
               cpu: "1"
-              memory: "256Mi"
+              memory: "176Mi"
           env:
             - name: MONGO_HOST
               value: mani-mongodb
