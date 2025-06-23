@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -46,6 +47,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.bignum)
+
             api(libs.ktor.client.resources)
             api(libs.kotlinx.datetime)
             api(libs.kotlinx.collections.immutable)

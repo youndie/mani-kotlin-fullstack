@@ -5,6 +5,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.withStyle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ionspin.kotlin.bignum.decimal.BigDecimal
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.collections.immutable.toImmutableSet
@@ -35,296 +36,297 @@ import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.emptyImmutableMap
 import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
+import ru.workinprogress.utilz.bigdecimal.sumOf
 
 
 class MainViewModel(
-    private val transactionsUseCase: GetTransactionsUseCase,
-    private val deleteTransactionsUseCase: DeleteTransactionsUseCase,
-    private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
-    private val getCategoriesUseCase: GetCategoriesUseCase,
-    private val logoutUseCase: LogoutUseCase,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+	private val transactionsUseCase: GetTransactionsUseCase,
+	private val deleteTransactionsUseCase: DeleteTransactionsUseCase,
+	private val getCurrencyUseCase: GetCurrentCurrencyUseCase,
+	private val getCategoriesUseCase: GetCategoriesUseCase,
+	private val logoutUseCase: LogoutUseCase,
+	private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
-    private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
+	private val state = MutableStateFlow(MainUiState(loading = true, transactions = loadingItems))
 
-    private val filterUpcoming = MutableStateFlow(true)
-    private val filterCategory = MutableStateFlow<Category?>(null)
+	private val filterUpcoming = MutableStateFlow(true)
+	private val filterCategory = MutableStateFlow<Category?>(null)
 
-    val observe = state.asStateFlow()
+	val observe = state.asStateFlow()
 
-    private lateinit var currency: Currency
+	private lateinit var currency: Currency
 
-    init {
-        viewModelScope.launch {
-            currency = getCurrencyUseCase.get()
-            load()
-        }
-    }
+	init {
+		viewModelScope.launch {
+			currency = getCurrencyUseCase.get()
+			load()
+		}
+	}
 
-    private suspend fun load() {
-        state.value = MainUiState(loading = true, transactions = loadingItems)
+	private suspend fun load() {
+		state.value = MainUiState(loading = true, transactions = loadingItems)
 
-        val result = withContext(dispatcher) { transactionsUseCase() }
+		val result = withContext(dispatcher) { transactionsUseCase() }
 
-        when (result) {
-            is UseCase.Result.Error -> {
-                state.value = MainUiState(errorMessage = result.throwable.message)
-            }
+		when (result) {
+			is UseCase.Result.Error -> {
+				state.value = MainUiState(errorMessage = result.throwable.message)
+			}
 
-            is UseCase.Result.Success -> {
-                state.value = state.value.copy(loading = true, transactions = emptyImmutableMap())
+			is UseCase.Result.Success -> {
+				state.value = state.value.copy(loading = true, transactions = emptyImmutableMap())
 
-                combine(
-                    result.data,
-                    getCategoriesUseCase.get(),
-                    filterUpcoming,
-                    filterCategory
-                ) { transactions, categories, upcoming, category ->
-                    val simulationResult = transactions.simulate()
+				combine(
+					result.data,
+					getCategoriesUseCase.get(),
+					filterUpcoming,
+					filterCategory
+				) { transactions, categories, upcoming, category ->
+					val simulationResult = transactions.simulate()
 
-                    MainUiState(
-                        loading = false,
-                        filtersState = FiltersState(
-                            categories = (categories + Category.default).toImmutableSet(),
-                            upcoming = upcoming,
-                            category = category,
-                            loading = false,
-                        ),
-                        transactions = simulationResult
-                            .filterKeys {
-                                if (upcoming) {
-                                    today() <= it
-                                } else {
-                                    today() > it
-                                }
-                            }
-                            .mapValues {
-                                it.value.filter {
-                                    category == null || category == it.category
-                                }
-                            }
-                            .filterValues { transactions -> transactions.isNotEmpty() }
-                            .mapValues { entry ->
-                                entry.value.map { transaction ->
-                                    TransactionUiItem(transaction, currency)
-                                }.toImmutableList()
-                            }
-                            .entries
-                            .run {
-                                if (upcoming) {
-                                    sortedBy { it.key }
-                                } else {
-                                    sortedByDescending { it.key }
-                                }
-                            }
-                            .associate { it.key to it.value }.toImmutableMap(),
-                        futureInformation = buildFutureInformation(simulationResult, currency)
-                    )
-                }.flowOn(dispatcher).collectLatest { result: MainUiState ->
-                    state.update { result }
-                }
-            }
-        }
-    }
+					MainUiState(
+						loading = false,
+						filtersState = FiltersState(
+							categories = (categories + Category.default).toImmutableSet(),
+							upcoming = upcoming,
+							category = category,
+							loading = false,
+						),
+						transactions = simulationResult
+							.filterKeys {
+								if (upcoming) {
+									today() <= it
+								} else {
+									today() > it
+								}
+							}
+							.mapValues {
+								it.value.filter {
+									category == null || category == it.category
+								}
+							}
+							.filterValues { transactions -> transactions.isNotEmpty() }
+							.mapValues { entry ->
+								entry.value.map { transaction ->
+									TransactionUiItem(transaction, currency)
+								}.toImmutableList()
+							}
+							.entries
+							.run {
+								if (upcoming) {
+									sortedBy { it.key }
+								} else {
+									sortedByDescending { it.key }
+								}
+							}
+							.associate { it.key to it.value }.toImmutableMap(),
+						futureInformation = buildFutureInformation(simulationResult, currency)
+					)
+				}.flowOn(dispatcher).collectLatest { result: MainUiState ->
+					state.update { result }
+				}
+			}
+		}
+	}
 
-    fun onTransactionSelected(transactionUiItem: TransactionUiItem) {
-        if (transactionUiItem in state.value.selectedTransactions) {
-            state.update { state ->
-                state.copy(
-                    selectedTransactions = (state.selectedTransactions - transactionUiItem).toImmutableList()
-                )
-            }
-        } else {
-            state.update { state ->
-                state.copy(
-                    selectedTransactions = (state.selectedTransactions + transactionUiItem).toImmutableList()
-                )
-            }
-        }
-    }
+	fun onTransactionSelected(transactionUiItem: TransactionUiItem) {
+		if (transactionUiItem in state.value.selectedTransactions) {
+			state.update { state ->
+				state.copy(
+					selectedTransactions = (state.selectedTransactions - transactionUiItem).toImmutableList()
+				)
+			}
+		} else {
+			state.update { state ->
+				state.copy(
+					selectedTransactions = (state.selectedTransactions + transactionUiItem).toImmutableList()
+				)
+			}
+		}
+	}
 
-    fun onDeleteClicked() {
-        viewModelScope.launch {
-            val selected = state.value.selectedTransactions.map { it.id }
-            state.update { state ->
-                state.copy(
-                    showDeleteDialog = false,
-                    selectedTransactions = emptyList<TransactionUiItem>().toImmutableList()
-                )
-            }
+	fun onDeleteClicked() {
+		viewModelScope.launch {
+			val selected = state.value.selectedTransactions.map { it.id }
+			state.update { state ->
+				state.copy(
+					showDeleteDialog = false,
+					selectedTransactions = emptyList<TransactionUiItem>().toImmutableList()
+				)
+			}
 
-            withContext(dispatcher) {
-                deleteTransactionsUseCase(selected)
-            }
-        }
-    }
+			withContext(dispatcher) {
+				deleteTransactionsUseCase(selected)
+			}
+		}
+	}
 
-    fun onContextMenuClosed() {
-        state.update { state ->
-            state.copy(
-                selectedTransactions = emptyList<TransactionUiItem>().toImmutableList()
-            )
-        }
-    }
+	fun onContextMenuClosed() {
+		state.update { state ->
+			state.copy(
+				selectedTransactions = emptyList<TransactionUiItem>().toImmutableList()
+			)
+		}
+	}
 
-    fun onShowDeleteDialogClicked() {
-        state.value = state.value.copy(showDeleteDialog = true)
-    }
+	fun onShowDeleteDialogClicked() {
+		state.value = state.value.copy(showDeleteDialog = true)
+	}
 
-    fun onDismissDeleteDialog() {
-        state.update {
-            it.copy(showDeleteDialog = false)
-        }
-    }
-
-
-    fun onProfileClicked() {
-        state.update { state ->
-            state.copy(showProfile = true)
-        }
-    }
-
-    fun onProfileDismiss() {
-        state.update { state ->
-            state.copy(showProfile = false)
-        }
-    }
-
-    fun onLogoutClicked() {
-        viewModelScope.launch {
-            logoutUseCase()
-            state.value = MainUiState()
-        }
-    }
-
-    fun onUpcomingToggle(bool: Boolean) {
-        filterUpcoming.value = bool
-    }
-
-    fun onCategorySelected(category: Category?) {
-        filterCategory.value = category
-    }
-
-    companion object {
-        val loadingItems by lazy {
-            mapOf(
-                today() to (0..2).map {
-                    TransactionUiItem(
-                        it.toString(),
-                        0.0,
-                        false,
-                        date = today(),
-                        until = null,
-                        period = Transaction.Period.OneTime,
-                        comment = "Loading",
-                        currency = Currency.Usd,
-                        category = Category.default,
-                    )
-                }.toImmutableList()
-            ).toImmutableMap()
-        }
+	fun onDismissDeleteDialog() {
+		state.update {
+			it.copy(showDeleteDialog = false)
+		}
+	}
 
 
-        private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate): Double =
-            this
-                .filter {
-                    it.key.monthNumber == monthDate.monthNumber &&
-                            it.key.year == monthDate.year
-                }.flatMap { it.value }.sumOf { it.amountSigned }
+	fun onProfileClicked() {
+		state.update { state ->
+			state.copy(showProfile = true)
+		}
+	}
 
-        internal fun buildFutureInformation(
-            simulationResult: Map<LocalDate, List<Transaction>>,
-            currency: Currency,
-            today: LocalDate = today(),
-        ) = buildAnnotatedString {
+	fun onProfileDismiss() {
+		state.update { state ->
+			state.copy(showProfile = false)
+		}
+	}
 
-            val localDateFormat = LocalDate.Format {
-                dayOfMonth()
-                char(' ')
-                monthName(MonthNames.ENGLISH_ABBREVIATED)
-                char(' ')
-                year()
-            }
-            val filteredTransactions =
-                simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
-                    .filterKeys { today <= it }
+	fun onLogoutClicked() {
+		viewModelScope.launch {
+			logoutUseCase()
+			state.value = MainUiState()
+		}
+	}
 
-            val todayAmount = simulationResult.entries
-                .runningFold(0.0) { acc, entry ->
-                    if (entry.key > today) acc
-                    else acc + entry.value.sumOf { it.amountSigned }
-                }.last()
+	fun onUpcomingToggle(bool: Boolean) {
+		filterUpcoming.value = bool
+	}
 
-            val nextTransaction = simulationResult.entries.filter { entry ->
-                entry.key > today
-            }.firstOrNull { entry ->
-                entry.value.isNotEmpty()
-            }?.value?.firstOrNull()
+	fun onCategorySelected(category: Category?) {
+		filterCategory.value = category
+	}
 
-            append("balance: ")
-            append(buildColoredAmount(todayAmount, currency))
-            append("\n")
-            append(
-                "today balance change: "
-            )
-            append(buildColoredAmount(filteredTransactions.filter { it.key == today }.entries.flatMap { it.value }
-                .sumOf { it.amountSigned }, currency))
-            append("\n")
+	companion object {
+		val loadingItems by lazy {
+			mapOf(
+				today() to (0..2).map {
+					TransactionUiItem(
+						it.toString(),
+						BigDecimal.ZERO,
+						false,
+						date = today(),
+						until = null,
+						period = Transaction.Period.OneTime,
+						comment = "Loading",
+						currency = Currency.Usd,
+						category = Category.default,
+					)
+				}.toImmutableList()
+			).toImmutableMap()
+		}
 
-            nextTransaction?.let {
-                append("next transaction ${nextTransaction.date.format(localDateFormat)}: ")
-                append(buildColoredAmount(nextTransaction.amountSigned, currency))
-                append("\n")
-            }
 
-            append(
-                "in month: "
-            )
-            append(
-                buildColoredAmount(
-                    simulationResult.sumByMonth(today),
-                    currency
-                )
-            )
-            append(
-                ", in next month: "
-            )
-            append(
-                buildColoredAmount(
-                    simulationResult.sumByMonth(today.plus(1, DateTimeUnit.MONTH)), currency
-                )
-            )
-            append("\n")
+		private fun Map<LocalDate, List<Transaction>>.sumByMonth(monthDate: LocalDate) =
+			this
+				.filter {
+					it.key.monthNumber == monthDate.monthNumber &&
+							it.key.year == monthDate.year
+				}.flatMap { it.value }.sumOf { it.amountSigned }
 
-            val (positiveDate, negativeDate) = simulationResult.findZeroEvents()
+		internal fun buildFutureInformation(
+			simulationResult: Map<LocalDate, List<Transaction>>,
+			currency: Currency,
+			today: LocalDate = today(),
+		) = buildAnnotatedString {
 
-            when {
-                (todayAmount > 0 && negativeDate != null) -> {
-                    append("balance will become ")
+			val localDateFormat = LocalDate.Format {
+				dayOfMonth()
+				char(' ')
+				monthName(MonthNames.ENGLISH_ABBREVIATED)
+				char(' ')
+				year()
+			}
+			val filteredTransactions =
+				simulationResult.filterValues { transactions -> transactions.isNotEmpty() }
+					.filterKeys { today <= it }
 
-                    withStyle(style = SpanStyle(color = NegativeColor)) {
-                        append("negative: ")
-                    }
+			val todayAmount = simulationResult.entries
+				.runningFold(BigDecimal.ZERO) { acc, entry ->
+					if (entry.key > today) acc
+					else acc + entry.value.sumOf { it.amountSigned }
+				}.last()
 
-                    append(negativeDate.format(localDateFormat))
-                }
+			val nextTransaction = simulationResult.entries.filter { entry ->
+				entry.key > today
+			}.firstOrNull { entry ->
+				entry.value.isNotEmpty()
+			}?.value?.firstOrNull()
 
-                (todayAmount < 0 && positiveDate != null) -> {
-                    append("balance will become ")
+			append("balance: ")
+			append(buildColoredAmount(todayAmount, currency))
+			append("\n")
+			append(
+				"today balance change: "
+			)
+			append(buildColoredAmount(filteredTransactions.filter { it.key == today }.entries.flatMap { it.value }
+				.sumOf { it.amountSigned }, currency))
+			append("\n")
 
-                    withStyle(style = SpanStyle(color = PositiveColor)) {
-                        append("positive: ")
-                    }
+			nextTransaction?.let {
+				append("next transaction ${nextTransaction.date.format(localDateFormat)}: ")
+				append(buildColoredAmount(nextTransaction.amountSigned, currency))
+				append("\n")
+			}
 
-                    append(positiveDate.format(localDateFormat))
-                }
+			append(
+				"in month: "
+			)
+			append(
+				buildColoredAmount(
+					simulationResult.sumByMonth(today),
+					currency
+				)
+			)
+			append(
+				", in next month: "
+			)
+			append(
+				buildColoredAmount(
+					simulationResult.sumByMonth(today.plus(1, DateTimeUnit.MONTH)), currency
+				)
+			)
+			append("\n")
 
-                else -> {
-                    append("no zero events")
-                }
-            }
-        }
-    }
+			val (positiveDate, negativeDate) = simulationResult.findZeroEvents()
+
+			when {
+				(todayAmount > 0 && negativeDate != null) -> {
+					append("balance will become ")
+
+					withStyle(style = SpanStyle(color = NegativeColor)) {
+						append("negative: ")
+					}
+
+					append(negativeDate.format(localDateFormat))
+				}
+
+				(todayAmount < 0 && positiveDate != null) -> {
+					append("balance will become ")
+
+					withStyle(style = SpanStyle(color = PositiveColor)) {
+						append("positive: ")
+					}
+
+					append(positiveDate.format(localDateFormat))
+				}
+
+				else -> {
+					append("no zero events")
+				}
+			}
+		}
+	}
 }
 

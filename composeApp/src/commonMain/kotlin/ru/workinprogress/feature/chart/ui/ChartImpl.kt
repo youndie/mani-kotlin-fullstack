@@ -15,12 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import ir.ehsannarmani.compose_charts.LineChart
 import ir.ehsannarmani.compose_charts.extensions.format
 import ir.ehsannarmani.compose_charts.models.*
 import kotlinx.collections.immutable.ImmutableList
 import ru.workinprogress.feature.currency.Currency
 import ru.workinprogress.feature.transaction.ui.model.formatMoney
+import ru.workinprogress.utilz.bigdecimal.BigDecimalSerializable
 import kotlin.math.absoluteValue
 
 private const val CHART_MAX_HEIGHT = 320
@@ -28,7 +30,7 @@ private const val CHART_MAX_WIDTH = 496
 
 @Composable
 fun ChartImpl(
-    values: ImmutableList<Double>,
+    values: ImmutableList<BigDecimalSerializable>,
     labels: ImmutableList<String>,
     todayIndexProvider: () -> Int,
     loading: Boolean,
@@ -41,7 +43,7 @@ fun ChartImpl(
         listOf(
             Line(
                 label = "Transactions",
-                values = values,
+                values = values.map { it.doubleValue(false) },
                 color = SolidColor(color),
                 firstGradientFillColor = color.copy(alpha = .5f),
                 secondGradientFillColor = Color.Transparent,
@@ -104,7 +106,7 @@ fun ChartImpl(
                         popupProperties = PopupProperties(
                             textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
                             contentBuilder = {
-                                formatMoney(it, currency)
+                                formatMoney(it.toBigDecimal(), currency)
                             },
                             containerColor = MaterialTheme.colorScheme.inverseSurface
                         ),

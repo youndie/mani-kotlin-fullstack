@@ -1,5 +1,6 @@
 @file:OptIn(ExperimentalComposeLibrary::class)
 
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -104,6 +105,8 @@ kotlin {
             implementation(libs.androidx.profileinstaller)
         }
         commonMain.dependencies {
+            implementation(libs.bignum)
+
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.logging)
@@ -216,6 +219,14 @@ baselineProfile {
     dexLayoutOptimization = true
 }
 
-rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
-    rootProject.the<YarnRootExtension>().resolution("ws", "8.18.0")
+compose.desktop {
+    application {
+        mainClass = "ru.workinprogress.mani.MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            packageName = "ru.workinprogress.mani"
+            packageVersion = "1.0.0"
+        }
+    }
 }

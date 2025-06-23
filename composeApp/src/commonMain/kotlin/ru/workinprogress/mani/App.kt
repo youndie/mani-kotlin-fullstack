@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -33,27 +34,32 @@ import kotlin.math.roundToInt
 @Composable
 @Preview
 fun App(
-    modifier: Modifier = Modifier,
-    platformModules: List<Module> = emptyList(),
-    navController: NavHostController = rememberNavController(),
-    onBackClicked: () -> Unit = {
+	modifier: Modifier = Modifier,
+	platformModules: List<Module> = emptyList(),
+	navController: NavHostController = rememberNavController(),
+	onNavHostReady: suspend (NavController) -> Unit = {},
+	onBackClicked: () -> Unit = {
         navController.popBackStack()
-    }
+	},
 ) {
-    KoinApplication({
-        modules(appModules + platformModules)
-    }) {
-        val keyboardController = LocalSoftwareKeyboardController.current
+	LaunchedEffect(Unit) {
+		onNavHostReady(navController)
+	}
 
-        AppTheme {
-            ManiApp(
-                modifier, navController,
-                onBackClicked = {
-                    keyboardController?.hide()
-                    onBackClicked()
-                })
-        }
-    }
+	KoinApplication({
+		modules(appModules + platformModules)
+	}) {
+		val keyboardController = LocalSoftwareKeyboardController.current
+
+		AppTheme {
+			ManiApp(
+				modifier, navController,
+				onBackClicked = {
+					keyboardController?.hide()
+					onBackClicked()
+				})
+		}
+	}
 }
 
 @Composable
@@ -62,73 +68,73 @@ fun ManiApp(
     navController: NavHostController = rememberNavController(),
     appBarState: MainAppBarState = remember { MainAppBarState() },
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onBackClicked: () -> Unit
+	onBackClicked: () -> Unit,
 ) {
-    val backStackEntry by navController.currentBackStackEntryAsState()
+	val backStackEntry by navController.currentBackStackEntryAsState()
 
-    val currentScreen = try {
-        ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Preload.name)
-    } catch (e: Exception) {
-        ManiScreen.Transaction
-    }
+	val currentScreen = try {
+		ManiScreen.valueOf(backStackEntry?.destination?.route ?: ManiScreen.Preload.name)
+	} catch (e: Exception) {
+		ManiScreen.Transaction
+	}
 
-    val labels = Transaction.Period.entries.map { period -> stringResource(period.stringResource) }
+	val labels = Transaction.Period.entries.map { period -> stringResource(period.stringResource) }
 
-    LaunchedEffect(backStackEntry) {
-        appBarState.showBack.value = navController.previousBackStackEntry != null
-        appBarState.closeContextMenu()
-    }
+	LaunchedEffect(backStackEntry) {
+		appBarState.showBack.value = navController.previousBackStackEntry != null
+		appBarState.closeContextMenu()
+	}
 
-    LaunchedEffect(currentScreen) {
-        appBarState.title.value = currentScreen.title()
-    }
+	LaunchedEffect(currentScreen) {
+		appBarState.title.value = currentScreen.title()
+	}
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            Column(modifier = Modifier.animateContentSize()) {
-                ManiAppBar(appBarState) {
-                    onBackClicked()
-                }
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surface,
-        snackbarHost = { SnackbarHost(snackBarHostState) },
-        floatingActionButton = {
-            AnimatedVisibility(
-                currentScreen == ManiScreen.Main, exit = fadeOut() + slideOut(
-                    targetOffset = {
-                        IntOffset(
-                            0, (it.height / 2f).roundToInt()
-                        )
-                    }), enter = fadeIn() + slideIn(
-                    initialOffset = {
-                        IntOffset(
-                            0, (it.height / 2f).roundToInt()
-                        )
-                    })
-            ) {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(ManiScreen.Add.name)
-                    },
-                    modifier = Modifier.navigationBarsPadding().testTag("fab")
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "Add",
-                    )
-                }
-            }
-        }) { padding ->
-        ManiAppNavHost(
-            modifier = Modifier.consumeWindowInsets(padding).padding(top = padding.calculateTopPadding()),
-            navController = navController,
-            appBarState = appBarState,
-            snackbarHostState = snackBarHostState,
-            onBackClicked
-        )
-    }
+	Scaffold(
+		modifier = modifier.fillMaxSize(),
+		topBar = {
+			Column(modifier = Modifier.animateContentSize()) {
+				ManiAppBar(appBarState) {
+					onBackClicked()
+				}
+			}
+		},
+		containerColor = MaterialTheme.colorScheme.surface,
+		snackbarHost = { SnackbarHost(snackBarHostState) },
+		floatingActionButton = {
+			AnimatedVisibility(
+				currentScreen == ManiScreen.Main, exit = fadeOut() + slideOut(
+					targetOffset = {
+						IntOffset(
+							0, (it.height / 2f).roundToInt()
+						)
+					}), enter = fadeIn() + slideIn(
+					initialOffset = {
+						IntOffset(
+							0, (it.height / 2f).roundToInt()
+						)
+					})
+			) {
+				FloatingActionButton(
+					onClick = {
+						navController.navigate(ManiScreen.Add.name)
+					},
+					modifier = Modifier.navigationBarsPadding().testTag("fab")
+				) {
+					Icon(
+						imageVector = Icons.Filled.Add,
+						contentDescription = "Add",
+					)
+				}
+			}
+		}) { padding ->
+		ManiAppNavHost(
+			modifier = Modifier.consumeWindowInsets(padding).padding(top = padding.calculateTopPadding()),
+			navController = navController,
+			appBarState = appBarState,
+			snackbarHostState = snackBarHostState,
+			onBackClicked
+		)
+	}
 }
 
 

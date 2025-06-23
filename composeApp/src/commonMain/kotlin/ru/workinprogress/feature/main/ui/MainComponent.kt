@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Delete
@@ -119,6 +120,7 @@ fun MainComponent(
         ) {
             Card(
                 modifier = Modifier.padding(16.dp),
+                shape = MaterialTheme.shapes.medium.copy(all = CornerSize(4.dp)),
                 colors = CardDefaults.cardColors()
                     .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest)
             ) {

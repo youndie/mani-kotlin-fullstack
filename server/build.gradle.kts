@@ -2,14 +2,14 @@ import io.ktor.plugin.features.*
 
 plugins {
     alias(libs.plugins.kotlinJvm)
+	alias(libs.plugins.jib)
     alias(libs.plugins.ktor)
     alias(libs.plugins.pluginSerialization)
     application
 }
 
 group = "ru.workinprogress.mani"
-version = "0.0.2-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}"
-
+version = "0.1.${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}"
 application {
     mainClass.set("ru.workinprogress.mani.ApplicationKt")
     applicationDefaultJvmArgs =
@@ -17,10 +17,12 @@ application {
 }
 
 dependencies {
-    implementation(projects.shared)
+	implementation(libs.bignum)
+
+	implementation(projects.shared)
     implementation(libs.logback)
     implementation(libs.ktor.server.core)
-    implementation(libs.ktor.server.netty)
+	implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.ktor.server.cors)
@@ -60,7 +62,7 @@ ktor {
 	docker {
 		jreVersion.set(JavaVersion.VERSION_21)
 		localImageName.set("mani-backend")
-		imageTag.set("0.0.2-${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
+		imageTag.set("0.1.${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
 		customBaseImage.set("amazoncorretto:21-alpine3.20-jdk")
 		environmentVariable("JAVA_OPTS", "-Xmx64m")
 		externalRegistry.set(

@@ -26,6 +26,7 @@ import ru.workinprogress.feature.transaction.ui.model.buildColoredAmount
 import ru.workinprogress.mani.orToday
 import ru.workinprogress.mani.today
 import ru.workinprogress.useCase.UseCase
+import ru.workinprogress.utilz.bigdecimal.sumOf
 
 abstract class BaseTransactionViewModel(
     private val addCategoryUseCase: AddCategoryUseCase,
