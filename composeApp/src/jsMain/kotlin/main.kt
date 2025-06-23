@@ -6,7 +6,6 @@ import androidx.navigation.bindToNavigation
 import kotlinx.browser.document
 import kotlinx.browser.window
 import ru.workinprogress.mani.App
-import web.history.history
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalBrowserHistoryApi::class)
 fun main() {
@@ -18,7 +17,6 @@ fun main() {
 		}
 
 		App(
-			onBackClicked = { history.back() },
 			onNavHostReady = { window.bindToNavigation(it) }
 		)
 	}
