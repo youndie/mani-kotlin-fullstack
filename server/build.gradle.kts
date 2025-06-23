@@ -1,8 +1,8 @@
 import io.ktor.plugin.features.*
 
 plugins {
-    alias(libs.plugins.kotlinJvm)
 	alias(libs.plugins.jib)
+    alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.pluginSerialization)
     application

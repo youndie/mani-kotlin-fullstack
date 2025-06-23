@@ -230,3 +230,7 @@ compose.desktop {
         }
     }
 }
+
+rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
+    rootProject.the<YarnRootExtension>().resolution("ws", "8.18.0")
+}
