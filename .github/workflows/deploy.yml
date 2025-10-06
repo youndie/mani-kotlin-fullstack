@@ -18,7 +18,7 @@ jobs:
           java-version: 21
           cache: 'gradle'
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v5
       - name: Build
         run: ./gradlew :server:publishImage -PBUILD_NUMBER=${{github.run_number}} -PREGISTRY_HOSTNAME=${{vars.REGISTRY_HOSTNAME}} -PREGISTRY_USERNAME=${{secrets.REGISTRY_USERNAME}} -PREGISTRY_PASSWORD=${{secrets.REGISTRY_PASSWORD}} --no-daemon
       - name: Apply deployment
