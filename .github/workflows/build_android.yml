@@ -20,7 +20,7 @@ jobs:
       - name: Build
         run: ./gradlew :composeApp:assembleBenchmark --no-daemon
       - name: Archive APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: mani-android
           retention-days: 1
