@@ -24,7 +24,7 @@ composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
     metricsDestination = layout.buildDirectory.dir("compose_compiler")
 
-    stabilityConfigurationFile = layout.projectDirectory.file("stability_config.conf")
+    stabilityConfigurationFiles = listOf(layout.projectDirectory.file("stability_config.conf"))
 }
 
 kotlin {
@@ -229,8 +229,4 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
-}
-
-rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
-    rootProject.the<YarnRootExtension>().resolution("ws", "8.18.0")
 }

@@ -1,6 +1,7 @@
 package ru.workinprogress.feature.auth
 
-import io.github.smiley4.ktorswaggerui.dsl.routing.resources.post
+
+import io.github.smiley4.ktoropenapi.resources.post
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

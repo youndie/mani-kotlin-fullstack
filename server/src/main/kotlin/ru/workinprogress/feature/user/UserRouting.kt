@@ -1,8 +1,7 @@
 package ru.workinprogress.feature.user
 
-import io.github.smiley4.ktorswaggerui.dsl.routing.resources.post
+import io.github.smiley4.ktoropenapi.resources.post
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
