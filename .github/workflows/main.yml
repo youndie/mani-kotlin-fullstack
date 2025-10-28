@@ -86,6 +86,6 @@ jobs:
       - name: Start simulator
         uses: futureware-tech/simulator-action@v4
         with:
-          model: 'iPhone 15'
+          model: 'iPhone 16'
       - name: Run tests
         run: ./gradlew :composeApp:iosSimulatorArm64Test
