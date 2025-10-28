@@ -52,7 +52,7 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "mani"
+        outputModuleName = "mani"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -71,7 +71,7 @@ kotlin {
     }
 
     js(IR) {
-        moduleName = "mani"
+        outputModuleName = "mani"
 
         browser {
             commonWebpackConfig {
