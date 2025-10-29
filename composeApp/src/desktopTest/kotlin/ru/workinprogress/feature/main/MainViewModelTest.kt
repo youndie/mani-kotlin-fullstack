@@ -2,6 +2,7 @@
 
 package ru.workinprogress.feature.main
 
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -212,7 +213,8 @@ class MainViewModelTest : KoinTest {
     @Test
     fun testFutureInfoSimple() {
         val start = LocalDate(2000, 1, 1)
-        val transactions = listOf(Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""))
+        val transactions =
+            listOf(Transaction("0", 100.0.toBigDecimal(), true, start, null, Transaction.Period.OneTime, ""))
         val today = start.plus(1, DateTimeUnit.DAY)
 
         val futureInformation = MainViewModel.buildFutureInformation(
@@ -235,8 +237,16 @@ class MainViewModelTest : KoinTest {
         val start = LocalDate(2000, 1, 1)
 
         val transactions = listOf(
-            Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""),
-            Transaction("0", 50.0, true, start.plus(1, DateTimeUnit.DAY), null, Transaction.Period.OneTime, "")
+            Transaction("0", 100.0.toBigDecimal(), true, start, null, Transaction.Period.OneTime, ""),
+            Transaction(
+                "0",
+                50.0.toBigDecimal(),
+                true,
+                start.plus(1, DateTimeUnit.DAY),
+                null,
+                Transaction.Period.OneTime,
+                ""
+            )
         )
         val today = start.plus(1, DateTimeUnit.DAY)
 
@@ -258,8 +268,16 @@ class MainViewModelTest : KoinTest {
     fun testFutureInfoNegative() {
         val start = LocalDate(2000, 1, 1)
         val transactions = listOf(
-            Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""),
-            Transaction("0", 200.0, false, start.plus(5, DateTimeUnit.DAY), null, Transaction.Period.OneTime, "")
+            Transaction("0", 100.0.toBigDecimal(), true, start, null, Transaction.Period.OneTime, ""),
+            Transaction(
+                "0",
+                200.0.toBigDecimal(),
+                false,
+                start.plus(5, DateTimeUnit.DAY),
+                null,
+                Transaction.Period.OneTime,
+                ""
+            )
 
         )
         val today = start.plus(1, DateTimeUnit.DAY)
@@ -283,8 +301,16 @@ class MainViewModelTest : KoinTest {
     fun testFutureInfoPositive() {
         val start = LocalDate(2000, 1, 1)
         val transactions = listOf(
-            Transaction("0", 100.0, false, start, null, Transaction.Period.OneTime, ""),
-            Transaction("0", 200.0, true, start.plus(5, DateTimeUnit.DAY), null, Transaction.Period.OneTime, "")
+            Transaction("0", 100.0.toBigDecimal(), false, start, null, Transaction.Period.OneTime, ""),
+            Transaction(
+                "0",
+                200.0.toBigDecimal(),
+                true,
+                start.plus(5, DateTimeUnit.DAY),
+                null,
+                Transaction.Period.OneTime,
+                ""
+            )
 
         )
         val today = start.plus(1, DateTimeUnit.DAY)
@@ -307,8 +333,16 @@ class MainViewModelTest : KoinTest {
     fun testFutureInfoNextMonth() {
         val start = LocalDate(2000, 1, 1)
         val transactions = listOf(
-            Transaction("0", 100.0, true, start, null, Transaction.Period.OneTime, ""),
-            Transaction("0", 200.0, false, start.plus(1, DateTimeUnit.MONTH), null, Transaction.Period.OneTime, "")
+            Transaction("0", 100.0.toBigDecimal(), true, start, null, Transaction.Period.OneTime, ""),
+            Transaction(
+                "0",
+                200.0.toBigDecimal(),
+                false,
+                start.plus(1, DateTimeUnit.MONTH),
+                null,
+                Transaction.Period.OneTime,
+                ""
+            )
 
         )
         val today = start.plus(1, DateTimeUnit.DAY)
@@ -342,7 +376,7 @@ class MainViewModelTest : KoinTest {
                 listOf(
                     Transaction(
                         id = "upcoming",
-                        amount = 500.0,
+                        amount = 500.0.toBigDecimal(),
                         income = true,
                         date = today().plus(1, DateTimeUnit.DAY),
                         until = null,
@@ -351,7 +385,7 @@ class MainViewModelTest : KoinTest {
                     ),
                     Transaction(
                         id = "past",
-                        amount = 250.0,
+                        amount = 250.0.toBigDecimal(),
                         income = true,
                         date = LocalDate(2000, 1, 1),
                         until = null,
@@ -360,7 +394,7 @@ class MainViewModelTest : KoinTest {
                     ),
                     Transaction(
                         id = "past2",
-                        amount = 250.0,
+                        amount = 250.0.toBigDecimal(),
                         income = true,
                         date = LocalDate(2000, 1, 1),
                         until = null,

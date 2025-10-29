@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.transaction
 
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -107,7 +108,7 @@ class TransactionsViewModelErrorTest : KoinTest {
 
 val toDelete = Transaction(
     "ru.workinprogress.feature.main.ui.toDelete",
-    500.0,
+    500.0.toBigDecimal(),
     true,
     LocalDate(2000, 1, 1),
     null,

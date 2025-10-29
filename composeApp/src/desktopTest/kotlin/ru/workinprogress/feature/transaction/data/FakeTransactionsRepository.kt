@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.transaction.data
 
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.datetime.LocalDate
@@ -8,10 +9,9 @@ import ru.workinprogress.feature.transaction.domain.TransactionRepository
 import ru.workinprogress.feature.transaction.toDelete
 
 class FakeTransactionsRepository(
-    private val shouldCrash: () -> Boolean = { false },
-    private val transactions: List<Transaction> = listOf(
+    private val shouldCrash: () -> Boolean = { false }, private val transactions: List<Transaction> = listOf(
         Transaction(
-            "", 500.0, true, LocalDate(2000, 1, 1), null, Transaction.Period.OneTime, ""
+            "", 500.0.toBigDecimal(), true, LocalDate(2000, 1, 1), null, Transaction.Period.OneTime, ""
         ), toDelete
     )
 ) : TransactionRepository {
