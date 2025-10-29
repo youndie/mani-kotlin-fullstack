@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalTime::class)
 
 package ru.workinprogress.feature.transaction.ui.component
 
@@ -35,8 +35,11 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.module.rememberKoinModules
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,6 +60,8 @@ import ru.workinprogress.feature.transaction.ui.model.stringResource
 import ru.workinprogress.feature.transaction.ui.utils.CurrencyVisualTransformation
 import ru.workinprogress.mani.components.LoadingButton
 import ru.workinprogress.mani.navigation.TransactionRoute
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 
 @Composable

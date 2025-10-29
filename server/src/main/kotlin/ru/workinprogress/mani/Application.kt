@@ -2,9 +2,12 @@ package ru.workinprogress.mani
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import io.github.smiley4.ktorswaggerui.SwaggerUI
-import io.github.smiley4.ktorswaggerui.data.AuthScheme
-import io.github.smiley4.ktorswaggerui.data.AuthType
+import com.ionspin.kotlin.bignum.decimal.BigDecimal
+import io.github.smiley4.ktoropenapi.OpenApi
+import io.github.smiley4.ktoropenapi.config.AuthScheme
+import io.github.smiley4.ktoropenapi.config.AuthType
+import io.github.smiley4.ktoropenapi.config.SchemaGenerator
+import io.github.smiley4.ktoropenapi.config.SchemaOverwriteModule
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -15,6 +18,7 @@ import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
+import io.swagger.v3.oas.models.media.Schema
 import kotlinx.serialization.json.Json
 import org.koin.ktor.plugin.Koin
 import org.koin.logger.slf4jLogger
@@ -31,7 +35,7 @@ fun Application.module() {
     val jwtConfig = environment.config.config("ktor.auth.jwt").jwtConfig()
     val mongoConfig = environment.config.config("ktor.mongo").mongoConfig()
 
-    install(SwaggerUI) {
+    install(OpenApi) {
         info {
             title = "Mani API"
             version = "latest"
@@ -42,10 +46,20 @@ fun Application.module() {
             description = "${currentServerConfig.name} Server"
         }
         schemas {
-            overwrite<File>(io.swagger.v3.oas.models.media.Schema<Any>().also {
-                it.type = "string"
-                it.format = "binary"
-            })
+            generator =
+                SchemaGenerator.kotlinx {
+                    referencePath = io.github.smiley4.schemakenerator.swagger.data.RefType.SIMPLE
+                    overwrite(
+                        SchemaOverwriteModule(
+                            identifier = BigDecimal::class.qualifiedName!!,
+                            schema = {
+                                Schema<Any>().also {
+                                    it.types = setOf("string")
+                                }
+                            },
+                        ),
+                    )
+                }
         }
         security {
             securityScheme(jwtConfig.name) {

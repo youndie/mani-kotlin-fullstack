@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.transaction.ui.ru.workinprogress.feature.auth.domain
 
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.auth.data.TokenRepository
@@ -23,7 +24,7 @@ class LogoutUseCaseTest {
         transactionRepository.create(
             Transaction(
                 id = "0",
-                amount = 0.0,
+                amount = 0.0.toBigDecimal(),
                 income = true,
                 date = LocalDate(2000, 1, 1),
                 until = null,

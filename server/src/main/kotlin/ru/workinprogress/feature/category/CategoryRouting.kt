@@ -1,9 +1,10 @@
 package ru.workinprogress.feature.category
 
-import io.github.smiley4.ktorswaggerui.dsl.routing.resources.delete
-import io.github.smiley4.ktorswaggerui.dsl.routing.resources.get
-import io.github.smiley4.ktorswaggerui.dsl.routing.resources.patch
-import io.github.smiley4.ktorswaggerui.dsl.routing.resources.post
+
+import io.github.smiley4.ktoropenapi.resources.delete
+import io.github.smiley4.ktoropenapi.resources.get
+import io.github.smiley4.ktoropenapi.resources.patch
+import io.github.smiley4.ktoropenapi.resources.post
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package ru.workinprogress.feature.auth.data
 
 import com.auth0.jwt.JWT
@@ -15,6 +17,9 @@ import ru.workinprogress.feature.user.data.TokenRepository
 import ru.workinprogress.feature.user.data.UserRepository
 import ru.workinprogress.mani.model.JWTConfig
 import java.util.*
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.toJavaInstant
 
 class AuthService(
     val userRepository: UserRepository,

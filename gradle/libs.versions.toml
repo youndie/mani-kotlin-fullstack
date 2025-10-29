@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.2"
+agp = "8.11.2"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -8,31 +8,32 @@ androidx-appcompat = "1.7.0"
 androidx-constraintlayout = "2.1.4"
 androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.6.1"
-androidx-lifecycle = "2.9.1"
+androidx-lifecycle = "2.9.5"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.2.1"
-appframeDesktop = "0.0.5"
+appframeDesktop = "0.0.7"
 bignum = "0.3.10"
-compose-multiplatform = "1.8.1"
+compose-multiplatform = "1.9.1"
 composeCharts = "0.0.17-js4"
 composeShimmer = "1.3.2"
 coreSplashscreen = "1.0.1"
 deFlapdoodleEmbedMongo = "4.18.1"
 desugar_jdk_libs = "2.1.5"
 junit = "4.13.2"
-kotlin = "2.1.20"
-kotlinxCollectionsImmutable = "0.3.8"
-kotlinxDatetime = "0.6.1"
-kotlinxSerializationJson = "1.8.1"
-ktor = "3.1.3"
+kotlin = "2.2.20"
+kotlinxCollectionsImmutable = "0.4.0"
+kotlinxDatetime = "0.7.1"
+kotlinxSerializationJson = "1.9.0"
+ktor = "3.3.1"
 jib = "3.4.5"
-ktorSwaggerUi = "4.1.2"
+ktorSwaggerUi = "5.2.0"
+schemaKeneratorSwagger = "2.3.0"
 logback = "1.5.15"
 kotlinx-coroutines = "1.10.2"
-koinBom = "4.1.0"
-mongodbDriverKotlinCoroutine = "5.5.0"
+koinBom = "4.1.2-Beta1"
+mongodbDriverKotlinCoroutine = "5.6.0"
 multiplatformSettings = "1.3.0"
-navigationCompose = "2.9.0-beta03"
+navigationCompose = "2.9.1"
 preferenceKtx = "1.2.1"
 profileinstaller = "1.4.1"
 slf4jApi = "2.0.17"
@@ -74,6 +75,10 @@ kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-co
 
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 ktor-swagger-ui = { module = "io.github.smiley4:ktor-swagger-ui", version.ref = "ktorSwaggerUi" }
+ktor-openapi = { module = "io.github.smiley4:ktor-openapi", version.ref = "ktorSwaggerUi" }
+schema-kenerator-core = { module = "io.github.smiley4:schema-kenerator-core", version.ref = "schemaKeneratorSwagger" }
+schema-kenerator-swagger = { module = "io.github.smiley4:schema-kenerator-swagger", version.ref = "schemaKeneratorSwagger" }
+
 ktor-server-swagger = { module = "io.ktor:ktor-server-swagger" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }

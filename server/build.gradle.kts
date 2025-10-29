@@ -32,6 +32,9 @@ dependencies {
     implementation(libs.ktor.server.swagger)
     implementation(libs.swagger.parser)
     implementation(libs.ktor.swagger.ui)
+    implementation(libs.ktor.openapi)
+    implementation(libs.schema.kenerator.core)
+    implementation(libs.schema.kenerator.swagger)
     implementation(libs.slf4j.api)
 
     implementation(libs.mongodb.driver.kotlin.coroutine)

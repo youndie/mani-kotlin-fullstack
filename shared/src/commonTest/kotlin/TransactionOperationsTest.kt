@@ -1,4 +1,6 @@
-import kotlinx.datetime.Clock
+@file:OptIn(ExperimentalTime::class)
+
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -13,9 +15,11 @@ import ru.workinprogress.feature.transaction.defaultPeriodAppend
 import ru.workinprogress.feature.transaction.findZeroEvents
 import ru.workinprogress.feature.transaction.simulate
 import ru.workinprogress.feature.transaction.toChartInternal
+import ru.workinprogress.utilz.bigdecimal.sumOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.ExperimentalTime
 
 class TransactionOperationsTest {
 
@@ -25,12 +29,13 @@ class TransactionOperationsTest {
         assertEquals(3, results.size)
     }
 
+    @OptIn(ExperimentalTime::class)
     @Test
     fun testDefaultPeriod() {
         val results = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 1),
                 null,
@@ -40,7 +45,7 @@ class TransactionOperationsTest {
         ).defaultPeriod()
 
         assertEquals(
-            (Clock.System.now()
+            (kotlin.time.Clock.System.now()
                 .toLocalDateTime(TimeZone.currentSystemDefault()).date.monthNumber + 3) % 12,
             results.second.monthNumber
         )
@@ -51,7 +56,7 @@ class TransactionOperationsTest {
         )
 
         assertEquals(
-            2025,
+            2026,
             results.second.year
         )
     }
@@ -61,7 +66,7 @@ class TransactionOperationsTest {
         val result = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 1),
                 null,
@@ -70,7 +75,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 false,
                 LocalDate(2000, 1, 5),
                 null,
@@ -79,7 +84,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "TAG",
-                1000.0,
+                1000.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 1),
                 LocalDate(2000, 1, 17),
@@ -89,9 +94,9 @@ class TransactionOperationsTest {
         ).simulate(LocalDate(2000, 1, 1) to LocalDate(2000, 3, 1))
 
         assertEquals(5, result.flatMap { it.value }.size)
-        assertEquals(1000.0, result[LocalDate(2000, 1, 8)]?.firstOrNull()?.amount)
+        assertEquals(1000.0.toBigDecimal(), result[LocalDate(2000, 1, 8)]?.firstOrNull()?.amount)
         assertEquals(
-            3000.0,
+            3000.0.toBigDecimal(),
             result.flatMap { it.value }.sumOf { transaction -> transaction.amountSigned })
     }
 
@@ -100,7 +105,7 @@ class TransactionOperationsTest {
         val result = listOf(
             Transaction(
                 "",
-                1000.0,
+                1000.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 1),
                 null,
@@ -110,19 +115,19 @@ class TransactionOperationsTest {
         ).simulate(LocalDate(2000, 1, 1) to defaultPeriodAppend(LocalDate(2000, 1, 1)))
 
         assertEquals(3, result.flatMap { it.value }.size)
-        assertEquals(result[LocalDate(2000, 1, 1)]?.firstOrNull()?.amount, 1000.0)
-        assertEquals(result[LocalDate(2000, 2, 1)]?.firstOrNull()?.amount, 1000.0)
-        assertEquals(result[LocalDate(2000, 3, 1)]?.firstOrNull()?.amount, 1000.0)
+        assertEquals(result[LocalDate(2000, 1, 1)]?.firstOrNull()?.amount, 1000.0.toBigDecimal())
+        assertEquals(result[LocalDate(2000, 2, 1)]?.firstOrNull()?.amount, 1000.0.toBigDecimal())
+        assertEquals(result[LocalDate(2000, 3, 1)]?.firstOrNull()?.amount, 1000.0.toBigDecimal())
     }
 
     @Test
     fun testChartSimple() {
-        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val now = kotlin.time.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
         val result = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 now.minus(1, DateTimeUnit.WEEK),
                 null,
@@ -131,7 +136,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "TAG",
-                1000.0,
+                1000.0.toBigDecimal(),
                 true,
                 now.minus(1, DateTimeUnit.WEEK),
                 now.plus(1, DateTimeUnit.WEEK),
@@ -140,7 +145,7 @@ class TransactionOperationsTest {
             ),
         ).toChartInternal()
 
-        assertEquals(3100.0, result.days.values.last())
+        assertEquals(3100.0.toBigDecimal(), result.days.values.last())
 
     }
 
@@ -149,7 +154,7 @@ class TransactionOperationsTest {
         val (positive, negative) = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 2),
                 null,
@@ -157,7 +162,7 @@ class TransactionOperationsTest {
                 ""
             ), Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 3),
                 null,
@@ -166,7 +171,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 false,
                 LocalDate(2000, 1, 3),
                 null,
@@ -175,7 +180,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 2, 3),
                 null,
@@ -197,7 +202,7 @@ class TransactionOperationsTest {
         val (positive, negative) = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 false,
                 LocalDate(2000, 1, 2),
                 null,
@@ -205,7 +210,7 @@ class TransactionOperationsTest {
                 ""
             ), Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 3),
                 null,
@@ -214,7 +219,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 targetDate,
                 null,
@@ -223,7 +228,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 2, 3),
                 null,
@@ -245,7 +250,7 @@ class TransactionOperationsTest {
         val (positive, negative) = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 2),
                 null,
@@ -253,7 +258,7 @@ class TransactionOperationsTest {
                 ""
             ), Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 3),
                 null,
@@ -262,7 +267,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 false,
                 LocalDate(2000, 1, 4),
                 null,
@@ -271,7 +276,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                200.0,
+                200.0.toBigDecimal(),
                 false,
                 targetDate,
                 null,
@@ -280,7 +285,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 1),
                 null,
@@ -304,7 +309,7 @@ class TransactionOperationsTest {
         val (positive, negative) = listOf(
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 2),
                 null,
@@ -312,7 +317,7 @@ class TransactionOperationsTest {
                 ""
             ), Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 true,
                 LocalDate(2000, 1, 3),
                 null,
@@ -321,7 +326,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 false,
                 LocalDate(2000, 1, 4),
                 null,
@@ -330,7 +335,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                100.0,
+                100.0.toBigDecimal(),
                 false,
                 targetNegative,
                 null,
@@ -339,7 +344,7 @@ class TransactionOperationsTest {
             ),
             Transaction(
                 "",
-                1000.0,
+                1000.0.toBigDecimal(),
                 true,
                 targetPositive,
                 null,

@@ -1,27 +1,17 @@
 apiVersion: v1
-kind: PersistentVolume
+kind: PersistentVolumeClaim
 metadata:
-  name: mongodb-pv
+  name: mongodb-pvc
   namespace: mani
+  labels:
+    app: mani
 spec:
-  capacity:
-    storage: 1Gi
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
-  hostPath:
-    path: /data/mongodb
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mani-mongodb
-  namespace: mani
-spec:
-  clusterIP: None
-  selector:
-    app: mongodb
-  ports:
-    - port: 27017
+  resources:
+    requests:
+      storage: 256Mi
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -52,7 +42,7 @@ spec:
               cpu: "100m"
               memory: "96Mi"
             limits:
-              cpu: "500m"
+              cpu: "125m"
               memory: "128Mi"
   volumeClaimTemplates:
     - metadata:
@@ -61,4 +51,4 @@ spec:
         accessModes: [ "ReadWriteOnce" ]
         resources:
           requests:
-            storage: 1Gi
+            storage: 256Mi

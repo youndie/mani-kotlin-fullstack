@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.AnnotatedString
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.datetime.LocalDate
 import ru.workinprogress.feature.chart.ui.ChartComponent
@@ -23,7 +24,7 @@ class SimpleMainTest {
                     chart = {
                         ChartComponent(
                             ChartUi(
-                                days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0),
+                                days = persistentMapOf(LocalDate(2000, 1, 1) to 0.0.toBigDecimal()),
                                 todayIndexProvider = { 0 }),
                         )
                     })

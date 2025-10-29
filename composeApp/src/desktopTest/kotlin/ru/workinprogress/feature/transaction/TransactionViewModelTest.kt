@@ -1,5 +1,6 @@
 package ru.workinprogress.feature.transaction
 
+import com.ionspin.kotlin.bignum.decimal.toBigDecimal
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.*
 import kotlinx.datetime.DateTimeUnit
@@ -39,7 +40,7 @@ class TransactionViewModelTest : KoinTest {
                             { withError }, listOf(
                                 Transaction(
                                     id = "upcoming",
-                                    amount = 500.0,
+                                    amount = 500.0.toBigDecimal(),
                                     income = true,
                                     date = today().plus(1, DateTimeUnit.DAY),
                                     until = null,
@@ -47,7 +48,7 @@ class TransactionViewModelTest : KoinTest {
                                     comment = ""
                                 ), Transaction(
                                     id = "past",
-                                    amount = 250.0,
+                                    amount = 250.0.toBigDecimal(),
                                     income = true,
                                     date = LocalDate(2000, 1, 1),
                                     until = null,
@@ -55,7 +56,7 @@ class TransactionViewModelTest : KoinTest {
                                     comment = ""
                                 ), Transaction(
                                     id = "past2",
-                                    amount = 250.0,
+                                    amount = 250.0.toBigDecimal(),
                                     income = true,
                                     date = LocalDate(2000, 1, 1),
                                     until = null,
@@ -95,7 +96,7 @@ class TransactionViewModelTest : KoinTest {
         runCurrent()
 
         val result = get<TransactionRepository>().dataStateFlow.value.find { transaction ->
-            transaction.amount == 100.0
+            transaction.amount == 100.0.toBigDecimal()
             transaction.comment == "simpleTest"
         }
 
@@ -135,7 +136,7 @@ class TransactionViewModelTest : KoinTest {
         runCurrent()
 
         val result = get<TransactionRepository>().dataStateFlow.value.find { transaction ->
-            transaction.amount == 100.0
+            transaction.amount == 100.0.toBigDecimal()
             transaction.comment == "dateTest"
         }
 
@@ -281,7 +282,7 @@ class TransactionViewModelTest : KoinTest {
         runCurrent()
 
         val result = get<TransactionRepository>().dataStateFlow.value.find { transaction ->
-            transaction.amount == 100.0
+            transaction.amount == 100.0.toBigDecimal()
             transaction.comment == "anotherTest"
         }
 

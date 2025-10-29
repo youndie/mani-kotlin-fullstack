@@ -24,7 +24,7 @@ composeCompiler {
     reportsDestination = layout.buildDirectory.dir("compose_compiler")
     metricsDestination = layout.buildDirectory.dir("compose_compiler")
 
-    stabilityConfigurationFile = layout.projectDirectory.file("stability_config.conf")
+    stabilityConfigurationFiles = listOf(layout.projectDirectory.file("stability_config.conf"))
 }
 
 kotlin {
@@ -52,7 +52,7 @@ kotlin {
 
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
-        moduleName = "mani"
+        outputModuleName = "mani"
         browser {
             val rootDirPath = project.rootDir.path
             val projectDirPath = project.projectDir.path
@@ -71,7 +71,7 @@ kotlin {
     }
 
     js(IR) {
-        moduleName = "mani"
+        outputModuleName = "mani"
 
         browser {
             commonWebpackConfig {
@@ -229,8 +229,4 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
-}
-
-rootProject.plugins.withType<org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin> {
-    rootProject.the<YarnRootExtension>().resolution("ws", "8.18.0")
 }
