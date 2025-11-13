@@ -38,9 +38,7 @@ jobs:
       - name: Configure Kubeconfig
         run: |
           mkdir -p ~/.kube
-          echo "${{ secrets.KUBE_CONFIG_DATA_STAGING }}" | base64 -d > ~/.kube/config
-        env:
-          KUBECONFIG_BASE64: ${{ secrets.KUBE_CONFIG_DATA_STAGING }}
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > ~/.kube/config
 
       - name: Apply deployment
         env:
