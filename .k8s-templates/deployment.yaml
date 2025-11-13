@@ -25,10 +25,10 @@ spec:
           resources:
             requests:
               cpu: "100m"
-              memory: "128Mi"
+              memory: "32Mi"
             limits:
-              cpu: "1"
-              memory: "176Mi"
+              cpu: "200m"
+              memory: "64Mi"
           env:
             - name: MONGO_HOST
               value: mani-mongodb
