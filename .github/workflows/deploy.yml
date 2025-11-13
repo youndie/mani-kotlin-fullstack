@@ -28,10 +28,10 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Build
-        run: ./gradlew :server:publishImage --no-daemon
+        run: ./gradlew :server:publishImage --no-configuration-cache --no-daemon
         env:
           ORG_GRADLE_PROJECT_BUILD_NUMBER: ${{ github.run_number }}
-          ORG_GRADLE_PROJECT_REGISTRY_HOSTNAME: ${{ secrets.REGISTRY_HOSTNAME }}
+          ORG_GRADLE_PROJECT_REGISTRY_HOSTNAME: ${{ vars.REGISTRY_HOSTNAME }}
           ORG_GRADLE_PROJECT_REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
           ORG_GRADLE_PROJECT_REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
 
