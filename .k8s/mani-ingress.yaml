@@ -4,7 +4,7 @@ metadata:
   name: mani-ingress
   namespace: mani
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
+    traefik.ingress.kubernetes.io/router.tls.certresolver: cloudflare
 spec:
   rules:
     - host: mani.kotlin.website
@@ -20,4 +20,3 @@ spec:
   tls:
     - hosts:
         - mani.kotlin.website
-      secretName: tls-mani
