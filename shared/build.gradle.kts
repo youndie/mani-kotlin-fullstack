@@ -41,10 +41,6 @@ kotlin {
         }
     }
 
-    js(IR) {
-        browser {}
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(libs.bignum)

@@ -51,12 +51,18 @@ fun ChartImpl(
                 gradientAnimationDelay = 600,
                 drawStyle = DrawStyle.Stroke(2.dp),
                 curvedEdges = false,
-                dotPointProperties = DotPointProperties(
-                    true,
-                    color = SolidColor(color),
-                    outlineColor = SolidColor(secondary),
-                    points = listOf(todayIndexProvider())
-                )
+//                dotProperties = DotProperties(
+//                    true,
+//                    color = SolidColor(color),
+//
+//
+//                ),
+//                dotPointProperties = DotPointProperties(
+//                    true,
+//                    color = SolidColor(color),
+//                    outlineColor = SolidColor(secondary),
+//                    points = listOf(todayIndexProvider())
+//                )
             ),
         )
     }
@@ -106,7 +112,7 @@ fun ChartImpl(
                         popupProperties = PopupProperties(
                             textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
                             contentBuilder = {
-                                formatMoney(it.toBigDecimal(), currency)
+                                formatMoney(it.value.toBigDecimal(), currency)
                             },
                             containerColor = MaterialTheme.colorScheme.inverseSurface
                         ),

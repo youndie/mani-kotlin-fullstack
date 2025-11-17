@@ -70,17 +70,6 @@ kotlin {
         binaries.executable()
     }
 
-    js(IR) {
-        outputModuleName = "mani"
-
-        browser {
-            commonWebpackConfig {
-                outputFileName = "mani.js"
-            }
-        }
-        binaries.executable()
-    }
-
     sourceSets {
         val desktopMain by getting
         val desktopTest by getting {

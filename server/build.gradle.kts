@@ -67,7 +67,6 @@ ktor {
 		localImageName.set("mani-backend")
 		imageTag.set("0.2.${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
         customBaseImage.set("gcr.io/distroless/java21-debian12")
-		environmentVariable("JAVA_OPTS", "-Xmx64m")
 		externalRegistry.set(
 			DockerImageRegistry.externalRegistry(
 				username = providers.gradleProperty("REGISTRY_USERNAME"),
