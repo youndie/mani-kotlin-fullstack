@@ -20,3 +20,4 @@ spec:
   tls:
     - hosts:
         - mani.kotlin.website
+      secretName: tls-mani
