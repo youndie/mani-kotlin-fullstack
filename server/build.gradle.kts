@@ -78,6 +78,8 @@ val copyFrontend by tasks.registering(Copy::class) {
     into("$projectDir/build/resources/main/static")
 }
 
+project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)
+
 ktor {
     docker {
         jreVersion.set(JavaVersion.VERSION_21)
