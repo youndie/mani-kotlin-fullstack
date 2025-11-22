@@ -39,18 +39,19 @@ fun ChartImpl(
     val color = MaterialTheme.colorScheme.primary
     val secondary = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
 
-    val data = remember(values) {
-        listOf(
-            Line(
-                label = "Transactions",
-                values = values.map { it.doubleValue(false) },
-                color = SolidColor(color),
-                firstGradientFillColor = color.copy(alpha = .5f),
-                secondGradientFillColor = Color.Transparent,
-                strokeAnimationSpec = tween(1200, easing = EaseInOutCubic),
-                gradientAnimationDelay = 600,
-                drawStyle = DrawStyle.Stroke(2.dp),
-                curvedEdges = false,
+    val data =
+        remember(values) {
+            listOf(
+                Line(
+                    label = "Transactions",
+                    values = values.map { it.doubleValue(false) },
+                    color = SolidColor(color),
+                    firstGradientFillColor = color.copy(alpha = .5f),
+                    secondGradientFillColor = Color.Transparent,
+                    strokeAnimationSpec = tween(1200, easing = EaseInOutCubic),
+                    gradientAnimationDelay = 600,
+                    drawStyle = DrawStyle.Stroke(2.dp),
+                    curvedEdges = false,
 //                dotProperties = DotProperties(
 //                    true,
 //                    color = SolidColor(color),
@@ -63,71 +64,81 @@ fun ChartImpl(
 //                    outlineColor = SolidColor(secondary),
 //                    points = listOf(todayIndexProvider())
 //                )
-            ),
-        )
-    }
+                ),
+            )
+        }
 
     Card(
-        colors = CardDefaults.cardColors()
-            .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
-        modifier = Modifier
-            .size(width = CHART_MAX_WIDTH.dp, height = CHART_MAX_HEIGHT.dp)
-            .aspectRatio(3 / 2f)
-            .border(2.dp, Color.Transparent, RoundedCornerShape(12.dp)),
+        colors =
+            CardDefaults
+                .cardColors()
+                .copy(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        modifier =
+            Modifier
+                .size(width = CHART_MAX_WIDTH.dp, height = CHART_MAX_HEIGHT.dp)
+                .aspectRatio(3 / 2f)
+                .border(2.dp, Color.Transparent, RoundedCornerShape(12.dp)),
         elevation = CardDefaults.elevatedCardElevation(2.dp),
     ) {
         Box(
-            modifier = Modifier.fillMaxSize().padding(vertical = 12.dp, horizontal = 12.dp)
+            modifier = Modifier.fillMaxSize().padding(vertical = 12.dp, horizontal = 12.dp),
         ) {
             Crossfade(loading) {
                 if (!it) {
                     LineChart(
                         modifier = Modifier.fillMaxSize(),
                         data = data,
-                        animationMode = AnimationMode.Together(delayBuilder = {
-                            it * 300L
-                        }),
-                        zeroLineProperties = ZeroLineProperties(
-                            enabled = true,
-                            color = SolidColor(secondary),
-                        ),
+                        animationMode =
+                            AnimationMode.Together(delayBuilder = {
+                                it * 300L
+                            }),
+                        zeroLineProperties =
+                            ZeroLineProperties(
+                                enabled = true,
+                                color = SolidColor(secondary),
+                            ),
                         dividerProperties = DividerProperties(enabled = false),
-                        gridProperties = GridProperties(
-                            xAxisProperties = GridProperties.AxisProperties(
-                                thickness = .2.dp,
-                                color = SolidColor(color.copy(alpha = .3f)),
-                                style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
+                        gridProperties =
+                            GridProperties(
+                                xAxisProperties =
+                                    GridProperties.AxisProperties(
+                                        thickness = .2.dp,
+                                        color = SolidColor(color.copy(alpha = .3f)),
+                                        style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
+                                    ),
+                                yAxisProperties =
+                                    GridProperties.AxisProperties(
+                                        thickness = .2.dp,
+                                        color = SolidColor(color.copy(alpha = .2f)),
+                                        style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
+                                    ),
                             ),
-                            yAxisProperties = GridProperties.AxisProperties(
-                                thickness = .2.dp,
-                                color = SolidColor(color.copy(alpha = .2f)),
-                                style = StrokeStyle.Dashed(intervals = floatArrayOf(15f, 15f), phase = 10f),
+                        labelProperties =
+                            LabelProperties(
+                                enabled = true,
+                                labels = labels,
+                                textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
                             ),
-                        ),
-                        labelProperties = LabelProperties(
-                            enabled = true,
-                            labels = labels,
-                            textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
-                        ),
-                        popupProperties = PopupProperties(
-                            textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
-                            contentBuilder = {
-                                formatMoney(it.value.toBigDecimal(), currency)
-                            },
-                            containerColor = MaterialTheme.colorScheme.inverseSurface
-                        ),
-                        indicatorProperties = HorizontalIndicatorProperties(
-                            enabled = true,
-                            contentBuilder = {
-                                it.format(0).compactFormat().orEmpty()
-                            },
-                            padding = 16.dp,
-                            count = IndicatorCount.CountBased(3),
-                            textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
-                        ),
-
+                        popupProperties =
+                            PopupProperties(
+                                textStyle = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.inverseOnSurface),
+                                contentBuilder = {
+                                    formatMoney(it.value.toBigDecimal(), currency)
+                                },
+                                containerColor = MaterialTheme.colorScheme.inverseSurface,
+                            ),
+                        indicatorProperties =
+                            HorizontalIndicatorProperties(
+                                enabled = true,
+                                contentBuilder = {
+                                    it.format(0).compactFormat().orEmpty()
+                                },
+                                padding = 16.dp,
+                                count = IndicatorCount.CountBased(3),
+                                textStyle = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.secondary),
+                            ),
                         labelHelperProperties = LabelHelperProperties(enabled = false),
-                        curvedEdges = false
+                        curvedEdges = false,
                     )
                 }
             }
@@ -139,10 +150,10 @@ private fun String?.compactFormat(): String? {
     return this?.toIntOrNull()?.let { number ->
         return if ((number / 1000000).absoluteValue > 1) {
             (number / 1000000).toString() + "m"
-
         } else if ((number / 1000).absoluteValue > 1) {
             (number / 1000).toString() + "k"
-
-        } else number.toString()
+        } else {
+            number.toString()
+        }
     }
 }

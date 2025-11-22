@@ -40,7 +40,7 @@ kotlin {
     listOf(
         iosX64(),
         iosArm64(),
-        iosSimulatorArm64()
+        iosSimulatorArm64(),
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
@@ -59,12 +59,14 @@ kotlin {
 
             commonWebpackConfig {
                 outputFileName = "mani.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        add(rootDirPath)
-                        add(projectDirPath)
+                devServer =
+                    (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                        static =
+                            (static ?: mutableListOf()).apply {
+                                add(rootDirPath)
+                                add(projectDirPath)
+                            }
                     }
-                }
             }
         }
         binaries.executable()
@@ -117,7 +119,6 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.compose.shimmer)
 
-
             implementation(libs.navigation.compose)
             implementation(libs.compose.charts)
             implementation(libs.androidx.lifecycle.viewmodel)
@@ -148,7 +149,6 @@ kotlin {
             implementation(libs.ktor.client.darwin)
         }
 
-
         jsMain.dependencies {
             implementation(kotlinWrappers.browser)
         }
@@ -157,11 +157,20 @@ kotlin {
 
 android {
     namespace = "ru.workinprogress.mani"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
     defaultConfig {
         applicationId = "ru.workinprogress.mani"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.android.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

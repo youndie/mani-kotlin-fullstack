@@ -1,15 +1,12 @@
 package ru.workinprogress.feature.auth
 
-
 import io.github.smiley4.ktoropenapi.resources.post
-import io.ktor.http.*
-import io.ktor.server.application.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.http.HttpStatusCode
+import io.ktor.server.request.receive
+import io.ktor.server.response.respond
+import io.ktor.server.routing.Routing
 import org.koin.ktor.ext.inject
 import ru.workinprogress.feature.auth.data.AuthService
-
 
 fun Routing.authRouting() {
     val authService by inject<AuthService>()
@@ -25,10 +22,11 @@ fun Routing.authRouting() {
         }
     }) {
         val credentials = call.receive<LoginParams>()
-        val response = authService.authenticate(credentials) ?: run {
-            call.respond(HttpStatusCode.NotFound)
-            return@post
-        }
+        val response =
+            authService.authenticate(credentials) ?: run {
+                call.respond(HttpStatusCode.NotFound)
+                return@post
+            }
         call.respond(response)
     }
 
@@ -46,8 +44,7 @@ fun Routing.authRouting() {
         newAccessToken?.let {
             call.respond(it)
         } ?: call.respond(
-            message = HttpStatusCode.Unauthorized
+            message = HttpStatusCode.Unauthorized,
         )
     })
 }
-

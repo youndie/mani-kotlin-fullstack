@@ -3,7 +3,7 @@
 ![Static Badge](https://img.shields.io/badge/Android-green)
 ![Static Badge](https://img.shields.io/badge/iOS-black)
 ![Static Badge](https://img.shields.io/badge/Desktop-blue)
-![Static Badge](https://img.shields.io/badge/Browser(JS)-orange)
+![Static Badge](https://img.shields.io/badge/Browser(WASM)-orange)
 ![Static Badge](https://img.shields.io/badge/Server(JVM)-red)
 
 A modern Kotlin multiplatform budget planner application built with [Ktor](https://ktor.io/) for the backend
@@ -14,7 +14,6 @@ and [Compose Multiplatform](https://www.jetbrains.com/compose-multiplatform/) fo
 ### Demo
 
 Check out live demo here: [mani.kotlin.website](https://mani.kotlin.website)  
-Swagger API documentation is also available: [Swagger UI](https://mani.kotlin.website/swagger/index.html)
 
 ### Running Locally
 

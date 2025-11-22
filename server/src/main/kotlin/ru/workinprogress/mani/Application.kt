@@ -90,10 +90,12 @@ fun Application.module() {
 
     install(Resources)
     install(ContentNegotiation) {
-        json(Json {
-            prettyPrint = true
-            isLenient = true
-        })
+        json(
+            Json {
+                prettyPrint = true
+                isLenient = true
+            },
+        )
     }
     install(Authentication) {
         jwt(jwtConfig.name) {
@@ -102,7 +104,7 @@ fun Application.module() {
                     .require(Algorithm.HMAC256(jwtConfig.secret))
                     .withAudience(jwtConfig.audience)
                     .withIssuer(jwtConfig.issuer)
-                    .build()
+                    .build(),
             )
             realm = jwtConfig.realm
             validate { credential ->
@@ -120,4 +122,3 @@ fun Application.module() {
 
     configureRouting()
 }
-

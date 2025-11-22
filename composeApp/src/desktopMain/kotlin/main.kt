@@ -11,10 +11,12 @@ import ru.workinprogress.mani.theme.AppTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 fun main() = application {
-	AppFrame(
-		::exitApplication,
-		title = "Mani",
-		appThemeApplier = { AppTheme { it() } }) {
-		App(modifier = Modifier.fillMaxSize().padding(top = 32.dp))
-	}
+    AppTheme {
+        AppFrame(
+            ::exitApplication,
+            title = "Mani",
+        ) {
+            App(modifier = Modifier.fillMaxSize())
+        }
+    }
 }

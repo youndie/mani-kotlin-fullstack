@@ -5,18 +5,21 @@ package ru.workinprogress.feature.auth.data
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTDecodeException
+import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.util.*
-import io.ktor.util.date.*
-import kotlinx.datetime.*
+import io.ktor.server.auth.jwt.JWTCredential
+import io.ktor.server.util.toGMTDate
+import io.ktor.util.date.toJvmDate
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
 import ru.workinprogress.feature.auth.LoginParams
 import ru.workinprogress.feature.auth.Tokens
 import ru.workinprogress.feature.user.User
 import ru.workinprogress.feature.user.data.TokenRepository
 import ru.workinprogress.feature.user.data.UserRepository
 import ru.workinprogress.mani.model.JWTConfig
-import java.util.*
+import java.util.Date
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
@@ -26,12 +29,12 @@ class AuthService(
     val tokenRepository: TokenRepository,
     val config: JWTConfig,
 ) {
-
-    private val verifier = JWT
-        .require(Algorithm.HMAC256(config.secret))
-        .withAudience(config.audience)
-        .withIssuer(config.issuer)
-        .build()
+    private val verifier =
+        JWT
+            .require(Algorithm.HMAC256(config.secret))
+            .withAudience(config.audience)
+            .withIssuer(config.issuer)
+            .build()
 
     suspend fun authenticate(loginRequest: LoginParams): Tokens? {
         val foundUser: User? = userRepository.findUserByCredentials(loginRequest)
@@ -39,53 +42,48 @@ class AuthService(
             newTokens(foundUser).also { tokensResponse ->
                 tokenRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
             }
-        } else null
+        } else {
+            null
+        }
     }
 
     suspend fun refreshToken(refreshToken: String): Tokens? {
-        val decodedRefreshToken = try {
-            verifyRefreshToken(refreshToken)
-        } catch (e: JWTDecodeException) {
-            return null
-        }
-        val foundUser = tokenRepository.findUserByToken(refreshToken)
-        return if (decodedRefreshToken != null && foundUser != null) {
-            tokenRepository.removeToken(refreshToken, foundUser.id)
+        val decoded =
+            try {
+                verifier.verify(refreshToken)
+            } catch (e: JWTVerificationException) {
+                return null
+            }
 
-            val usernameFromRefreshToken: String? = decodedRefreshToken.getClaim("username").asString()
-            if (usernameFromRefreshToken == foundUser.username) {
-                newTokens(foundUser).also { tokensResponse ->
-                    tokenRepository.addToken(userId = foundUser.id, token = tokensResponse.refreshToken)
-                }
-            } else null
-        } else null
-    }
+        val foundUser = tokenRepository.findUserByToken(refreshToken) ?: return null
 
-    fun verifyRefreshToken(token: String): DecodedJWT? {
-        val decodedJwt: DecodedJWT? = verifier.verify(token)
+        val usernameFromToken = decoded.getClaim("username").asString()
+        if (usernameFromToken != foundUser.username) return null
 
-        return decodedJwt?.let {
-            val jwtCredential = JWTCredential(it)
-            val audienceMatches = jwtCredential.payload.audience.contains(config.audience)
-            val notExpired = jwtCredential.expiresAt?.after(Date(System.currentTimeMillis())) == true
-            if (audienceMatches && notExpired) decodedJwt
-            else null
+        tokenRepository.removeToken(refreshToken, foundUser.id)
+
+        return newTokens(foundUser).also {
+            tokenRepository.addToken(foundUser.id, it.refreshToken)
         }
     }
 
     private fun newTokens(foundUser: User): Tokens {
-        val refreshToken = config.createToken(
-            foundUser.id,
-            foundUser.username,
-            Clock.System.now().plus(1, DateTimeUnit.Companion.MONTH, TimeZone.Companion.currentSystemDefault())
-                .toJavaInstant()
-                .toGMTDate()
-                .toJvmDate()
-        )
-        val accessToken = config.createToken(
-            foundUser.id,
-            foundUser.username,
-        )
+        val refreshToken =
+            config.createToken(
+                foundUser.id,
+                foundUser.username,
+                Clock.System
+                    .now()
+                    .plus(1, DateTimeUnit.Companion.MONTH, TimeZone.Companion.currentSystemDefault())
+                    .toJavaInstant()
+                    .toGMTDate()
+                    .toJvmDate(),
+            )
+        val accessToken =
+            config.createToken(
+                foundUser.id,
+                foundUser.username,
+            )
 
         return Tokens(
             accessToken = accessToken,
