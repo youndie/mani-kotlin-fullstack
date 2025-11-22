@@ -1,7 +1,7 @@
 import io.ktor.plugin.features.*
 
 plugins {
-	alias(libs.plugins.jib)
+    alias(libs.plugins.jib)
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.ktor)
     alias(libs.plugins.pluginSerialization)
@@ -17,12 +17,12 @@ application {
 }
 
 dependencies {
-	implementation(libs.bignum)
+    implementation(libs.bignum)
 
-	implementation(projects.shared)
+    implementation(projects.shared)
     implementation(libs.logback)
     implementation(libs.ktor.server.core)
-	implementation(libs.ktor.server.cio)
+    implementation(libs.ktor.server.cio)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.ktor.server.cors)
@@ -51,29 +51,46 @@ dependencies {
     testImplementation(libs.de.flapdoodle.embed.mongo)
 }
 
-val copyFrontend = task<Copy>("copyFrontend") {
-    val jsBrowserDistribution =
-		project(rootProject.projects.composeApp.path).tasks.named("wasmJsBrowserDistribution")
-    from(jsBrowserDistribution)
-    include("styles.css", "skiko.js", "mani.js", "index.html", "**.wasm", "composeResources/**/*")
-    destinationDir = file("$projectDir/build/resources/main/static")
+val copyFrontend by tasks.registering(Copy::class) {
+    val distTask =
+        project(rootProject.projects.composeApp.path)
+            .tasks
+            .named("wasmJsBrowserDistribution")
+
+    dependsOn(distTask)
+
+    val distDir =
+        project(rootProject.projects.composeApp.path)
+            .buildDir
+            .resolve("dist/wasmJs/productionExecutable")
+
+    from(distDir) {
+        include(
+            "index.html",
+            "manifest.json",
+            "**/*.js",
+            "**/*.wasm",
+            "composeResources/**/*",
+            "styles.css",
+        )
+    }
+
+    into("$projectDir/build/resources/main/static")
 }
 
-project.tasks.find { "processResources" == it.name }!!.dependsOn(copyFrontend)
-
 ktor {
-	docker {
-		jreVersion.set(JavaVersion.VERSION_21)
-		localImageName.set("mani-backend")
-		imageTag.set("0.2.${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
+    docker {
+        jreVersion.set(JavaVersion.VERSION_21)
+        localImageName.set("mani-backend")
+        imageTag.set("0.2.${providers.gradleProperty("BUILD_NUMBER").getOrElse("snapshot")}")
         customBaseImage.set("gcr.io/distroless/java21-debian12")
-		externalRegistry.set(
-			DockerImageRegistry.externalRegistry(
-				username = providers.gradleProperty("REGISTRY_USERNAME"),
-				password = providers.gradleProperty("REGISTRY_PASSWORD"),
-				project = provider { "mani-kotlin-fullstack" },
-				hostname = providers.gradleProperty("REGISTRY_HOSTNAME"),
-			)
-		)
-	}
+        externalRegistry.set(
+            DockerImageRegistry.externalRegistry(
+                username = providers.gradleProperty("REGISTRY_USERNAME"),
+                password = providers.gradleProperty("REGISTRY_PASSWORD"),
+                project = provider { "mani-kotlin-fullstack" },
+                hostname = providers.gradleProperty("REGISTRY_HOSTNAME"),
+            ),
+        )
+    }
 }

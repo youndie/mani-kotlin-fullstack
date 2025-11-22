@@ -5,6 +5,9 @@ metadata:
   namespace: mani
   annotations:
     traefik.ingress.kubernetes.io/router.tls.certresolver: cloudflare
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/redirectscheme.scheme: https
+    traefik.ingress.kubernetes.io/redirectscheme.permanent: "true"
 spec:
   rules:
     - host: mani.kotlin.website
@@ -20,4 +23,3 @@ spec:
   tls:
     - hosts:
         - mani.kotlin.website
-      secretName: tls-mani
