@@ -63,7 +63,7 @@ class AuthService(
         tokenRepository.removeToken(refreshToken, foundUser.id)
 
         return newTokens(foundUser).also {
-            tokenRepository.addToken(foundUser.id, it.refreshToken)
+            tokenRepository.addToken(token = it.refreshToken, userId = foundUser.id)
         }
     }
 
