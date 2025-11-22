@@ -6,14 +6,20 @@ import io.ktor.server.routing.*
 
 fun Routing.wasmJsApp() {
     staticResources("/", "static", index = "index.html") {
+        contentType {
+            if (it.path.endsWith(".wasm")) {
+                ContentType("application", "wasm")
+            } else {
+                null
+            }
+        }
+
         default("index.html")
         cacheControl { file ->
-            if (file.file.contains("ttf")
-//                || file.file.contains("skiko")
-            ) {
+            if (file.file.contains("ttf")) {
                 listOf(Immutable, CacheControl.MaxAge(10000))
             } else {
-                emptyList<CacheControl>()
+                emptyList()
             }
         }
     }
