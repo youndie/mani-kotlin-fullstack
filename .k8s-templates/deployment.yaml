@@ -37,8 +37,8 @@ spec:
                 -XX:+UseSerialGC
                 -XX:ReservedCodeCacheSize=64M
                 -Xss256k
-                -XX:MaxMetaspaceSize=72M
-                -Xmx72M
+                -XX:MaxMetaspaceSize=64M
+                -Xmx64M
       restartPolicy: Always
       imagePullSecrets:
         - name: regcred
